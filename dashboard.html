@@ -275,9 +275,10 @@
     <div class="icon">📊</div>
     <h1>Dashboard</h1>
     <p>Análise de Fichas Cadastrais</p>
-    <input type="password" id="senha-input" placeholder="Senha de acesso" />
-    <button class="btn-login" onclick="fazerLogin()">Entrar</button>
-    <p class="erro-login" id="erro-login">Senha incorreta.</p>
+    <input type="email" id="login-email" placeholder="E-mail" autocomplete="email" />
+    <input type="password" id="login-senha" placeholder="Senha" autocomplete="current-password" />
+    <button class="btn-login" id="btn-entrar" onclick="fazerLogin()">Entrar</button>
+    <p class="erro-login" id="erro-login"></p>
   </div>
 </div>
 
@@ -436,13 +437,13 @@
 
 <script>
   // ── Configuração ─────────────────────────────────────────
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxTPMr-jH9jhUfnExIIZKXU3-UabhjUPlNFJDLrUQc3ldwiEep3YSpe3K_fRlvLrMj7A/exec';
-  const SENHA_ADMIN = 'admin123';
+  function endpoint() { return 'https://script.google.com/macros/s/AKfycbxDm7JeQZqjXNd5ISaXfkt_zrkNFLlDs9bdLKJMlrY4JwA8KNpATfSaRm4mqVHqg70/exec'; }
+  function getToken() { return sessionStorage.getItem('admin_token') || ''; }
 
   // Mapeamento de equipe → corretores (ajuste conforme necessário)
   const EQUIPES = {
-    'São Gonçalo': ['Aline Alves', 'Fernando Macedo', 'Gabriel Araújo'],
-    'Niterói':     ['Gabriel Medeiros', 'Michel Alves', 'Lívia Cordeiro', 'Victor Sutter'],
+    'São Gonçalo': ['Gabriel Araújo', 'Mariana', 'Edvaldo', 'Carlos', 'Marilea',],
+    'Niterói':     ['Gabriel Araújo', 'Gabriel Medeiros', 'Michel Alves', 'Lívia Cordeiro', 'Victor Sutter', 'Aline Alves', 'Fernando Macedo'],
   };
 
   const STATUS_LABELS = {
@@ -456,23 +457,58 @@
   };
 
   // ── Autenticação ─────────────────────────────────────────
-  if (sessionStorage.getItem('admin_auth') === '1') {
+  document.addEventListener('DOMContentLoaded', () => {
+    if (getToken()) { mostrarApp(); }
+  });
+
+  function mostrarApp() {
     document.getElementById('tela-login').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     iniciar();
   }
 
-  function fazerLogin() {
-    if (document.getElementById('senha-input').value === SENHA_ADMIN) {
-      sessionStorage.setItem('admin_auth', '1');
-      document.getElementById('tela-login').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      iniciar();
-    } else {
-      document.getElementById('erro-login').style.display = 'block';
+  async function fazerLogin() {
+    const email  = document.getElementById('login-email').value.trim().toLowerCase();
+    const senha  = document.getElementById('login-senha').value;
+    const erroEl = document.getElementById('erro-login');
+    const btn    = document.getElementById('btn-entrar');
+    erroEl.style.display = 'none';
+
+    if (!email || !senha) {
+      erroEl.textContent = 'Preencha e-mail e senha.';
+      erroEl.style.display = 'block';
+      return;
+    }
+    btn.disabled = true; btn.textContent = 'Verificando…';
+    try {
+      const res  = await fetch(endpoint(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ acao: 'login', email, senha })
+      });
+      const json = await res.json();
+      if (json.status === 'ok') {
+        sessionStorage.setItem('admin_token', json.token);
+        sessionStorage.setItem('admin_papel', json.papel);
+        sessionStorage.setItem('admin_email', json.email);
+        mostrarApp();
+      } else {
+        erroEl.textContent = 'E-mail ou senha incorretos.';
+        erroEl.style.display = 'block';
+      }
+    } catch (err) {
+      erroEl.textContent = 'Erro de conexão.';
+      erroEl.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Entrar';
     }
   }
-  document.getElementById('senha-input').addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
+  document.addEventListener('DOMContentLoaded', () => {
+    const s = document.getElementById('login-senha');
+    const e = document.getElementById('login-email');
+    if (s) s.addEventListener('keydown', ev => { if (ev.key === 'Enter') fazerLogin(); });
+    if (e) e.addEventListener('keydown', ev => { if (ev.key === 'Enter') s && s.focus(); });
+  });
 
   // ── Dados ─────────────────────────────────────────────────
   let fichasTodas    = [];
@@ -482,8 +518,14 @@
   async function iniciar() {
     document.getElementById('relatorio-wrap').style.display = 'block';
     try {
-      const res  = await fetch(`${APPS_SCRIPT_URL}?acao=listar`);
+      const res  = await fetch(`${endpoint()}?acao=listar&token=${encodeURIComponent(getToken())}`);
       const json = await res.json();
+      if (json.status === 'auth_error') {
+        sessionStorage.removeItem('admin_token');
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('tela-login').style.display = 'flex';
+        return;
+      }
       fichasTodas = json.fichas || [];
       aplicarFiltros();
     } catch (err) {
