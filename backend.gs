@@ -32,6 +32,7 @@ var USUARIOS_ABA = 'Usuarios';
 var COLUNAS_BASE = [
   'id', 'data_envio', 'status',
   'tipo_imovel', 'vigencia_contrato', 'ramo_atividade',
+  'tipo_pessoa', 'pj_razao_social', 'pj_cnpj', 'pj_inscricao',
   'corretor', 'codigo_imovel', 'tem_vaga', 'qtd_vagas', 'tipo_garantia',
   'nome', 'cpf', 'nascimento', 'estado_civil', 'nacionalidade', 'profissao', 'email', 'celular',
   'endereco_logradouro', 'endereco_numero', 'endereco_bairro', 'endereco_complemento', 'endereco_lote', 'endereco_quadra',

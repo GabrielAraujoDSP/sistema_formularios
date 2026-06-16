@@ -1122,7 +1122,17 @@
       ]);
     }
 
-    html += secaoDetalhe('👤 Locatário Principal', [
+    if (String(f.tipo_pessoa || '').toLowerCase() === 'pj') {
+      html += secaoDetalhe('🏢 Dados da Pessoa Jurídica', [
+        campo('Razão Social', f.pj_razao_social),
+        campo('CNPJ', f.pj_cnpj),
+        f.pj_inscricao ? campo('Inscrição Est./Mun.', f.pj_inscricao) : '',
+      ]);
+    }
+
+    var _tituloLocatario = String(f.tipo_pessoa || '').toLowerCase() === 'pj'
+      ? '👤 Representante Legal' : '👤 Locatário Principal';
+    html += secaoDetalhe(_tituloLocatario, [
       campo('Nome', f.nome), campo('CPF', f.cpf), campo('Nascimento', f.nascimento),
       campo('Estado civil', f.estado_civil), campo('Nacionalidade', f.nacionalidade),
       campo('Profissão', f.profissao), campo('E-mail', f.email), campo('Celular', f.celular),
@@ -1246,7 +1256,16 @@
       sep();
     }
 
-    titulo('LOCATÁRIO PRINCIPAL');
+    var _ePJ = String(fichaAtual.tipo_pessoa || '').toLowerCase() === 'pj';
+    if (_ePJ) {
+      titulo('DADOS DA PESSOA JURÍDICA');
+      linha('Razão Social', fichaAtual.pj_razao_social);
+      linha('CNPJ', fichaAtual.pj_cnpj);
+      if (fichaAtual.pj_inscricao) linha('Inscrição Est./Mun.', fichaAtual.pj_inscricao);
+      sep();
+    }
+
+    titulo(_ePJ ? 'REPRESENTANTE LEGAL' : 'LOCATÁRIO PRINCIPAL');
     linha('Nome', fichaAtual.nome); linha('CPF', fichaAtual.cpf);
     linha('Nascimento', fichaAtual.nascimento); linha('Estado civil', fichaAtual.estado_civil);
     linha('Nacionalidade', fichaAtual.nacionalidade); linha('Profissão', fichaAtual.profissao);

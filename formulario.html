@@ -332,6 +332,7 @@
 
     <!-- ── TIPO DO IMÓVEL (hidden) ───────────────────────── -->
     <input type="hidden" name="tipo_imovel" id="campo-tipo-imovel" value="" />
+    <input type="hidden" name="tipo_pessoa" id="campo-tipo-pessoa" value="" />
 
     <!-- ── DADOS COMERCIAIS (apenas imóvel comercial) ────── -->
     <div class="secao" id="secao-campos-comercial" style="display:none;">
@@ -409,9 +410,49 @@
       </div>
     </div>
 
+    <!-- ── TIPO DE PESSOA ────────────────────────────────── -->
+    <div class="secao" id="secao-tipo-pessoa">
+      <div class="secao-titulo">👥 Tipo de Locatário</div>
+      <div class="secao-corpo">
+        <div style="display:flex;gap:16px;flex-wrap:wrap;">
+          <button type="button" class="btn-tipo" id="btn-pf" onclick="selecionarTipoPessoa('pf')" style="flex:1;min-width:180px;padding:20px 16px;">
+            <span class="tipo-icon">👤</span>
+            <span class="tipo-label">Pessoa Física (PF)</span>
+            <span class="tipo-desc">Locatário como pessoa natural</span>
+          </button>
+          <button type="button" class="btn-tipo" id="btn-pj" onclick="selecionarTipoPessoa('pj')" style="flex:1;min-width:180px;padding:20px 16px;">
+            <span class="tipo-icon">🏢</span>
+            <span class="tipo-label">Pessoa Jurídica (PJ)</span>
+            <span class="tipo-desc">Locatário como empresa ou organização</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DADOS DA PESSOA JURÍDICA (apenas PJ) ──────────── -->
+    <div class="secao" id="secao-dados-pj" style="display:none;">
+      <div class="secao-titulo">🏢 Dados da Pessoa Jurídica</div>
+      <div class="secao-corpo">
+        <div class="grid g3">
+          <div class="span3">
+            <label>Razão Social (Nome Empresarial) <span class="obrig">*</span></label>
+            <input type="text" name="pj_razao_social" id="campo-pj-razao-social" />
+          </div>
+          <div>
+            <label>CNPJ <span class="obrig">*</span></label>
+            <input type="text" name="pj_cnpj" id="campo-pj-cnpj" placeholder="00.000.000/0000-00" maxlength="18" data-mask="cnpj" />
+          </div>
+          <div>
+            <label>Inscrição Estadual ou Municipal</label>
+            <input type="text" name="pj_inscricao" id="campo-pj-inscricao" placeholder="Se houver" />
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ── LOCATÁRIO PRINCIPAL ────────────────────────────── -->
-    <div class="secao">
-      <div class="secao-titulo">👤 Locatário Principal (Responsável financeiro pela locação)</div>
+    <div class="secao" id="secao-locatario-principal" style="display:none;">
+      <div class="secao-titulo" id="titulo-locatario-principal">👤 Locatário Principal (Responsável financeiro pela locação)</div>
       <div class="secao-corpo">
         <div class="grid g3">
           <div class="span3">
@@ -553,7 +594,7 @@
     </div>
 
     <!-- ── CÔNJUGE ─────────────────────────────────────────── -->
-    <div class="secao">
+    <div class="secao" id="secao-conjuge" style="display:none;">
       <div class="secao-titulo">💑 Cônjuge / Companheiro(a)</div>
       <div class="secao-corpo">
         <label style="margin-bottom:8px;">Há cônjuge ou companheiro(a)? <span class="obrig">*</span></label>
@@ -606,10 +647,10 @@
     </div>
 
     <!-- ── LOCATÁRIOS ADICIONAIS (dinâmico) ──────────────── -->
-    <div id="container-locatarios-adicionais"></div>
+    <div id="container-locatarios-adicionais" style="display:none;"></div>
 
     <!-- Pergunta: adicionar outro locatário -->
-    <div class="secao" id="secao-pergunta-locatario">
+    <div class="secao" id="secao-pergunta-locatario" style="display:none;">
       <div class="secao-titulo">👥 Locatários Adicionais</div>
       <div class="secao-corpo">
         <p style="font-size:.95rem;">Deseja adicionar outro locatário ao contrato?</p>
@@ -717,6 +758,70 @@
                 : 'Ficha Cadastral de Locatário Residencial';
     document.getElementById('header-sub').textContent =
       'Preencha todos os campos obrigatórios e envie seus documentos';
+
+    // Reset estado PF/PJ para nova seleção de tipo de imóvel
+    document.getElementById('campo-tipo-pessoa').value = '';
+    ['btn-pf','btn-pj'].forEach(id => {
+      document.getElementById(id).style.borderColor = '';
+      document.getElementById(id).style.background  = '';
+    });
+    document.getElementById('secao-dados-pj').style.display            = 'none';
+    document.getElementById('secao-locatario-principal').style.display  = 'none';
+    document.getElementById('secao-conjuge').style.display              = 'none';
+    document.getElementById('container-locatarios-adicionais').innerHTML = '';
+    document.getElementById('container-locatarios-adicionais').style.display = 'none';
+    document.getElementById('secao-pergunta-locatario').style.display   = 'none';
+    document.getElementById('campo-pj-razao-social').required = false;
+    document.getElementById('campo-pj-cnpj').required         = false;
+    contadorLocatarios = 0;
+  }
+
+  // ── Seleção de tipo de pessoa (PF / PJ) ─────────────────────
+  function selecionarTipoPessoa(tipo) {
+    document.getElementById('campo-tipo-pessoa').value = tipo;
+    const ePJ = tipo === 'pj';
+
+    // Destaque visual do botão selecionado
+    document.getElementById('btn-pf').style.borderColor = ePJ ? '' : 'var(--primary)';
+    document.getElementById('btn-pf').style.background  = ePJ ? '' : '#f0f7ff';
+    document.getElementById('btn-pj').style.borderColor = ePJ ? 'var(--primary)' : '';
+    document.getElementById('btn-pj').style.background  = ePJ ? '#f0f7ff' : '';
+
+    // Seção de dados PJ
+    document.getElementById('secao-dados-pj').style.display = ePJ ? 'block' : 'none';
+    document.getElementById('campo-pj-razao-social').required = ePJ;
+    document.getElementById('campo-pj-cnpj').required         = ePJ;
+
+    // Locatário Principal sempre visível; título muda conforme tipo
+    document.getElementById('secao-locatario-principal').style.display = 'block';
+    document.getElementById('titulo-locatario-principal').textContent =
+      ePJ ? '👤 Representante Legal (Responsável pela assinatura do contrato)'
+          : '👤 Locatário Principal (Responsável financeiro pela locação)';
+
+    // Cônjuge: apenas PF
+    document.getElementById('secao-conjuge').style.display = ePJ ? 'none' : 'block';
+
+    const containerLoc = document.getElementById('container-locatarios-adicionais');
+    const perguntaLoc  = document.getElementById('secao-pergunta-locatario');
+
+    if (ePJ) {
+      // PJ: sem locatários adicionais, vai direto para assinatura
+      containerLoc.innerHTML      = '';
+      containerLoc.style.display  = 'none';
+      contadorLocatarios          = 0;
+      perguntaLoc.style.display   = 'none';
+      document.getElementById('secao-assinatura').style.display  = 'block';
+      document.getElementById('secao-declaracao').style.display  = 'block';
+      document.getElementById('btn-enviar-wrap').style.display   = 'block';
+      document.getElementById('secao-assinatura').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      // PF: fluxo normal com locatários
+      containerLoc.style.display = 'block';
+      perguntaLoc.style.display  = 'block';
+      document.getElementById('secao-assinatura').style.display  = 'none';
+      document.getElementById('secao-declaracao').style.display  = 'none';
+      document.getElementById('btn-enviar-wrap').style.display   = 'none';
+    }
   }
 
   // ── Máscaras ────────────────────────────────────────────────
@@ -731,6 +836,7 @@
       return '(' + d.slice(0,2) + ') ' + d.slice(2,7) + '-' + d.slice(7,11);
     }
     if (tipo === 'cep') return d.slice(0,5) + (d.length>5?'-':'') + d.slice(5,8);
+    if (tipo === 'cnpj') return d.slice(0,2)+(d.length>2?'.':'')+d.slice(2,5)+(d.length>5?'.':'')+d.slice(5,8)+(d.length>8?'/':'')+d.slice(8,12)+(d.length>12?'-':'')+d.slice(12,14);
     return val;
   }
 
@@ -898,6 +1004,7 @@
     contadorLocatarios++;
     const n = contadorLocatarios;
     const container = document.getElementById('container-locatarios-adicionais');
+    container.style.display = 'block';
 
     const secao = document.createElement('div');
     secao.className = 'secao';
@@ -1037,7 +1144,6 @@
         this.reset();
         document.getElementById('container-locatarios-adicionais').innerHTML = '';
         contadorLocatarios = 0;
-        document.getElementById('secao-pergunta-locatario').style.display = 'block';
         document.getElementById('secao-assinatura').style.display = 'none';
         document.getElementById('secao-declaracao').style.display = 'none';
         document.getElementById('btn-enviar-wrap').style.display = 'none';
