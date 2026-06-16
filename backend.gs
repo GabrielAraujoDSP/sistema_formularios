@@ -31,6 +31,7 @@ var USUARIOS_ABA = 'Usuarios';
 // ── Colunas fixas ─────────────────────────────────────────────────
 var COLUNAS_BASE = [
   'id', 'data_envio', 'status',
+  'tipo_imovel', 'vigencia_contrato', 'ramo_atividade',
   'corretor', 'codigo_imovel', 'tem_vaga', 'qtd_vagas', 'tipo_garantia',
   'nome', 'cpf', 'nascimento', 'estado_civil', 'nacionalidade', 'profissao', 'email', 'celular',
   'endereco_atual', 'cep_atual', 'cidade_atual', 'estado_atual',

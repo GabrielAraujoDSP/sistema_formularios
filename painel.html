@@ -733,6 +733,7 @@
   function cardGrande(f) {
     const col     = COLUNAS.find(c => c.id === (f.status || 'nova')) || COLUNAS[0];
     const tipoAs  = f.tipo_assinatura === 'digital' ? '💻 Digital' : f.tipo_assinatura === 'fisica' ? '🖨️ Física' : '—';
+    const tipoIm  = String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
     const isAdmin = getPapel() === 'admin';
     const btnsMover = isAdmin ? COLUNAS
       .filter(c => c.id !== (f.status || 'nova'))
@@ -745,7 +746,7 @@
           <div class="card-g-nome">${esc(f.nome || '—')}</div>
           <div class="card-g-cpf">CPF: ${esc(f.cpf || '—')}</div>
           <div class="card-g-info">
-            🏢 Imóvel: <strong>${esc(f.codigo_imovel || '—')}</strong><br>
+            ${tipoIm} &nbsp;|&nbsp; 🏢 Imóvel: <strong>${esc(f.codigo_imovel || '—')}</strong><br>
             👔 Corretor: ${esc(f.corretor || '—')}<br>
             🔒 Garantia: ${esc(f.tipo_garantia || '—')} &nbsp;|&nbsp; Assinatura: ${tipoAs}
           </div>
@@ -782,7 +783,8 @@
   }
 
   function cardKanban(f, statusAtual) {
-    const tipoAs  = f.tipo_assinatura === 'digital' ? '💻 Digital' : f.tipo_assinatura === 'fisica' ? '🖨️ Física' : '—';
+    const tipoAs    = f.tipo_assinatura === 'digital' ? '💻 Digital' : f.tipo_assinatura === 'fisica' ? '🖨️ Física' : '—';
+    const tipoIm    = String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
     const isAdmin = getPapel() === 'admin';
     const btnsMover = isAdmin ? COLUNAS
       .filter(c => c.id !== statusAtual)
@@ -794,7 +796,7 @@
           <div class="card-k-nome">${esc(f.nome || '—')}</div>
           <div class="card-k-cpf">CPF: ${esc(f.cpf || '—')}</div>
           <div class="card-k-info">
-            🏢 <strong>${esc(f.codigo_imovel || '—')}</strong><br>
+            ${tipoIm} · 🏢 <strong>${esc(f.codigo_imovel || '—')}</strong><br>
             👔 ${esc(f.corretor || '—')}<br>
             🔒 ${esc(f.tipo_garantia || '—')} · ${tipoAs}
           </div>
@@ -1077,11 +1079,20 @@
       </span>
     </div>`;
 
+    var _tipoImModal = String(f.tipo_imovel || '').toLowerCase();
     html += secaoDetalhe('🏢 Dados do Imóvel', [
+      campo('Tipo de imóvel', _tipoImModal === 'comercial' ? '🏢 Comercial' : '🏠 Residencial'),
       campo('Corretor', f.corretor), campo('Código do imóvel', f.codigo_imovel),
       campo('Vaga', f.tem_vaga === 'sim' ? `Sim (${f.qtd_vagas} vaga${f.qtd_vagas > 1 ? 's' : ''})` : 'Não'),
       campo('Tipo de garantia', f.tipo_garantia),
     ]);
+
+    if (_tipoImModal === 'comercial') {
+      html += secaoDetalhe('📋 Dados do Contrato Comercial', [
+        campo('Vigência do contrato', f.vigencia_contrato),
+        campo('Ramo da atividade', f.ramo_atividade),
+      ]);
+    }
 
     html += secaoDetalhe('👤 Locatário Principal', [
       campo('Nome', f.nome), campo('CPF', f.cpf), campo('Nascimento', f.nascimento),
@@ -1098,7 +1109,8 @@
     if (f.tem_conjuge === 'sim') {
       html += secaoDetalhe('💑 Cônjuge', [
         campo('Nome', f.conj_nome), campo('CPF', f.conj_cpf),
-        campo('Nascimento', f.conj_nascimento), campo('Profissão', f.conj_profissao),
+        campo('Nascimento', f.conj_nascimento), campo('Nacionalidade', f.conj_nacionalidade),
+        campo('Profissão', f.conj_profissao),
         campo('E-mail', f.conj_email), campo('Celular', f.conj_celular),
       ]);
     }
@@ -1108,10 +1120,14 @@
       html += secaoDetalhe(`👥 Locatário Adicional #${i}`, [
         campo('Nome', f[`loc${i}_nome`]), campo('CPF', f[`loc${i}_cpf`]),
         campo('Nascimento', f[`loc${i}_nascimento`]), campo('Estado civil', f[`loc${i}_estado_civil`]),
+        campo('Nacionalidade', f[`loc${i}_nacionalidade`]),
         campo('Profissão', f[`loc${i}_profissao`]), campo('E-mail', f[`loc${i}_email`]),
-        campo('Celular', f[`loc${i}_celular`]), campo('Endereço', f[`loc${i}_endereco`]),
-        campo('Cidade', f[`loc${i}_cidade`]),
-        campo('Emergência', `${f[`loc${i}_emerg_nome`] || '—'} — ${f[`loc${i}_emerg_cel`] || '—'}`),
+        campo('Celular', f[`loc${i}_celular`]),
+        campo('Endereço', f[`loc${i}_endereco`]),
+        campo('CEP', f[`loc${i}_cep`]), campo('Cidade', f[`loc${i}_cidade`]), campo('UF', f[`loc${i}_uf`]),
+        campo('Emerg. Nome', f[`loc${i}_emerg_nome`]),
+        campo('Emerg. Celular', f[`loc${i}_emerg_cel`]),
+        campo('Parentesco', f[`loc${i}_emerg_parentesco`]),
       ]);
     }
 
@@ -1170,7 +1186,8 @@
     doc.rect(0, 0, 210, 22, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(13); doc.setFont(undefined, 'bold');
-    doc.text('Ficha Cadastral de Locatário Residencial', 105, 11, { align: 'center' });
+    var _tipoImovel = String(fichaAtual.tipo_imovel || '').toLowerCase() === 'comercial' ? 'Comercial' : 'Residencial';
+    doc.text('Ficha Cadastral de Locatário ' + _tipoImovel, 105, 11, { align: 'center' });
     doc.setFontSize(8); doc.setFont(undefined, 'normal');
     const stLabel = COLUNAS.find(c => c.id === fichaAtual.status);
     doc.text(`Protocolo: ${fichaAtual.id || '—'}   |   Data: ${fichaAtual.data_envio || '—'}   |   Status: ${stLabel ? stLabel.label : fichaAtual.status}`, 105, 18, { align: 'center' });
@@ -1178,11 +1195,19 @@
     y = 32;
 
     titulo('DADOS DO IMÓVEL');
+    linha('Tipo de imóvel', _tipoImovel);
     linha('Corretor', fichaAtual.corretor);
     linha('Código do imóvel', fichaAtual.codigo_imovel);
     linha('Vaga de garagem', fichaAtual.tem_vaga === 'sim' ? `Sim — ${fichaAtual.qtd_vagas} vaga(s)` : 'Não');
     linha('Tipo de garantia', fichaAtual.tipo_garantia);
     sep();
+
+    if (_tipoImovel === 'Comercial') {
+      titulo('DADOS DO CONTRATO COMERCIAL');
+      linha('Vigência do contrato', fichaAtual.vigencia_contrato);
+      linha('Ramo da atividade', fichaAtual.ramo_atividade);
+      sep();
+    }
 
     titulo('LOCATÁRIO PRINCIPAL');
     linha('Nome', fichaAtual.nome); linha('CPF', fichaAtual.cpf);
@@ -1200,7 +1225,8 @@
     if (fichaAtual.tem_conjuge === 'sim') {
       titulo('CÔNJUGE / COMPANHEIRO(A)');
       linha('Nome', fichaAtual.conj_nome); linha('CPF', fichaAtual.conj_cpf);
-      linha('Nascimento', fichaAtual.conj_nascimento); linha('Profissão', fichaAtual.conj_profissao);
+      linha('Nascimento', fichaAtual.conj_nascimento); linha('Nacionalidade', fichaAtual.conj_nacionalidade);
+      linha('Profissão', fichaAtual.conj_profissao);
       linha('E-mail', fichaAtual.conj_email); linha('Celular', fichaAtual.conj_celular);
       sep();
     }
@@ -1210,11 +1236,14 @@
       titulo(`LOCATÁRIO ADICIONAL #${i}`);
       linha('Nome', fichaAtual[`loc${i}_nome`]); linha('CPF', fichaAtual[`loc${i}_cpf`]);
       linha('Nascimento', fichaAtual[`loc${i}_nascimento`]); linha('Estado civil', fichaAtual[`loc${i}_estado_civil`]);
+      linha('Nacionalidade', fichaAtual[`loc${i}_nacionalidade`]);
       linha('Profissão', fichaAtual[`loc${i}_profissao`]); linha('E-mail', fichaAtual[`loc${i}_email`]);
-      linha('Celular', fichaAtual[`loc${i}_celular`]); linha('Endereço', fichaAtual[`loc${i}_endereco`]);
-      linha('Cidade', fichaAtual[`loc${i}_cidade`]);
-      linha('Emerg. nome', fichaAtual[`loc${i}_emerg_nome`]);
-      linha('Emerg. cel', fichaAtual[`loc${i}_emerg_cel`]);
+      linha('Celular', fichaAtual[`loc${i}_celular`]);
+      linha('Endereço', fichaAtual[`loc${i}_endereco`]);
+      linha('CEP', fichaAtual[`loc${i}_cep`]);
+      linha('Cidade / UF', `${fichaAtual[`loc${i}_cidade`] || '—'} / ${fichaAtual[`loc${i}_uf`] || '—'}`);
+      linha('Emerg. Nome', fichaAtual[`loc${i}_emerg_nome`]);
+      linha('Emerg. Celular', fichaAtual[`loc${i}_emerg_cel`]);
       linha('Parentesco', fichaAtual[`loc${i}_emerg_parentesco`]);
       sep();
     }

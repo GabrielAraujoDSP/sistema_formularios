@@ -336,6 +336,10 @@
               <div class="corretor-item"><input type="checkbox" class="chk-cor" value="Michel Alves" onchange="onCorretorChange()" /><label style="cursor:pointer">Michel Alves</label></div>
               <div class="corretor-item"><input type="checkbox" class="chk-cor" value="Lívia Cordeiro" onchange="onCorretorChange()" /><label style="cursor:pointer">Lívia Cordeiro</label></div>
               <div class="corretor-item"><input type="checkbox" class="chk-cor" value="Victor Sutter" onchange="onCorretorChange()" /><label style="cursor:pointer">Victor Sutter</label></div>
+              <div class="corretor-item"><input type="checkbox" class="chk-cor" value="Gabriel Araújo" onchange="onCorretorChange()" /><label style="cursor:pointer">Mariana</label></div>
+              <div class="corretor-item"><input type="checkbox" class="chk-cor" value="Gabriel Medeiros" onchange="onCorretorChange()" /><label style="cursor:pointer">Carlos</label></div>
+              <div class="corretor-item"><input type="checkbox" class="chk-cor" value="Michel Alves" onchange="onCorretorChange()" /><label style="cursor:pointer">Marilea</label></div>
+              <div class="corretor-item"><input type="checkbox" class="chk-cor" value="Lívia Cordeiro" onchange="onCorretorChange()" /><label style="cursor:pointer">Edvaldo</label></div>
             </div>
           </div>
         </div>
@@ -802,7 +806,8 @@
     document.getElementById('relatorio-menu').classList.remove('aberto');
     if (!fichasFiltro.length) { alert('Nenhuma ficha no filtro atual.'); return; }
 
-    const colunas = ['id','data_envio','status','nome','cpf','nascimento','estado_civil',
+    const colunas = ['id','data_envio','status','tipo_imovel','vigencia_contrato','ramo_atividade',
+      'nome','cpf','nascimento','estado_civil',
       'profissao','email','celular','corretor','codigo_imovel','tipo_garantia',
       'tipo_assinatura','endereco_atual','cep_atual','cidade_atual','estado_atual',
       'emerg_nome','emerg_cel','emerg_parentesco'];
