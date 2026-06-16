@@ -827,6 +827,7 @@
     document.getElementById('secao-vencimento-boleto').style.display    = 'none';
     document.getElementById('campo-pj-razao-social').required = false;
     document.getElementById('campo-pj-cnpj').required         = false;
+    document.querySelectorAll('#secao-dados-pj input[type="file"]').forEach(el => el.required = false);
     contadorLocatarios = 0;
   }
 
@@ -845,6 +846,7 @@
     document.getElementById('secao-dados-pj').style.display = ePJ ? 'block' : 'none';
     document.getElementById('campo-pj-razao-social').required = ePJ;
     document.getElementById('campo-pj-cnpj').required         = ePJ;
+    document.querySelectorAll('#secao-dados-pj input[type="file"]').forEach(el => el.required = ePJ);
 
     // Locatário Principal sempre visível; título muda conforme tipo
     document.getElementById('secao-locatario-principal').style.display = 'block';
@@ -1164,16 +1166,14 @@
 
       dados.qtd_locatarios = contadorLocatarios;
 
-      // Converter arquivos para base64
-      const fileInputs = this.querySelectorAll('input[type=file]');
-      for (const input of fileInputs) {
-        if (input.files && input.files[0]) {
-          const file = input.files[0];
-          dados[input.name + '_b64']  = await fileParaBase64(file);
-          dados[input.name + '_nome'] = file.name;
-          dados[input.name + '_tipo'] = file.type;
-        }
-      }
+      // Converter arquivos para base64 (em paralelo)
+      const fileInputs = [...this.querySelectorAll('input[type=file]')].filter(i => i.files && i.files[0]);
+      await Promise.all(fileInputs.map(async input => {
+        const file = input.files[0];
+        dados[input.name + '_b64']  = await fileParaBase64(file);
+        dados[input.name + '_nome'] = file.name;
+        dados[input.name + '_tipo'] = file.type;
+      }));
 
       // Enviar como JSON com Content-Type text/plain (evita CORS preflight no Apps Script)
       const res = await fetch(APPS_SCRIPT_URL, {
