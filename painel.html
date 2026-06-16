@@ -1177,6 +1177,10 @@
       ]);
     }
 
+    html += secaoDetalhe('📅 Vencimento do Boleto', [
+      campo('Data de vencimento', f.vencimento_boleto),
+    ]);
+
     html += secaoDetalhe('✍️ Assinatura', [
       campo('Tipo', f.tipo_assinatura === 'digital' ? 'Digital (R$ 29,00/assinatura)' : 'Física (cartório)'),
     ]);
@@ -1185,6 +1189,10 @@
     if (f.doc_identificacao_url)      links.push(`<a href="${esc(f.doc_identificacao_url)}" target="_blank" style="color:var(--primary)">📎 Doc. identif.</a>`);
     if (f.comprovante_residencia_url)  links.push(`<a href="${esc(f.comprovante_residencia_url)}" target="_blank" style="color:var(--primary)">🏠 Comp. res.</a>`);
     if (f.aprovacao_seguro_url)        links.push(`<a href="${esc(f.aprovacao_seguro_url)}" target="_blank" style="color:var(--primary)">🛡️ Aprov. seguro</a>`);
+    if (f.pj_balancete_url)            links.push(`<a href="${esc(f.pj_balancete_url)}" target="_blank" style="color:var(--primary)">📊 Balancete</a>`);
+    if (f.pj_contrato_social_url)      links.push(`<a href="${esc(f.pj_contrato_social_url)}" target="_blank" style="color:var(--primary)">📋 Contrato social</a>`);
+    if (f.pj_cartao_cnpj_url)          links.push(`<a href="${esc(f.pj_cartao_cnpj_url)}" target="_blank" style="color:var(--primary)">🪪 Cartão CNPJ</a>`);
+    if (f.pj_extrato_simples_url)      links.push(`<a href="${esc(f.pj_extrato_simples_url)}" target="_blank" style="color:var(--primary)">📑 Extrato Simples</a>`);
     if (f.conj_doc_url)                links.push(`<a href="${esc(f.conj_doc_url)}" target="_blank" style="color:var(--primary)">👫 Doc. cônjuge</a>`);
     for (let i = 1; i <= qtd; i++) {
       if (f[`loc${i}_doc_id_url`])    links.push(`<a href="${esc(f[`loc${i}_doc_id_url`])}" target="_blank" style="color:var(--primary)">📎 Doc. loc.${i}</a>`);
@@ -1312,6 +1320,10 @@
       linha('Parentesco', fichaAtual[`loc${i}_emerg_parentesco`]);
       sep();
     }
+
+    titulo('DATA DE VENCIMENTO DO BOLETO');
+    linha('Vencimento', fichaAtual.vencimento_boleto);
+    sep();
 
     titulo('ASSINATURA');
     linha('Tipo', fichaAtual.tipo_assinatura === 'digital' ? 'Digital (R$ 29,00 por assinatura)' : 'Física (reconhecimento em cartório)');

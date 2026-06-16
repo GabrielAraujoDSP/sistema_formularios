@@ -52,8 +52,10 @@ var COLUNAS_LOC_SUFIXOS = [
 ];
 
 var COLUNAS_FINAL = [
-  'doc_identificacao_url', 'comprovante_residencia_url', 'aprovacao_seguro_url', 'conj_doc_url',
-  'tipo_assinatura', 'aceite_declaracao'
+  'doc_identificacao_url', 'comprovante_residencia_url', 'aprovacao_seguro_url',
+  'pj_balancete_url', 'pj_contrato_social_url', 'pj_cartao_cnpj_url', 'pj_extrato_simples_url',
+  'conj_doc_url',
+  'vencimento_boleto', 'tipo_assinatura', 'aceite_declaracao'
 ];
 
 function obterColunas() {
@@ -341,7 +343,11 @@ function doPost(e) {
     var subpasta  = pastaRaiz.createFolder(nomePasta);
 
     var qtdLoc = parseInt(dados.qtd_locatarios) || 0;
-    var camposArquivo = ['doc_identificacao', 'comprovante_residencia', 'aprovacao_seguro', 'conj_doc'];
+    var camposArquivo = [
+      'doc_identificacao', 'comprovante_residencia', 'aprovacao_seguro',
+      'pj_balancete', 'pj_contrato_social', 'pj_cartao_cnpj', 'pj_extrato_simples',
+      'conj_doc'
+    ];
     for (var i = 1; i <= qtdLoc; i++) {
       camposArquivo.push('loc' + i + '_doc_id');
       camposArquivo.push('loc' + i + '_comp_res');
