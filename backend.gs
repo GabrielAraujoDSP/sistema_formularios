@@ -40,10 +40,18 @@ var COLUNAS_BASE = [
   'emerg_nome', 'emerg_cel', 'emerg_parentesco',
   'tem_conjuge', 'conj_nome', 'conj_cpf', 'conj_nascimento',
   'conj_nacionalidade', 'conj_profissao', 'conj_email', 'conj_celular',
-  'qtd_locatarios'
+  'qtd_locatarios', 'qtd_socios'
 ];
 
 var COLUNAS_LOC_SUFIXOS = [
+  '_nome', '_cpf', '_nascimento', '_estado_civil',
+  '_nacionalidade', '_profissao', '_email', '_celular',
+  '_logradouro', '_numero', '_bairro', '_complemento', '_lote', '_quadra', '_cep', '_cidade', '_uf',
+  '_emerg_nome', '_emerg_cel', '_emerg_parentesco',
+  '_doc_id_url', '_comp_res_url'
+];
+
+var COLUNAS_SOC_SUFIXOS = [
   '_nome', '_cpf', '_nascimento', '_estado_civil',
   '_nacionalidade', '_profissao', '_email', '_celular',
   '_logradouro', '_numero', '_bairro', '_complemento', '_lote', '_quadra', '_cep', '_cidade', '_uf',
@@ -63,6 +71,11 @@ function obterColunas() {
   for (var i = 1; i <= 10; i++) {
     for (var j = 0; j < COLUNAS_LOC_SUFIXOS.length; j++) {
       cols.push('loc' + i + COLUNAS_LOC_SUFIXOS[j]);
+    }
+  }
+  for (var i = 1; i <= 10; i++) {
+    for (var j = 0; j < COLUNAS_SOC_SUFIXOS.length; j++) {
+      cols.push('soc' + i + COLUNAS_SOC_SUFIXOS[j]);
     }
   }
   for (var k = 0; k < COLUNAS_FINAL.length; k++) {
@@ -343,6 +356,7 @@ function doPost(e) {
     var subpasta  = pastaRaiz.createFolder(nomePasta);
 
     var qtdLoc = parseInt(dados.qtd_locatarios) || 0;
+    var qtdSoc = parseInt(dados.qtd_socios)     || 0;
     var camposArquivo = [
       'doc_identificacao', 'comprovante_residencia', 'aprovacao_seguro',
       'pj_balancete', 'pj_contrato_social', 'pj_cartao_cnpj', 'pj_extrato_simples',
@@ -351,6 +365,10 @@ function doPost(e) {
     for (var i = 1; i <= qtdLoc; i++) {
       camposArquivo.push('loc' + i + '_doc_id');
       camposArquivo.push('loc' + i + '_comp_res');
+    }
+    for (var i = 1; i <= qtdSoc; i++) {
+      camposArquivo.push('soc' + i + '_doc_id');
+      camposArquivo.push('soc' + i + '_comp_res');
     }
 
     for (var a = 0; a < camposArquivo.length; a++) {

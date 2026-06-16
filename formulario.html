@@ -344,7 +344,6 @@
             <div class="radio-group" style="margin-top:6px;">
               <label><input type="radio" name="vigencia_contrato" value="24 meses" id="vig-24" /> 24 meses</label>
               <label><input type="radio" name="vigencia_contrato" value="36 meses" id="vig-36" /> 36 meses</label>
-              <label><input type="radio" name="vigencia_contrato" value="48 meses" id="vig-48" /> 48 meses</label>
               <label><input type="radio" name="vigencia_contrato" value="60 meses" id="vig-60" /> 60 meses</label>
             </div>
           </div>
@@ -633,6 +632,21 @@
       </div>
     </div>
 
+    <!-- ── SÓCIOS ADICIONAIS PJ (dinâmico) ──────────────── -->
+    <div id="container-socios" style="display:none;"></div>
+
+    <!-- Pergunta: adicionar outro sócio -->
+    <div class="secao" id="secao-pergunta-socio" style="display:none;">
+      <div class="secao-titulo">🤝 Sócios Adicionais</div>
+      <div class="secao-corpo">
+        <p style="font-size:.95rem;">Há outro sócio além do Representante Legal?</p>
+        <div class="btn-sim-nao">
+          <button type="button" class="btn-sim" onclick="adicionarSocio()">✔ Sim</button>
+          <button type="button" class="btn-nao" onclick="finalizarSocios()">✘ Não</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ── CÔNJUGE ─────────────────────────────────────────── -->
     <div class="secao" id="secao-conjuge" style="display:none;">
       <div class="secao-titulo">💑 Cônjuge / Companheiro(a)</div>
@@ -828,7 +842,11 @@
     document.getElementById('campo-pj-razao-social').required = false;
     document.getElementById('campo-pj-cnpj').required         = false;
     document.querySelectorAll('#secao-dados-pj input[type="file"]').forEach(el => el.required = false);
+    document.getElementById('container-socios').innerHTML     = '';
+    document.getElementById('container-socios').style.display = 'none';
+    document.getElementById('secao-pergunta-socio').style.display = 'none';
     contadorLocatarios = 0;
+    contadorSocios     = 0;
   }
 
   // ── Seleção de tipo de pessoa (PF / PJ) ─────────────────────
@@ -861,19 +879,27 @@
     const perguntaLoc  = document.getElementById('secao-pergunta-locatario');
 
     if (ePJ) {
-      // PJ: sem locatários adicionais, vai direto para assinatura
+      // PJ: pergunta de sócios antes de ir para assinatura
       containerLoc.innerHTML      = '';
       containerLoc.style.display  = 'none';
       contadorLocatarios          = 0;
       perguntaLoc.style.display   = 'none';
-      document.getElementById('secao-vencimento-boleto').style.display = 'block';
-      document.getElementById('secao-assinatura').style.display  = 'block';
-      document.getElementById('secao-declaracao').style.display  = 'block';
-      document.getElementById('btn-enviar-wrap').style.display   = 'block';
+      document.getElementById('container-socios').innerHTML     = '';
+      document.getElementById('container-socios').style.display = 'none';
+      contadorSocios = 0;
+      document.getElementById('secao-pergunta-socio').style.display   = 'block';
+      document.getElementById('secao-vencimento-boleto').style.display = 'none';
+      document.getElementById('secao-assinatura').style.display        = 'none';
+      document.getElementById('secao-declaracao').style.display        = 'none';
+      document.getElementById('btn-enviar-wrap').style.display         = 'none';
     } else {
       // PF: fluxo normal com locatários
       containerLoc.style.display = 'block';
       perguntaLoc.style.display  = 'block';
+      document.getElementById('container-socios').innerHTML     = '';
+      document.getElementById('container-socios').style.display = 'none';
+      contadorSocios = 0;
+      document.getElementById('secao-pergunta-socio').style.display  = 'none';
       document.getElementById('secao-assinatura').style.display  = 'none';
       document.getElementById('secao-declaracao').style.display  = 'none';
       document.getElementById('btn-enviar-wrap').style.display   = 'none';
@@ -938,6 +964,7 @@
 
   // ── Locatários adicionais ───────────────────────────────────
   let contadorLocatarios = 0;
+  let contadorSocios     = 0;
 
   const UFs = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
 
@@ -1122,6 +1149,185 @@
     document.getElementById('secao-vencimento-boleto').scrollIntoView({ behavior: 'smooth' });
   }
 
+  // ── Sócios adicionais (PJ) ───────────────────────────────────
+  function gerarBlocoSocio(n) {
+    const ufOpts = UFs.map(u => `<option>${u}</option>`).join('');
+    return `
+      <div class="grid g3">
+        <div class="span3">
+          <label>Nome completo <span class="obrig">*</span></label>
+          <input type="text" name="soc${n}_nome" required />
+        </div>
+        <div>
+          <label>CPF <span class="obrig">*</span></label>
+          <input type="text" name="soc${n}_cpf" placeholder="000.000.000-00" maxlength="14" data-mask="cpf" required />
+        </div>
+        <div>
+          <label>Nascimento <span class="obrig">*</span></label>
+          <input type="date" name="soc${n}_nascimento" required />
+        </div>
+        <div>
+          <label>Estado civil <span class="obrig">*</span></label>
+          <select name="soc${n}_estado_civil" required>
+            <option value="">Selecione</option>
+            <option>Solteiro(a)</option><option>Casado(a)</option><option>Divorciado(a)</option>
+            <option>Viúvo(a)</option><option>União estável</option>
+          </select>
+        </div>
+        <div>
+          <label>Nacionalidade <span class="obrig">*</span></label>
+          <input type="text" name="soc${n}_nacionalidade" value="Brasileiro(a)" required />
+        </div>
+        <div>
+          <label>Profissão <span class="obrig">*</span></label>
+          <input type="text" name="soc${n}_profissao" required />
+        </div>
+        <div>
+          <label>E-mail <span class="obrig">*</span></label>
+          <input type="email" name="soc${n}_email" required />
+        </div>
+        <div>
+          <label>Celular <span class="obrig">*</span></label>
+          <input type="text" name="soc${n}_celular" placeholder="(00) 00000-0000" maxlength="15" data-mask="tel" required />
+        </div>
+        <div class="span3">
+          <label>Logradouro (Rua / Avenida / Estrada) <span class="obrig">*</span></label>
+          <input type="text" name="soc${n}_logradouro" placeholder="Ex: Rua das Flores" required />
+        </div>
+        <div>
+          <label>Número <span class="obrig">*</span></label>
+          <input type="text" name="soc${n}_numero" placeholder="Ex: 123" required />
+        </div>
+        <div>
+          <label>Bairro <span class="obrig">*</span></label>
+          <input type="text" name="soc${n}_bairro" required />
+        </div>
+        <div>
+          <label>Complemento</label>
+          <input type="text" name="soc${n}_complemento" placeholder="Apto, Bloco, Casa…" />
+        </div>
+        <div>
+          <label>Lote</label>
+          <input type="text" name="soc${n}_lote" />
+        </div>
+        <div>
+          <label>Quadra</label>
+          <input type="text" name="soc${n}_quadra" />
+        </div>
+        <div>
+          <label>CEP <span class="obrig">*</span></label>
+          <input type="text" name="soc${n}_cep" placeholder="00000-000" maxlength="9" data-mask="cep" required />
+        </div>
+        <div>
+          <label>Cidade <span class="obrig">*</span></label>
+          <input type="text" name="soc${n}_cidade" required />
+        </div>
+        <div>
+          <label>Estado <span class="obrig">*</span></label>
+          <select name="soc${n}_uf" required><option value="">UF</option>${ufOpts}</select>
+        </div>
+        <hr class="separador span3" />
+        <div class="span3"><strong style="font-size:.85rem;color:var(--primary)">📞 Contato de Emergência</strong></div>
+        <div>
+          <label>Nome completo <span class="obrig">*</span></label>
+          <input type="text" name="soc${n}_emerg_nome" required />
+        </div>
+        <div>
+          <label>Celular <span class="obrig">*</span></label>
+          <input type="text" name="soc${n}_emerg_cel" placeholder="(00) 00000-0000" maxlength="15" data-mask="tel" required />
+        </div>
+        <div>
+          <label>Grau de parentesco <span class="obrig">*</span></label>
+          <input type="text" name="soc${n}_emerg_parentesco" required />
+        </div>
+        <hr class="separador span3" />
+        <div>
+          <label>Documento de identificação (RG/CNH) <span class="obrig">*</span></label>
+          <div class="upload-area" id="area-soc${n}-doc">
+            <div class="upload-icon">📎</div>
+            <div class="upload-label">PDF, JPG ou PNG</div>
+            <div class="upload-name" id="nome-soc${n}-doc">Nenhum arquivo selecionado</div>
+            <input type="file" name="soc${n}_doc_id" accept=".pdf,.jpg,.jpeg,.png" required
+              data-preview="nome-soc${n}-doc" data-area="area-soc${n}-doc" />
+          </div>
+        </div>
+        <div>
+          <label>Comprovante de residência <span class="obrig">*</span></label>
+          <div class="upload-area" id="area-soc${n}-res">
+            <div class="upload-icon">🏠</div>
+            <div class="upload-label">PDF, JPG ou PNG</div>
+            <div class="upload-name" id="nome-soc${n}-res">Nenhum arquivo selecionado</div>
+            <input type="file" name="soc${n}_comp_res" accept=".pdf,.jpg,.jpeg,.png" required
+              data-preview="nome-soc${n}-res" data-area="area-soc${n}-res" />
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function adicionarSocio() {
+    contadorSocios++;
+    const n = contadorSocios;
+    const container = document.getElementById('container-socios');
+    container.style.display = 'block';
+
+    const secao = document.createElement('div');
+    secao.className = 'secao';
+    secao.innerHTML =
+      `<div class="secao-titulo" style="justify-content:space-between;">
+        <span>🤝 Sócio #${n}</span>
+        <button type="button" onclick="removerSocio(this)"
+          style="background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.4);color:#fff;
+                 padding:4px 14px;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:700;
+                 flex-shrink:0;transition:background .15s;"
+          onmouseover="this.style.background='rgba(255,255,255,.32)'"
+          onmouseout="this.style.background='rgba(255,255,255,.18)'">
+          ✕ Remover
+        </button>
+      </div>` +
+      `<div class="secao-corpo">${gerarBlocoSocio(n)}</div>`;
+    container.appendChild(secao);
+
+    const pergunta = document.getElementById('secao-pergunta-socio');
+    container.after(pergunta);
+
+    secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function removerSocio(btnEl) {
+    if (!confirm('Remover este sócio?')) return;
+    btnEl.closest('.secao').remove();
+
+    const blocos = document.querySelectorAll('#container-socios .secao');
+    blocos.forEach((bloco, idx) => {
+      const n = idx + 1;
+      const span = bloco.querySelector('.secao-titulo span');
+      if (span) span.textContent = `🤝 Sócio #${n}`;
+      bloco.querySelectorAll('[name]').forEach(el => {
+        el.name = el.name.replace(/^soc\d+_/, `soc${n}_`);
+      });
+      bloco.querySelectorAll('[id]').forEach(el => {
+        el.id = el.id.replace(/soc\d+-/, `soc${n}-`);
+      });
+      bloco.querySelectorAll('[data-preview]').forEach(el => {
+        el.dataset.preview = el.dataset.preview.replace(/soc\d+-/, `soc${n}-`);
+      });
+      bloco.querySelectorAll('[data-area]').forEach(el => {
+        el.dataset.area = el.dataset.area.replace(/soc\d+-/, `soc${n}-`);
+      });
+    });
+
+    contadorSocios = blocos.length;
+  }
+
+  function finalizarSocios() {
+    document.getElementById('secao-pergunta-socio').style.display    = 'none';
+    document.getElementById('secao-vencimento-boleto').style.display  = 'block';
+    document.getElementById('secao-assinatura').style.display         = 'block';
+    document.getElementById('secao-declaracao').style.display         = 'block';
+    document.getElementById('btn-enviar-wrap').style.display          = 'block';
+    document.getElementById('secao-vencimento-boleto').scrollIntoView({ behavior: 'smooth' });
+  }
+
   // ── Converter arquivo para base64 ────────────────────────────
   function fileParaBase64(file) {
     return new Promise((resolve, reject) => {
@@ -1165,6 +1371,7 @@
       }
 
       dados.qtd_locatarios = contadorLocatarios;
+      dados.qtd_socios     = contadorSocios;
 
       // Converter arquivos para base64 (em paralelo)
       const fileInputs = [...this.querySelectorAll('input[type=file]')].filter(i => i.files && i.files[0]);

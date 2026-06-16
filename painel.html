@@ -1157,6 +1157,28 @@
       ]);
     }
 
+    const qtdSoc = parseInt(f.qtd_socios) || 0;
+    if (String(f.tipo_pessoa || '').toLowerCase() === 'pj' && qtdSoc > 0) {
+      for (let i = 1; i <= qtdSoc; i++) {
+        html += secaoDetalhe(`🤝 Sócio #${i}`, [
+          campo('Nome', f[`soc${i}_nome`]), campo('CPF', f[`soc${i}_cpf`]),
+          campo('Nascimento', f[`soc${i}_nascimento`]), campo('Estado civil', f[`soc${i}_estado_civil`]),
+          campo('Nacionalidade', f[`soc${i}_nacionalidade`]),
+          campo('Profissão', f[`soc${i}_profissao`]), campo('E-mail', f[`soc${i}_email`]),
+          campo('Celular', f[`soc${i}_celular`]),
+          campo('Logradouro', f[`soc${i}_logradouro`]), campo('Número', f[`soc${i}_numero`]),
+          campo('Bairro', f[`soc${i}_bairro`]),
+          f[`soc${i}_complemento`] ? campo('Complemento', f[`soc${i}_complemento`]) : '',
+          f[`soc${i}_lote`] ? campo('Lote', f[`soc${i}_lote`]) : '',
+          f[`soc${i}_quadra`] ? campo('Quadra', f[`soc${i}_quadra`]) : '',
+          campo('CEP', f[`soc${i}_cep`]), campo('Cidade', f[`soc${i}_cidade`]), campo('UF', f[`soc${i}_uf`]),
+          campo('Emerg. Nome', f[`soc${i}_emerg_nome`]),
+          campo('Emerg. Celular', f[`soc${i}_emerg_cel`]),
+          campo('Parentesco', f[`soc${i}_emerg_parentesco`]),
+        ]);
+      }
+    }
+
     const qtd = parseInt(f.qtd_locatarios) || 0;
     for (let i = 1; i <= qtd; i++) {
       html += secaoDetalhe(`👥 Locatário Adicional #${i}`, [
@@ -1194,6 +1216,10 @@
     if (f.pj_cartao_cnpj_url)          links.push(`<a href="${esc(f.pj_cartao_cnpj_url)}" target="_blank" style="color:var(--primary)">🪪 Cartão CNPJ</a>`);
     if (f.pj_extrato_simples_url)      links.push(`<a href="${esc(f.pj_extrato_simples_url)}" target="_blank" style="color:var(--primary)">📑 Extrato Simples</a>`);
     if (f.conj_doc_url)                links.push(`<a href="${esc(f.conj_doc_url)}" target="_blank" style="color:var(--primary)">👫 Doc. cônjuge</a>`);
+    for (let i = 1; i <= qtdSoc; i++) {
+      if (f[`soc${i}_doc_id_url`])   links.push(`<a href="${esc(f[`soc${i}_doc_id_url`])}" target="_blank" style="color:var(--primary)">📎 Doc. sócio ${i}</a>`);
+      if (f[`soc${i}_comp_res_url`]) links.push(`<a href="${esc(f[`soc${i}_comp_res_url`])}" target="_blank" style="color:var(--primary)">🏠 Res. sócio ${i}</a>`);
+    }
     for (let i = 1; i <= qtd; i++) {
       if (f[`loc${i}_doc_id_url`])    links.push(`<a href="${esc(f[`loc${i}_doc_id_url`])}" target="_blank" style="color:var(--primary)">📎 Doc. loc.${i}</a>`);
       if (f[`loc${i}_comp_res_url`])  links.push(`<a href="${esc(f[`loc${i}_comp_res_url`])}" target="_blank" style="color:var(--primary)">🏠 Res. loc.${i}</a>`);
@@ -1298,6 +1324,29 @@
       linha('Profissão', fichaAtual.conj_profissao);
       linha('E-mail', fichaAtual.conj_email); linha('Celular', fichaAtual.conj_celular);
       sep();
+    }
+
+    const qtdSocPDF = parseInt(fichaAtual.qtd_socios) || 0;
+    if (_ePJ && qtdSocPDF > 0) {
+      for (let i = 1; i <= qtdSocPDF; i++) {
+        titulo(`SÓCIO #${i}`);
+        linha('Nome', fichaAtual[`soc${i}_nome`]); linha('CPF', fichaAtual[`soc${i}_cpf`]);
+        linha('Nascimento', fichaAtual[`soc${i}_nascimento`]); linha('Estado civil', fichaAtual[`soc${i}_estado_civil`]);
+        linha('Nacionalidade', fichaAtual[`soc${i}_nacionalidade`]);
+        linha('Profissão', fichaAtual[`soc${i}_profissao`]); linha('E-mail', fichaAtual[`soc${i}_email`]);
+        linha('Celular', fichaAtual[`soc${i}_celular`]);
+        linha('Logradouro', fichaAtual[`soc${i}_logradouro`]); linha('Número', fichaAtual[`soc${i}_numero`]);
+        linha('Bairro', fichaAtual[`soc${i}_bairro`]);
+        if (fichaAtual[`soc${i}_complemento`]) linha('Complemento', fichaAtual[`soc${i}_complemento`]);
+        if (fichaAtual[`soc${i}_lote`]) linha('Lote', fichaAtual[`soc${i}_lote`]);
+        if (fichaAtual[`soc${i}_quadra`]) linha('Quadra', fichaAtual[`soc${i}_quadra`]);
+        linha('CEP', fichaAtual[`soc${i}_cep`]);
+        linha('Cidade / UF', `${fichaAtual[`soc${i}_cidade`] || '—'} / ${fichaAtual[`soc${i}_uf`] || '—'}`);
+        linha('Emerg. Nome', fichaAtual[`soc${i}_emerg_nome`]);
+        linha('Emerg. Celular', fichaAtual[`soc${i}_emerg_cel`]);
+        linha('Parentesco', fichaAtual[`soc${i}_emerg_parentesco`]);
+        sep();
+      }
     }
 
     const qtd = parseInt(fichaAtual.qtd_locatarios) || 0;
