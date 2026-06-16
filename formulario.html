@@ -457,8 +457,28 @@
           <hr class="separador span3" />
 
           <div class="span3">
-            <label>Endereço atual completo <span class="obrig">*</span></label>
-            <input type="text" name="endereco_atual" placeholder="Rua, número, complemento, bairro" required />
+            <label>Logradouro (Rua / Avenida / Estrada) <span class="obrig">*</span></label>
+            <input type="text" name="endereco_logradouro" placeholder="Ex: Rua das Flores" required />
+          </div>
+          <div>
+            <label>Número <span class="obrig">*</span></label>
+            <input type="text" name="endereco_numero" placeholder="Ex: 123" required />
+          </div>
+          <div>
+            <label>Bairro <span class="obrig">*</span></label>
+            <input type="text" name="endereco_bairro" required />
+          </div>
+          <div>
+            <label>Complemento</label>
+            <input type="text" name="endereco_complemento" placeholder="Apto, Bloco, Casa…" />
+          </div>
+          <div>
+            <label>Lote</label>
+            <input type="text" placeholder="Se houver" name="endereco_lote" />
+          </div>
+          <div>
+            <label>Quadra</label>
+            <input type="text" placeholder="Se houver" name="endereco_quadra" />
           </div>
           <div>
             <label>CEP <span class="obrig">*</span></label>
@@ -517,6 +537,15 @@
               <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
               <div class="upload-name" id="nome-comp-res">Nenhum arquivo selecionado</div>
               <input type="file" name="comprovante_residencia" accept=".pdf,.jpg,.jpeg,.png" required data-preview="nome-comp-res" data-area="area-comp-res" />
+            </div>
+          </div>
+          <div>
+            <label>Aprovação do seguro <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-aprov-seg">
+              <div class="upload-icon">🛡️</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-aprov-seg">Nenhum arquivo selecionado</div>
+              <input type="file" name="aprovacao_seguro" accept=".pdf,.jpg,.jpeg,.png" required data-preview="nome-aprov-seg" data-area="area-aprov-seg" />
             </div>
           </div>
         </div>
@@ -658,7 +687,7 @@
   </div>
 </div>
 
-<footer id="footer-form" style="display:none;">Formulário de Locação &copy; 2025</footer>
+<footer id="footer-form" style="display:none;">Formulário de Locação &copy; 2026 Gabriel Araújo</footer>
 
 <script>
   // ── Configuração ────────────────────────────────────────────
@@ -792,8 +821,28 @@
           <input type="text" name="loc${n}_celular" placeholder="(00) 00000-0000" maxlength="15" data-mask="tel" required />
         </div>
         <div class="span3">
-          <label>Endereço atual completo <span class="obrig">*</span></label>
-          <input type="text" name="loc${n}_endereco" placeholder="Rua, número, complemento, bairro" required />
+          <label>Logradouro (Rua / Avenida / Estrada) <span class="obrig">*</span></label>
+          <input type="text" name="loc${n}_logradouro" placeholder="Ex: Rua das Flores" required />
+        </div>
+        <div>
+          <label>Número <span class="obrig">*</span></label>
+          <input type="text" name="loc${n}_numero" placeholder="Ex: 123" required />
+        </div>
+        <div>
+          <label>Bairro <span class="obrig">*</span></label>
+          <input type="text" name="loc${n}_bairro" required />
+        </div>
+        <div>
+          <label>Complemento</label>
+          <input type="text" name="loc${n}_complemento" placeholder="Apto, Bloco, Casa…" />
+        </div>
+        <div>
+          <label>Lote</label>
+          <input type="text" name="loc${n}_lote" />
+        </div>
+        <div>
+          <label>Quadra</label>
+          <input type="text" name="loc${n}_quadra" />
         </div>
         <div>
           <label>CEP <span class="obrig">*</span></label>

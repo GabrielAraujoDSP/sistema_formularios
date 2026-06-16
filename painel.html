@@ -399,8 +399,28 @@
           <input type="text" id="e-celular" />
         </div>
         <div class="edit-grupo eg-span2">
-          <label>Endereço atual</label>
-          <input type="text" id="e-endereco_atual" />
+          <label>Logradouro</label>
+          <input type="text" id="e-endereco_logradouro" />
+        </div>
+        <div class="edit-grupo">
+          <label>Número</label>
+          <input type="text" id="e-endereco_numero" />
+        </div>
+        <div class="edit-grupo">
+          <label>Bairro</label>
+          <input type="text" id="e-endereco_bairro" />
+        </div>
+        <div class="edit-grupo">
+          <label>Complemento</label>
+          <input type="text" id="e-endereco_complemento" />
+        </div>
+        <div class="edit-grupo">
+          <label>Lote</label>
+          <input type="text" id="e-endereco_lote" />
+        </div>
+        <div class="edit-grupo">
+          <label>Quadra</label>
+          <input type="text" id="e-endereco_quadra" />
         </div>
         <div class="edit-grupo">
           <label>CEP</label>
@@ -880,7 +900,12 @@
     set('e-profissao', f.profissao);
     set('e-email', f.email);
     set('e-celular', f.celular);
-    set('e-endereco_atual', f.endereco_atual);
+    set('e-endereco_logradouro', f.endereco_logradouro);
+    set('e-endereco_numero', f.endereco_numero);
+    set('e-endereco_bairro', f.endereco_bairro);
+    set('e-endereco_complemento', f.endereco_complemento);
+    set('e-endereco_lote', f.endereco_lote);
+    set('e-endereco_quadra', f.endereco_quadra);
     set('e-cep_atual', f.cep_atual);
     set('e-cidade_atual', f.cidade_atual);
     set('e-estado_atual', f.estado_atual);
@@ -908,8 +933,11 @@
       cpf: get('e-cpf'), nascimento: get('e-nascimento'),
       estado_civil: get('e-estado_civil'), profissao: get('e-profissao'),
       email: get('e-email'), celular: get('e-celular'),
-      endereco_atual: get('e-endereco_atual'), cep_atual: get('e-cep_atual'),
-      cidade_atual: get('e-cidade_atual'), estado_atual: get('e-estado_atual'),
+      endereco_logradouro: get('e-endereco_logradouro'), endereco_numero: get('e-endereco_numero'),
+      endereco_bairro: get('e-endereco_bairro'), endereco_complemento: get('e-endereco_complemento'),
+      endereco_lote: get('e-endereco_lote'), endereco_quadra: get('e-endereco_quadra'),
+      cep_atual: get('e-cep_atual'), cidade_atual: get('e-cidade_atual'),
+      estado_atual: get('e-estado_atual'),
       emerg_nome: get('e-emerg_nome'), emerg_cel: get('e-emerg_cel'),
       emerg_parentesco: get('e-emerg_parentesco'),
     });
@@ -1098,8 +1126,12 @@
       campo('Nome', f.nome), campo('CPF', f.cpf), campo('Nascimento', f.nascimento),
       campo('Estado civil', f.estado_civil), campo('Nacionalidade', f.nacionalidade),
       campo('Profissão', f.profissao), campo('E-mail', f.email), campo('Celular', f.celular),
-      campo('Endereço', f.endereco_atual), campo('CEP', f.cep_atual),
-      campo('Cidade', f.cidade_atual), campo('Estado', f.estado_atual),
+      campo('Logradouro', f.endereco_logradouro), campo('Número', f.endereco_numero),
+      campo('Bairro', f.endereco_bairro),
+      f.endereco_complemento ? campo('Complemento', f.endereco_complemento) : '',
+      f.endereco_lote ? campo('Lote', f.endereco_lote) : '',
+      f.endereco_quadra ? campo('Quadra', f.endereco_quadra) : '',
+      campo('CEP', f.cep_atual), campo('Cidade', f.cidade_atual), campo('Estado', f.estado_atual),
     ]);
 
     html += secaoDetalhe('📞 Contato de Emergência', [
@@ -1123,7 +1155,11 @@
         campo('Nacionalidade', f[`loc${i}_nacionalidade`]),
         campo('Profissão', f[`loc${i}_profissao`]), campo('E-mail', f[`loc${i}_email`]),
         campo('Celular', f[`loc${i}_celular`]),
-        campo('Endereço', f[`loc${i}_endereco`]),
+        campo('Logradouro', f[`loc${i}_logradouro`]), campo('Número', f[`loc${i}_numero`]),
+        campo('Bairro', f[`loc${i}_bairro`]),
+        f[`loc${i}_complemento`] ? campo('Complemento', f[`loc${i}_complemento`]) : '',
+        f[`loc${i}_lote`] ? campo('Lote', f[`loc${i}_lote`]) : '',
+        f[`loc${i}_quadra`] ? campo('Quadra', f[`loc${i}_quadra`]) : '',
         campo('CEP', f[`loc${i}_cep`]), campo('Cidade', f[`loc${i}_cidade`]), campo('UF', f[`loc${i}_uf`]),
         campo('Emerg. Nome', f[`loc${i}_emerg_nome`]),
         campo('Emerg. Celular', f[`loc${i}_emerg_cel`]),
@@ -1138,6 +1174,7 @@
     const links = [];
     if (f.doc_identificacao_url)      links.push(`<a href="${esc(f.doc_identificacao_url)}" target="_blank" style="color:var(--primary)">📎 Doc. identif.</a>`);
     if (f.comprovante_residencia_url)  links.push(`<a href="${esc(f.comprovante_residencia_url)}" target="_blank" style="color:var(--primary)">🏠 Comp. res.</a>`);
+    if (f.aprovacao_seguro_url)        links.push(`<a href="${esc(f.aprovacao_seguro_url)}" target="_blank" style="color:var(--primary)">🛡️ Aprov. seguro</a>`);
     if (f.conj_doc_url)                links.push(`<a href="${esc(f.conj_doc_url)}" target="_blank" style="color:var(--primary)">👫 Doc. cônjuge</a>`);
     for (let i = 1; i <= qtd; i++) {
       if (f[`loc${i}_doc_id_url`])    links.push(`<a href="${esc(f[`loc${i}_doc_id_url`])}" target="_blank" style="color:var(--primary)">📎 Doc. loc.${i}</a>`);
@@ -1214,7 +1251,12 @@
     linha('Nascimento', fichaAtual.nascimento); linha('Estado civil', fichaAtual.estado_civil);
     linha('Nacionalidade', fichaAtual.nacionalidade); linha('Profissão', fichaAtual.profissao);
     linha('E-mail', fichaAtual.email); linha('Celular', fichaAtual.celular);
-    linha('Endereço', fichaAtual.endereco_atual); linha('CEP', fichaAtual.cep_atual);
+    linha('Logradouro', fichaAtual.endereco_logradouro); linha('Número', fichaAtual.endereco_numero);
+    linha('Bairro', fichaAtual.endereco_bairro);
+    if (fichaAtual.endereco_complemento) linha('Complemento', fichaAtual.endereco_complemento);
+    if (fichaAtual.endereco_lote) linha('Lote', fichaAtual.endereco_lote);
+    if (fichaAtual.endereco_quadra) linha('Quadra', fichaAtual.endereco_quadra);
+    linha('CEP', fichaAtual.cep_atual);
     linha('Cidade / Estado', `${fichaAtual.cidade_atual || '—'} / ${fichaAtual.estado_atual || '—'}`);
     sep();
 
@@ -1239,7 +1281,11 @@
       linha('Nacionalidade', fichaAtual[`loc${i}_nacionalidade`]);
       linha('Profissão', fichaAtual[`loc${i}_profissao`]); linha('E-mail', fichaAtual[`loc${i}_email`]);
       linha('Celular', fichaAtual[`loc${i}_celular`]);
-      linha('Endereço', fichaAtual[`loc${i}_endereco`]);
+      linha('Logradouro', fichaAtual[`loc${i}_logradouro`]); linha('Número', fichaAtual[`loc${i}_numero`]);
+      linha('Bairro', fichaAtual[`loc${i}_bairro`]);
+      if (fichaAtual[`loc${i}_complemento`]) linha('Complemento', fichaAtual[`loc${i}_complemento`]);
+      if (fichaAtual[`loc${i}_lote`]) linha('Lote', fichaAtual[`loc${i}_lote`]);
+      if (fichaAtual[`loc${i}_quadra`]) linha('Quadra', fichaAtual[`loc${i}_quadra`]);
       linha('CEP', fichaAtual[`loc${i}_cep`]);
       linha('Cidade / UF', `${fichaAtual[`loc${i}_cidade`] || '—'} / ${fichaAtual[`loc${i}_uf`] || '—'}`);
       linha('Emerg. Nome', fichaAtual[`loc${i}_emerg_nome`]);

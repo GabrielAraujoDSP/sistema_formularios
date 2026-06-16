@@ -34,7 +34,8 @@ var COLUNAS_BASE = [
   'tipo_imovel', 'vigencia_contrato', 'ramo_atividade',
   'corretor', 'codigo_imovel', 'tem_vaga', 'qtd_vagas', 'tipo_garantia',
   'nome', 'cpf', 'nascimento', 'estado_civil', 'nacionalidade', 'profissao', 'email', 'celular',
-  'endereco_atual', 'cep_atual', 'cidade_atual', 'estado_atual',
+  'endereco_logradouro', 'endereco_numero', 'endereco_bairro', 'endereco_complemento', 'endereco_lote', 'endereco_quadra',
+  'cep_atual', 'cidade_atual', 'estado_atual',
   'emerg_nome', 'emerg_cel', 'emerg_parentesco',
   'tem_conjuge', 'conj_nome', 'conj_cpf', 'conj_nascimento',
   'conj_nacionalidade', 'conj_profissao', 'conj_email', 'conj_celular',
@@ -44,13 +45,13 @@ var COLUNAS_BASE = [
 var COLUNAS_LOC_SUFIXOS = [
   '_nome', '_cpf', '_nascimento', '_estado_civil',
   '_nacionalidade', '_profissao', '_email', '_celular',
-  '_endereco', '_cep', '_cidade', '_uf',
+  '_logradouro', '_numero', '_bairro', '_complemento', '_lote', '_quadra', '_cep', '_cidade', '_uf',
   '_emerg_nome', '_emerg_cel', '_emerg_parentesco',
   '_doc_id_url', '_comp_res_url'
 ];
 
 var COLUNAS_FINAL = [
-  'doc_identificacao_url', 'comprovante_residencia_url', 'conj_doc_url',
+  'doc_identificacao_url', 'comprovante_residencia_url', 'aprovacao_seguro_url', 'conj_doc_url',
   'tipo_assinatura', 'aceite_declaracao'
 ];
 
@@ -339,7 +340,7 @@ function doPost(e) {
     var subpasta  = pastaRaiz.createFolder(nomePasta);
 
     var qtdLoc = parseInt(dados.qtd_locatarios) || 0;
-    var camposArquivo = ['doc_identificacao', 'comprovante_residencia', 'conj_doc'];
+    var camposArquivo = ['doc_identificacao', 'comprovante_residencia', 'aprovacao_seguro', 'conj_doc'];
     for (var i = 1; i <= qtdLoc; i++) {
       camposArquivo.push('loc' + i + '_doc_id');
       camposArquivo.push('loc' + i + '_comp_res');
