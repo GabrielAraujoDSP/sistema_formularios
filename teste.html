@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teste de Envio — Ficha Cadastral</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #1a3c6e; --primary-light: #2a5298;
+      --success: #16a34a; --danger: #dc2626; --warning: #d97706;
+      --bg: #f0f3f9; --card: #ffffff; --border: #d0d7e3;
+      --text: #2c3e50; --muted: #6b7a99;
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 24px 16px; }
+    h1 { color: var(--primary); font-size: 1.3rem; margin-bottom: 4px; }
+    .sub { color: var(--muted); font-size: .88rem; margin-bottom: 24px; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; max-width: 720px; }
+    .card h2 { font-size: .95rem; font-weight: 700; color: var(--primary); margin-bottom: 14px; border-bottom: 1.5px solid var(--border); padding-bottom: 8px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+    .campo label { display: block; font-size: .7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 2px; }
+    .campo span  { font-size: .88rem; color: var(--text); }
+
+    .badge-tipo { display: inline-block; background: #dbeafe; color: #1e3a8a; font-size: .75rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+
+    .aviso { background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; padding: 12px 16px; font-size: .83rem; color: #78350f; margin-bottom: 16px; max-width: 720px; }
+    .aviso strong { display: block; margin-bottom: 4px; }
+
+    .acoes { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; max-width: 720px; }
+    .btn { padding: 11px 24px; border: none; border-radius: 8px; font-size: .95rem; font-weight: 700; cursor: pointer; transition: opacity .15s; white-space: nowrap; }
+    .btn:hover:not(:disabled) { opacity: .85; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-painel  { background: var(--success); color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-reset   { background: var(--card); color: var(--text); border: 1.5px solid var(--border); }
+
+    #resultado { max-width: 720px; padding: 16px 20px; border-radius: 10px; font-size: .9rem; display: none; margin-bottom: 16px; }
+    #resultado.enviando { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; display: flex; align-items: center; gap: 12px; }
+    #resultado.ok       { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; display: block; }
+    #resultado.erro     { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; display: block; }
+
+    .protocolo { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; margin: 8px 0; }
+    .spinner { width: 20px; height: 20px; border: 3px solid #93c5fd; border-top-color: #1d4ed8; border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .log { background: #0f172a; color: #94a3b8; border-radius: 8px; padding: 14px 16px; font-family: 'Courier New', monospace; font-size: .78rem; max-height: 220px; overflow-y: auto; max-width: 720px; display: none; white-space: pre-wrap; word-break: break-all; }
+    .log.visivel { display: block; }
+    .log .ok   { color: #4ade80; }
+    .log .err  { color: #f87171; }
+    .log .info { color: #60a5fa; }
+    .log .dim  { color: #475569; }
+
+    .tests-list { max-width: 720px; }
+    .test-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; font-size: .85rem; background: var(--card); border: 1px solid var(--border); }
+    .test-item .ico { font-size: 1.1rem; flex-shrink: 0; }
+    .test-item .desc { flex: 1; }
+    .test-item .status { font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+    .s-wait     { background: #f1f5f9; color: var(--muted); }
+    .s-running  { background: #dbeafe; color: #1e40af; }
+    .s-ok       { background: #dcfce7; color: #15803d; }
+    .s-erro     { background: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body>
+
+<h1>🧪 Teste Automatizado — Ficha Cadastral</h1>
+<p class="sub">Envia fichas reais para o backend e verifica a resposta. Após o teste, confira no painel.</p>
+
+<div class="aviso">
+  <strong>⚠️ Atenção antes de executar</strong>
+  Este teste envia dados para o backend real (Google Apps Script) e cria fichas verdadeiras na planilha.
+  As fichas de teste terão o nome <strong>"TESTE AUTOMATIZADO"</strong> e podem ser excluídas manualmente pelo painel depois.
+</div>
+
+<!-- Checklist de testes -->
+<div class="tests-list" id="tests-list">
+  <div class="test-item" id="t1">
+    <span class="ico">📋</span>
+    <span class="desc"><strong>Ficha PF simples</strong> — locatário pessoa física sem cônjuge, sem locatário adicional</span>
+    <span class="status s-wait" id="t1-status">Aguardando</span>
+  </div>
+  <div class="test-item" id="t2">
+    <span class="ico">👫</span>
+    <span class="desc"><strong>Ficha PF com cônjuge</strong> — dados completos de cônjuge preenchidos</span>
+    <span class="status s-wait" id="t2-status">Aguardando</span>
+  </div>
+  <div class="test-item" id="t3">
+    <span class="ico">👥</span>
+    <span class="desc"><strong>Ficha PF com locatário adicional</strong> — 1 locatário extra incluído</span>
+    <span class="status s-wait" id="t3-status">Aguardando</span>
+  </div>
+  <div class="test-item" id="t4">
+    <span class="ico">🏢</span>
+    <span class="desc"><strong>Ficha PJ</strong> — pessoa jurídica com sócio</span>
+    <span class="status s-wait" id="t4-status">Aguardando</span>
+  </div>
+  <div class="test-item" id="t5">
+    <span class="ico">⚡</span>
+    <span class="desc"><strong>Envios simultâneos</strong> — 3 fichas enviadas ao mesmo tempo (testa o lock anti-corrida)</span>
+    <span class="status s-wait" id="t5-status">Aguardando</span>
+  </div>
+</div>
+
+<br>
+
+<div class="acoes">
+  <button class="btn btn-primary" id="btn-testar" onclick="executarTodos()">▶ Executar todos os testes</button>
+  <button class="btn btn-reset" id="btn-reset" onclick="resetar()">↺ Resetar</button>
+  <a class="btn btn-painel" href="painel.html" target="_blank">🔍 Abrir painel</a>
+</div>
+
+<div id="resultado"></div>
+<div class="log" id="log"></div>
+
+<script>
+  const URL_BACKEND = 'https://script.google.com/macros/s/AKfycbxDm7JeQZqjXNd5ISaXfkt_zrkNFLlDs9bdLKJMlrY4JwA8KNpATfSaRm4mqVHqg70/exec';
+
+  let logEl, resultEl;
+  const protocolosGerados = [];
+
+  function log(msg, tipo = '') {
+    if (!logEl) logEl = document.getElementById('log');
+    logEl.classList.add('visivel');
+    const linha = document.createElement('div');
+    linha.className = tipo;
+    linha.textContent = new Date().toLocaleTimeString('pt-BR') + '  ' + msg;
+    logEl.appendChild(linha);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function setStatus(id, texto, cls) {
+    const el = document.getElementById(id + '-status');
+    el.textContent = texto;
+    el.className = 'status ' + cls;
+  }
+
+  function mostrarResultado(tipo, html) {
+    if (!resultEl) resultEl = document.getElementById('resultado');
+    resultEl.className = tipo;
+    resultEl.innerHTML = html;
+    resultEl.style.display = '';
+  }
+
+  async function enviar(payload) {
+    const res = await fetch(URL_BACKEND, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    });
+    const texto = await res.text();
+    return JSON.parse(texto);
+  }
+
+  /* ── Fixtures de dados ────────────────────────────────────────── */
+  function basePF(sufixo) {
+    return {
+      tipo_imovel:         'residencial',
+      vigencia_contrato:   '30 meses',
+      tipo_pessoa:         'pf',
+      corretor:            'Gabriel Araújo',
+      codigo_imovel:       'TST-001' + sufixo,
+      tem_vaga:            'sim',
+      qtd_vagas:           '1',
+      tipo_garantia:       'Fiador',
+      nome:                'TESTE AUTOMATIZADO ' + sufixo,
+      cpf:                 '000.000.000-00',
+      nascimento:          '01/01/1990',
+      estado_civil:        'solteiro',
+      nacionalidade:       'Brasileira',
+      profissao:           'Engenheiro',
+      email:               'teste@exemplo.com',
+      celular:             '(84) 99999-9999',
+      endereco_logradouro: 'Rua dos Testes',
+      endereco_numero:     '123',
+      endereco_bairro:     'Centro',
+      endereco_complemento:'Apto 1',
+      cep_atual:           '59000-000',
+      cidade_atual:        'Natal',
+      estado_atual:        'RN',
+      emerg_nome:          'Contato Emergência',
+      emerg_cel:           '(84) 98888-8888',
+      emerg_parentesco:    'Pai',
+      tem_conjuge:         'nao',
+      qtd_locatarios:      0,
+      qtd_socios:          0,
+      vencimento_boleto:   '10',
+      tipo_assinatura:     'digital',
+      aceite_declaracao:   'on',
+      form_key:            'LOCACAO_RES_2025'
+    };
+  }
+
+  /* ── Testes individuais ───────────────────────────────────────── */
+  async function testePFSimples() {
+    setStatus('t1', 'Enviando…', 's-running');
+    log('[T1] Iniciando — Ficha PF simples', 'info');
+    const dados = basePF('T1');
+    const json  = await enviar(dados);
+    if (json.status === 'ok') {
+      protocolosGerados.push(json.protocolo);
+      log('[T1] ✓ Protocolo: ' + json.protocolo, 'ok');
+      setStatus('t1', '✓ ' + json.protocolo, 's-ok');
+      return { ok: true, protocolo: json.protocolo };
+    } else {
+      log('[T1] ✗ Erro: ' + json.message, 'err');
+      setStatus('t1', '✗ Erro', 's-erro');
+      return { ok: false, erro: json.message };
+    }
+  }
+
+  async function testePFConjuge() {
+    setStatus('t2', 'Enviando…', 's-running');
+    log('[T2] Iniciando — Ficha PF com cônjuge', 'info');
+    const dados = Object.assign(basePF('T2'), {
+      tem_conjuge:      'sim',
+      conj_nome:        'CÔNJUGE TESTE T2',
+      conj_cpf:         '111.111.111-11',
+      conj_nascimento:  '15/06/1992',
+      conj_nacionalidade: 'Brasileira',
+      conj_profissao:   'Médica',
+      conj_email:       'conjuge@exemplo.com',
+      conj_celular:     '(84) 97777-7777'
+    });
+    const json = await enviar(dados);
+    if (json.status === 'ok') {
+      protocolosGerados.push(json.protocolo);
+      log('[T2] ✓ Protocolo: ' + json.protocolo, 'ok');
+      setStatus('t2', '✓ ' + json.protocolo, 's-ok');
+      return { ok: true, protocolo: json.protocolo };
+    } else {
+      log('[T2] ✗ Erro: ' + json.message, 'err');
+      setStatus('t2', '✗ Erro', 's-erro');
+      return { ok: false, erro: json.message };
+    }
+  }
+
+  async function testePFLocatarioAdicional() {
+    setStatus('t3', 'Enviando…', 's-running');
+    log('[T3] Iniciando — Ficha PF com locatário adicional', 'info');
+    const dados = Object.assign(basePF('T3'), {
+      qtd_locatarios:        1,
+      loc1_nome:             'LOCATÁRIO ADICIONAL T3',
+      loc1_cpf:              '222.222.222-22',
+      loc1_nascimento:       '20/03/1988',
+      loc1_estado_civil:     'casado',
+      loc1_nacionalidade:    'Brasileira',
+      loc1_profissao:        'Professor',
+      loc1_email:            'locatario@exemplo.com',
+      loc1_celular:          '(84) 96666-6666',
+      loc1_logradouro:       'Av. dos Locatários',
+      loc1_numero:           '456',
+      loc1_bairro:           'Tirol',
+      loc1_complemento:      '',
+      loc1_cep:              '59020-000',
+      loc1_cidade:           'Natal',
+      loc1_uf:               'RN',
+      loc1_emerg_nome:       'Emergência Loc1',
+      loc1_emerg_cel:        '(84) 95555-5555',
+      loc1_emerg_parentesco: 'Mãe'
+    });
+    const json = await enviar(dados);
+    if (json.status === 'ok') {
+      protocolosGerados.push(json.protocolo);
+      log('[T3] ✓ Protocolo: ' + json.protocolo, 'ok');
+      setStatus('t3', '✓ ' + json.protocolo, 's-ok');
+      return { ok: true, protocolo: json.protocolo };
+    } else {
+      log('[T3] ✗ Erro: ' + json.message, 'err');
+      setStatus('t3', '✗ Erro', 's-erro');
+      return { ok: false, erro: json.message };
+    }
+  }
+
+  async function testePJ() {
+    setStatus('t4', 'Enviando…', 's-running');
+    log('[T4] Iniciando — Ficha PJ com sócio', 'info');
+    const dados = Object.assign(basePF('T4'), {
+      tipo_pessoa:     'pj',
+      pj_razao_social: 'EMPRESA TESTE LTDA',
+      pj_cnpj:         '00.000.000/0001-00',
+      pj_inscricao:    '0000000',
+      qtd_socios:      1,
+      soc1_nome:             'SÓCIO TESTE T4',
+      soc1_cpf:              '333.333.333-33',
+      soc1_nascimento:       '10/10/1985',
+      soc1_estado_civil:     'solteiro',
+      soc1_nacionalidade:    'Brasileira',
+      soc1_profissao:        'Empresário',
+      soc1_email:            'socio@empresa.com',
+      soc1_celular:          '(84) 94444-4444',
+      soc1_logradouro:       'Rua da Empresa',
+      soc1_numero:           '789',
+      soc1_bairro:           'Petrópolis',
+      soc1_complemento:      'Sala 10',
+      soc1_cep:              '59012-300',
+      soc1_cidade:           'Natal',
+      soc1_uf:               'RN',
+      soc1_emerg_nome:       'Emergência Sócio',
+      soc1_emerg_cel:        '(84) 93333-3333',
+      soc1_emerg_parentesco: 'Irmão'
+    });
+    const json = await enviar(dados);
+    if (json.status === 'ok') {
+      protocolosGerados.push(json.protocolo);
+      log('[T4] ✓ Protocolo: ' + json.protocolo, 'ok');
+      setStatus('t4', '✓ ' + json.protocolo, 's-ok');
+      return { ok: true, protocolo: json.protocolo };
+    } else {
+      log('[T4] ✗ Erro: ' + json.message, 'err');
+      setStatus('t4', '✗ Erro', 's-erro');
+      return { ok: false, erro: json.message };
+    }
+  }
+
+  async function testeSimultaneo() {
+    setStatus('t5', 'Enviando…', 's-running');
+    log('[T5] Iniciando — 3 envios simultâneos', 'info');
+    const promessas = [
+      enviar(Object.assign(basePF('T5A'), { nome: 'TESTE SIMULTANEO T5-A' })),
+      enviar(Object.assign(basePF('T5B'), { nome: 'TESTE SIMULTANEO T5-B' })),
+      enviar(Object.assign(basePF('T5C'), { nome: 'TESTE SIMULTANEO T5-C' }))
+    ];
+    const resultados = await Promise.allSettled(promessas);
+    let oks = 0;
+    resultados.forEach((r, i) => {
+      const letra = ['A','B','C'][i];
+      if (r.status === 'fulfilled' && r.value.status === 'ok') {
+        protocolosGerados.push(r.value.protocolo);
+        log('[T5-' + letra + '] ✓ Protocolo: ' + r.value.protocolo, 'ok');
+        oks++;
+      } else {
+        const msg = r.status === 'rejected' ? r.reason.message : r.value.message;
+        log('[T5-' + letra + '] ✗ Erro: ' + msg, 'err');
+      }
+    });
+
+    // Verifica se protocolos são todos distintos (sem colisão)
+    const protsT5 = resultados
+      .filter(r => r.status === 'fulfilled' && r.value.status === 'ok')
+      .map(r => r.value.protocolo);
+    const unicos = new Set(protsT5).size;
+    if (unicos === protsT5.length && protsT5.length > 0) {
+      log('[T5] ✓ Todos os protocolos são únicos — sem colisão de IDs', 'ok');
+    }
+
+    if (oks === 3) {
+      setStatus('t5', '✓ 3/3 enviados', 's-ok');
+      return { ok: true };
+    } else if (oks > 0) {
+      setStatus('t5', '⚠ ' + oks + '/3 enviados', 's-running');
+      return { ok: true, parcial: true };
+    } else {
+      setStatus('t5', '✗ Erro', 's-erro');
+      return { ok: false };
+    }
+  }
+
+  /* ── Orquestrador ─────────────────────────────────────────────── */
+  async function executarTodos() {
+    document.getElementById('btn-testar').disabled = true;
+    document.getElementById('log').innerHTML = '';
+    logEl = document.getElementById('log');
+    resultEl = document.getElementById('resultado');
+    protocolosGerados.length = 0;
+
+    mostrarResultado('enviando', '<div class="spinner"></div><span>Executando testes… aguarde</span>');
+    log('═══ Início da bateria de testes ═══', 'dim');
+    log('Backend: ' + URL_BACKEND, 'dim');
+    log('', '');
+
+    const resultados = [];
+
+    try { resultados.push({ id: 1, r: await testePFSimples() }); }
+    catch(e) { resultados.push({ id: 1, r: { ok: false, erro: e.message } }); setStatus('t1', '✗ Erro', 's-erro'); log('[T1] Exceção: ' + e.message, 'err'); }
+
+    await delay(800);
+
+    try { resultados.push({ id: 2, r: await testePFConjuge() }); }
+    catch(e) { resultados.push({ id: 2, r: { ok: false, erro: e.message } }); setStatus('t2', '✗ Erro', 's-erro'); log('[T2] Exceção: ' + e.message, 'err'); }
+
+    await delay(800);
+
+    try { resultados.push({ id: 3, r: await testePFLocatarioAdicional() }); }
+    catch(e) { resultados.push({ id: 3, r: { ok: false, erro: e.message } }); setStatus('t3', '✗ Erro', 's-erro'); log('[T3] Exceção: ' + e.message, 'err'); }
+
+    await delay(800);
+
+    try { resultados.push({ id: 4, r: await testePJ() }); }
+    catch(e) { resultados.push({ id: 4, r: { ok: false, erro: e.message } }); setStatus('t4', '✗ Erro', 's-erro'); log('[T4] Exceção: ' + e.message, 'err'); }
+
+    await delay(800);
+
+    try { resultados.push({ id: 5, r: await testeSimultaneo() }); }
+    catch(e) { resultados.push({ id: 5, r: { ok: false, erro: e.message } }); setStatus('t5', '✗ Erro', 's-erro'); log('[T5] Exceção: ' + e.message, 'err'); }
+
+    log('', '');
+    log('═══ Fim da bateria de testes ═══', 'dim');
+
+    const oks   = resultados.filter(r => r.r.ok).length;
+    const total = resultados.length;
+    const erros = resultados.filter(r => !r.r.ok);
+
+    if (oks === total) {
+      const listaProts = protocolosGerados.map(p => '<li style="font-family:monospace;font-size:.95rem">' + p + '</li>').join('');
+      mostrarResultado('ok',
+        '<strong>✅ Todos os ' + total + ' testes passaram!</strong><br><br>' +
+        '<strong>Protocolos criados — verifique no painel:</strong>' +
+        '<ul style="margin:8px 0 0 18px;line-height:2">' + listaProts + '</ul>' +
+        '<br><small>Dica: busque por "TESTE AUTOMATIZADO" no painel para filtrar.</small>'
+      );
+    } else {
+      const errosTxt = erros.map(e => 'Teste ' + e.id + ': ' + (e.r.erro || 'falhou')).join('<br>');
+      mostrarResultado('erro',
+        '<strong>⚠️ ' + oks + '/' + total + ' testes passaram</strong><br><br>' + errosTxt +
+        (protocolosGerados.length ? '<br><br>Protocolos criados (parcial): ' + protocolosGerados.join(', ') : '')
+      );
+    }
+
+    document.getElementById('btn-testar').disabled = false;
+  }
+
+  function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  function resetar() {
+    ['t1','t2','t3','t4','t5'].forEach(id => setStatus(id, 'Aguardando', 's-wait'));
+    document.getElementById('log').innerHTML = '';
+    document.getElementById('log').classList.remove('visivel');
+    document.getElementById('resultado').style.display = 'none';
+    document.getElementById('btn-testar').disabled = false;
+    protocolosGerados.length = 0;
+  }
+</script>
+</body>
+</html>

@@ -270,6 +270,7 @@
       <span>🏠</span>
       <h1>Fichas Cadastrais</h1>
       <span class="badge-novas" id="badge-novas" style="display:none">0 novas</span>
+      <span id="badge-live" style="display:none;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;letter-spacing:.2px">● Ao vivo</span>
     </div>
     <div class="header-right">
       <span class="header-email" id="header-email"></span>
@@ -552,6 +553,8 @@
   let interfaceAtual = 'kanban';
   let abaAtiva       = 'nova';
   let fichasTodas    = [];
+  let revisaoLocal   = null;
+  let timerPolling   = null;
   let fichaAtual     = null;
   let fichaEditando  = null;
 
@@ -575,6 +578,7 @@
     });
     document.getElementById('header-email').textContent = getEmail();
     carregarFichas();
+    iniciarPolling();
   }
 
   /* ── Login ───────────────────────────────────────────────────────── */
@@ -629,6 +633,7 @@
 
   /* ── Logout ──────────────────────────────────────────────────────── */
   async function sair() {
+    pararPolling();
     const token = getToken();
     sessionStorage.removeItem('admin_token');
     sessionStorage.removeItem('admin_papel');
@@ -656,14 +661,51 @@
     return json;
   }
 
+  /* ── POST autenticado — token no corpo JSON, nunca na URL ──────── */
+  async function apiPost(payload) {
+    return apiFetch(endpoint(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(Object.assign({ token: getToken() }, payload))
+    });
+  }
+
+  /* ── Polling — atualização em tempo real (30 s) ─────────────────── */
+  function iniciarPolling() {
+    pararPolling();
+    revisaoLocal = null;
+    timerPolling = setInterval(verificarAtualizacoes, 30000);
+    document.getElementById('badge-live').style.display = 'inline';
+  }
+
+  function pararPolling() {
+    if (timerPolling) { clearInterval(timerPolling); timerPolling = null; }
+    const b = document.getElementById('badge-live');
+    if (b) b.style.display = 'none';
+  }
+
+  async function verificarAtualizacoes() {
+    try {
+      const json = await apiPost({ acao: 'ping' });
+      if (!json) { pararPolling(); return; } // token expirou — apiFetch já chamou sair()
+      const rev = String(json.revisao || '0');
+      if (revisaoLocal !== null && rev !== revisaoLocal) {
+        revisaoLocal = rev;
+        const modalAberto = ['overlay-modal', 'overlay-editar', 'overlay-usuarios']
+          .some(id => document.getElementById(id).classList.contains('ativo'));
+        if (!modalAberto) await carregarFichas();
+      } else {
+        revisaoLocal = rev;
+      }
+    } catch (_) { /* erro de rede — aguarda o próximo ciclo */ }
+  }
+
   /* ── Fichas ──────────────────────────────────────────────────────── */
   async function carregarFichas() {
     document.getElementById('kanban-board').innerHTML =
       '<div style="display:flex;align-items:center;gap:12px;padding:40px;width:100%"><div class="spinner"></div><span style="color:var(--muted)">Carregando fichas…</span></div>';
     try {
-      const json = await apiFetch(
-        `${endpoint()}?acao=listar&token=${encodeURIComponent(getToken())}`
-      );
+      const json = await apiPost({ acao: 'listar' });
       if (!json) return;
       fichasTodas = json.fichas || [];
       renderKanban();
@@ -789,7 +831,8 @@
     if (!f) return;
     f.status = novoStatus;
     atualizarStats(); renderAbas();
-    fetch(`${endpoint()}?acao=status&id=${encodeURIComponent(id)}&status=${encodeURIComponent(novoStatus)}&token=${encodeURIComponent(getToken())}`)
+    fetch(endpoint(), { method: 'POST', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ acao: 'status', token: getToken(), id, status: novoStatus }) })
       .catch(() => {});
   }
 
@@ -799,7 +842,8 @@
     if (!confirm(`Excluir a ficha de "${f.nome || id}"?\nEsta ação não pode ser desfeita.`)) return;
     fichasTodas = fichasTodas.filter(x => x.id !== id);
     atualizarStats(); renderAbas();
-    fetch(`${endpoint()}?acao=excluir&id=${encodeURIComponent(id)}&token=${encodeURIComponent(getToken())}`).catch(() => {});
+    fetch(endpoint(), { method: 'POST', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ acao: 'excluir', token: getToken(), id }) }).catch(() => {});
   }
 
   function cardKanban(f, statusAtual) {
@@ -840,7 +884,8 @@
     if (!f) return;
     f.status = novoStatus;
     renderKanban();
-    fetch(`${endpoint()}?acao=status&id=${encodeURIComponent(id)}&status=${encodeURIComponent(novoStatus)}&token=${encodeURIComponent(getToken())}`)
+    fetch(endpoint(), { method: 'POST', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ acao: 'status', token: getToken(), id, status: novoStatus }) })
       .catch(err => console.error('Erro ao salvar status:', err));
   }
 
@@ -850,7 +895,8 @@
     if (!confirm(`Excluir a ficha de "${f.nome || id}"?\nEsta ação não pode ser desfeita.`)) return;
     fichasTodas = fichasTodas.filter(x => x.id !== id);
     renderKanban();
-    fetch(`${endpoint()}?acao=excluir&id=${encodeURIComponent(id)}&token=${encodeURIComponent(getToken())}`)
+    fetch(endpoint(), { method: 'POST', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ acao: 'excluir', token: getToken(), id }) })
       .catch(() => {});
   }
 
@@ -861,7 +907,8 @@
     novas.forEach(f => { f.status = 'analise'; });
     renderKanban();
     novas.forEach(f =>
-      fetch(`${endpoint()}?acao=status&id=${encodeURIComponent(f.id)}&status=analise&token=${encodeURIComponent(getToken())}`)
+      fetch(endpoint(), { method: 'POST', headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ acao: 'status', token: getToken(), id: f.id, status: 'analise' }) })
         .catch(() => {})
     );
   }
@@ -973,9 +1020,7 @@
     document.getElementById('lista-usuarios').innerHTML =
       '<div style="display:flex;align-items:center;gap:10px;color:var(--muted);padding:10px 0"><div class="spinner"></div> Carregando…</div>';
 
-    const json = await apiFetch(
-      `${endpoint()}?acao=listar_usuarios&token=${encodeURIComponent(getToken())}`
-    );
+    const json = await apiPost({ acao: 'listar_usuarios' });
     if (!json) return;
 
     const usuarios = json.usuarios || [];
@@ -1008,10 +1053,16 @@
               <td style="text-align:right">
                 ${sou
                   ? '<span style="font-size:.75rem;color:var(--muted)">(sua conta)</span>'
-                  : `<button class="btn-ac ${ativo ? 'btn-excluir' : 'btn-editar'}"
-                        onclick="toggleUsuario('${esc(u.email)}', ${!ativo})">
-                        ${ativo ? 'Desativar' : 'Ativar'}
-                      </button>`
+                  : `<div style="display:flex;gap:5px;justify-content:flex-end">
+                      <button class="btn-ac ${ativo ? 'btn-excluir' : 'btn-editar'}"
+                          onclick="toggleUsuario('${esc(u.email)}', ${!ativo})">
+                          ${ativo ? 'Desativar' : 'Ativar'}
+                      </button>
+                      <button class="btn-ac btn-excluir" style="opacity:.75"
+                          onclick="excluirUsuario('${esc(u.email)}')">
+                          🗑️
+                      </button>
+                    </div>`
                 }
               </td>
             </tr>`;
@@ -1060,6 +1111,18 @@
     }
   }
 
+  async function excluirUsuario(email) {
+    if (!confirm(`Excluir permanentemente o usuário "${email}"?\n\nEsta ação não pode ser desfeita.`)) return;
+    const json = await apiFetch(endpoint(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ acao: 'excluir_usuario', token: getToken(), email_alvo: email })
+    });
+    if (!json) return;
+    if (json.status === 'ok') await carregarUsuarios();
+    else alert(json.message || 'Erro ao excluir usuário.');
+  }
+
   async function toggleUsuario(email, ativo) {
     const json = await apiFetch(endpoint(), {
       method: 'POST',
@@ -1069,6 +1132,33 @@
     if (!json) return;
     if (json.status === 'ok') await carregarUsuarios();
     else alert(json.message || 'Erro ao atualizar usuário.');
+  }
+
+  /* ── Download em massa de documentos do Drive ───────────────────── */
+  function driveToDownload(url) {
+    const m = String(url).match(/\/d\/([a-zA-Z0-9_-]+)/);
+    return m ? 'https://drive.google.com/uc?export=download&id=' + m[1] : url;
+  }
+
+  function baixarTodosDocumentos(btn) {
+    const f = fichaAtual;
+    if (!f) return;
+    const campos = [
+      'doc_identificacao_url', 'comprovante_residencia_url', 'aprovacao_seguro_url',
+      'pj_balancete_url', 'pj_contrato_social_url', 'pj_cartao_cnpj_url', 'pj_extrato_simples_url',
+      'conj_doc_url'
+    ];
+    for (let i = 1; i <= 10; i++) {
+      campos.push(`soc${i}_doc_id_url`, `soc${i}_comp_res_url`);
+      campos.push(`loc${i}_doc_id_url`, `loc${i}_comp_res_url`);
+    }
+    const urls = campos.map(c => f[c]).filter(u => u && String(u).startsWith('http'));
+    if (!urls.length) { alert('Esta ficha não possui documentos anexados.'); return; }
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = `⏳ Abrindo ${urls.length}…`;
+    urls.forEach((url, i) => setTimeout(() => window.open(driveToDownload(url), '_blank'), i * 700));
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, urls.length * 700 + 500);
   }
 
   /* ── Helpers ─────────────────────────────────────────────────────── */
@@ -1225,8 +1315,13 @@
       if (f[`loc${i}_comp_res_url`])  links.push(`<a href="${esc(f[`loc${i}_comp_res_url`])}" target="_blank" style="color:var(--primary)">🏠 Res. loc.${i}</a>`);
     }
     if (links.length) {
-      html += `<div class="secao-detalhe"><h4>📂 Documentos no Drive</h4>
-        <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:.86rem;">${links.join('')}</div>
+      html += `<div class="secao-detalhe">
+        <h4 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          📂 Documentos no Drive
+          <button class="btn-ac btn-ver" style="font-size:.75rem;padding:5px 12px;font-weight:700"
+            onclick="baixarTodosDocumentos(this)">⬇️ Baixar todos (${links.length})</button>
+        </h4>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:.86rem;margin-top:10px">${links.join('')}</div>
       </div>`;
     }
     return html;

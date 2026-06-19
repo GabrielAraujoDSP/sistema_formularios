@@ -928,7 +928,10 @@
     e.target.value = aplicarMascara(e.target.value, tipo);
   });
 
-  // ── Upload preview ───────────────────────────────────────────
+  // Cache de pré-codificação: chave = elemento DOM, valor = Promise<{b64,nome,tipo}>
+  const arquivosCache = new WeakMap();
+
+  // ── Upload preview + pré-codificação em background ───────────
   document.addEventListener('change', e => {
     if (e.target.type !== 'file') return;
     const previewId = e.target.dataset.preview;
@@ -940,6 +943,13 @@
     if (areaId) {
       const area = document.getElementById(areaId);
       if (area) area.classList.toggle('tem-arquivo', !!e.target.files[0]);
+    }
+    // Inicia codificação imediatamente em background
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      arquivosCache.set(e.target, fileParaBase64(file).then(b64 => ({ b64, nome: file.name, tipo: file.type })));
+    } else {
+      arquivosCache.delete(e.target);
     }
   });
 
@@ -1372,14 +1382,18 @@
 
       dados.qtd_locatarios = contadorLocatarios;
       dados.qtd_socios     = contadorSocios;
+      dados.form_key       = 'LOCACAO_RES_2025';
 
-      // Converter arquivos para base64 (em paralelo)
+      // Usa cache de pré-codificação; fallback para codificação na hora se necessário
       const fileInputs = [...this.querySelectorAll('input[type=file]')].filter(i => i.files && i.files[0]);
       await Promise.all(fileInputs.map(async input => {
-        const file = input.files[0];
-        dados[input.name + '_b64']  = await fileParaBase64(file);
-        dados[input.name + '_nome'] = file.name;
-        dados[input.name + '_tipo'] = file.type;
+        const cached = arquivosCache.get(input);
+        const result = cached
+          ? await cached
+          : { b64: await fileParaBase64(input.files[0]), nome: input.files[0].name, tipo: input.files[0].type };
+        dados[input.name + '_b64']  = result.b64;
+        dados[input.name + '_nome'] = result.nome;
+        dados[input.name + '_tipo'] = result.tipo;
       }));
 
       // Enviar como JSON com Content-Type text/plain (evita CORS preflight no Apps Script)

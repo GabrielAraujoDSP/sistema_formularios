@@ -272,17 +272,22 @@ function doPost(e) {
       if (!novaSenha || novaSenha.length < 6) {
         return resposta({ status: 'erro', message: 'Senha deve ter no mínimo 6 caracteres.' });
       }
-      if (buscarUsuario(novoEmail)) {
-        return resposta({ status: 'erro', message: 'E-mail já cadastrado.' });
+      var lockCU = LockService.getScriptLock();
+      lockCU.waitLock(15000);
+      try {
+        if (buscarUsuario(novoEmail)) {
+          return resposta({ status: 'erro', message: 'E-mail já cadastrado.' });
+        }
+        abaUsuarios().appendRow([
+          novoEmail,
+          hashSenha(novaSenha),
+          novoPapel,
+          Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy HH:mm'),
+          true
+        ]);
+      } finally {
+        lockCU.releaseLock();
       }
-
-      abaUsuarios().appendRow([
-        novoEmail,
-        hashSenha(novaSenha),
-        novoPapel,
-        Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy HH:mm'),
-        true
-      ]);
       return resposta({ status: 'ok' });
     }
 
@@ -300,20 +305,26 @@ function doPost(e) {
         return resposta({ status: 'erro', message: 'Você não pode desativar sua própria conta.' });
       }
 
-      var shU   = abaUsuarios();
-      var cabU  = shU.getRange(1, 1, 1, shU.getLastColumn()).getValues()[0];
+      var lockAU = LockService.getScriptLock();
+      lockAU.waitLock(15000);
+      try {
+        var shU   = abaUsuarios();
+        var cabU  = shU.getRange(1, 1, 1, shU.getLastColumn()).getValues()[0];
 
-      if (dados.nova_senha && String(dados.nova_senha).length >= 6) {
-        var colHash = cabU.indexOf('senha_hash');
-        shU.getRange(alvo._row, colHash + 1).setValue(hashSenha(String(dados.nova_senha)));
-      }
-      if (dados.novo_papel !== undefined) {
-        var colPapel = cabU.indexOf('papel');
-        shU.getRange(alvo._row, colPapel + 1).setValue(dados.novo_papel === 'admin' ? 'admin' : 'usuario');
-      }
-      if (dados.ativo !== undefined) {
-        var colAtivo = cabU.indexOf('ativo');
-        shU.getRange(alvo._row, colAtivo + 1).setValue(dados.ativo === true || dados.ativo === 'true');
+        if (dados.nova_senha && String(dados.nova_senha).length >= 6) {
+          var colHash = cabU.indexOf('senha_hash');
+          shU.getRange(alvo._row, colHash + 1).setValue(hashSenha(String(dados.nova_senha)));
+        }
+        if (dados.novo_papel !== undefined) {
+          var colPapel = cabU.indexOf('papel');
+          shU.getRange(alvo._row, colPapel + 1).setValue(dados.novo_papel === 'admin' ? 'admin' : 'usuario');
+        }
+        if (dados.ativo !== undefined) {
+          var colAtivo = cabU.indexOf('ativo');
+          shU.getRange(alvo._row, colAtivo + 1).setValue(dados.ativo === true || dados.ativo === 'true');
+        }
+      } finally {
+        lockAU.releaseLock();
       }
       return resposta({ status: 'ok' });
     }
@@ -327,27 +338,174 @@ function doPost(e) {
       var novos   = dados.dados || {};
       if (!idEdit) return resposta({ status: 'erro', message: 'ID obrigatório para edição.' });
 
-      var sheetEd = obterOuCriarAba();
-      var dadosEd = sheetEd.getDataRange().getValues();
-      var cabEd   = dadosEd[0];
-      var colIdEd = cabEd.indexOf('id');
+      var lockEd = LockService.getScriptLock();
+      lockEd.waitLock(15000);
+      try {
+        var sheetEd = obterOuCriarAba();
+        var dadosEd = sheetEd.getDataRange().getValues();
+        var cabEd   = dadosEd[0];
+        var colIdEd = cabEd.indexOf('id');
 
-      for (var re = 1; re < dadosEd.length; re++) {
-        if (dadosEd[re][colIdEd] === idEdit) {
-          for (var ce = 0; ce < cabEd.length; ce++) {
-            var campoEd = cabEd[ce];
-            if (campoEd === 'id' || campoEd === 'data_envio' || campoEd === 'status') continue;
-            if (novos[campoEd] !== undefined) {
-              sheetEd.getRange(re + 1, ce + 1).setValue(novos[campoEd]);
+        for (var re = 1; re < dadosEd.length; re++) {
+          if (dadosEd[re][colIdEd] === idEdit) {
+            for (var ce = 0; ce < cabEd.length; ce++) {
+              var campoEd = cabEd[ce];
+              if (campoEd === 'id' || campoEd === 'data_envio' || campoEd === 'status') continue;
+              if (novos[campoEd] !== undefined) {
+                sheetEd.getRange(re + 1, ce + 1).setValue(novos[campoEd]);
+              }
             }
+            marcarRevisao();
+            return resposta({ status: 'ok' });
           }
-          return resposta({ status: 'ok' });
         }
+        return resposta({ status: 'erro', message: 'ID não encontrado para edição.' });
+      } finally {
+        lockEd.releaseLock();
       }
-      return resposta({ status: 'erro', message: 'ID não encontrado para edição.' });
+    }
+
+    /* ── Ping — polling em tempo real (token no corpo) ──────────── */
+    if (acao === 'ping') {
+      if (!verificarToken(dados.token || '')) return erro401();
+      return resposta({ revisao: CacheService.getScriptCache().get('revisao') || '0' });
+    }
+
+    /* ── Listar fichas via POST (token no corpo, não na URL) ────── */
+    if (acao === 'listar') {
+      if (!verificarToken(dados.token || '')) return erro401();
+      var shL    = obterOuCriarAba();
+      var dadosL = shL.getDataRange().getValues();
+      if (dadosL.length <= 1) return resposta({ fichas: [] });
+      var cabL   = dadosL[0];
+      var fichas = [];
+      for (var rL = 1; rL < dadosL.length; rL++) {
+        var objL = {};
+        for (var cL = 0; cL < cabL.length; cL++) objL[cabL[cL]] = dadosL[rL][cL];
+        fichas.push(objL);
+      }
+      return resposta({ fichas: fichas });
+    }
+
+    /* ── Atualizar status via POST (requer token admin) ──────────── */
+    if (acao === 'status') {
+      var sessSP = verificarToken(dados.token || '');
+      if (!sessSP || sessSP.papel !== 'admin') return erro401();
+
+      var idSt  = dados.id     || '';
+      var stVal = dados.status || '';
+      if (!idSt || !stVal) {
+        return resposta({ status: 'erro', message: 'Parâmetros id e status são obrigatórios.' });
+      }
+      var STATUS_OK = ['nova', 'analise', 'concluida', 'reprovada', 'arquivada'];
+      if (STATUS_OK.indexOf(stVal) === -1) {
+        return resposta({ status: 'erro', message: 'Status inválido.' });
+      }
+
+      var lockSt = LockService.getScriptLock();
+      lockSt.waitLock(15000);
+      try {
+        var shSt    = obterOuCriarAba();
+        var dadosSt = shSt.getDataRange().getValues();
+        var colIdSt = dadosSt[0].indexOf('id');
+        var colStSt = dadosSt[0].indexOf('status');
+        for (var rowSt = 1; rowSt < dadosSt.length; rowSt++) {
+          if (dadosSt[rowSt][colIdSt] === idSt) {
+            shSt.getRange(rowSt + 1, colStSt + 1).setValue(stVal);
+            marcarRevisao();
+            return resposta({ status: 'ok' });
+          }
+        }
+        return resposta({ status: 'erro', message: 'ID não encontrado.' });
+      } finally {
+        lockSt.releaseLock();
+      }
+    }
+
+    /* ── Excluir ficha via POST (requer token admin) ─────────────── */
+    if (acao === 'excluir') {
+      var sessXP = verificarToken(dados.token || '');
+      if (!sessXP || sessXP.papel !== 'admin') return erro401();
+
+      var idXP = dados.id || '';
+      if (!idXP) return resposta({ status: 'erro', message: 'Parâmetro id obrigatório.' });
+
+      var lockXP = LockService.getScriptLock();
+      lockXP.waitLock(15000);
+      try {
+        var shXP    = obterOuCriarAba();
+        var dadosXP = shXP.getDataRange().getValues();
+        var colIdXP = dadosXP[0].indexOf('id');
+        for (var reXP = 1; reXP < dadosXP.length; reXP++) {
+          if (dadosXP[reXP][colIdXP] === idXP) {
+            shXP.deleteRow(reXP + 1);
+            marcarRevisao();
+            return resposta({ status: 'ok' });
+          }
+        }
+        return resposta({ status: 'erro', message: 'ID não encontrado.' });
+      } finally {
+        lockXP.releaseLock();
+      }
+    }
+
+    /* ── Excluir usuário via POST (requer token admin) ──────────── */
+    if (acao === 'excluir_usuario') {
+      var sessEU = verificarToken(dados.token || '');
+      if (!sessEU || sessEU.papel !== 'admin') return erro401();
+
+      var emailDel = String(dados.email_alvo || '').toLowerCase().trim();
+      if (!emailDel) return resposta({ status: 'erro', message: 'E-mail obrigatório.' });
+      if (emailDel === sessEU.email) {
+        return resposta({ status: 'erro', message: 'Você não pode excluir sua própria conta.' });
+      }
+
+      var lockEU = LockService.getScriptLock();
+      lockEU.waitLock(15000);
+      try {
+        var shDel   = abaUsuarios();
+        var rowsDel = shDel.getDataRange().getValues();
+        var colEmlD = rowsDel[0].indexOf('email');
+        for (var d = 1; d < rowsDel.length; d++) {
+          if (String(rowsDel[d][colEmlD]).toLowerCase() === emailDel) {
+            shDel.deleteRow(d + 1);
+            return resposta({ status: 'ok' });
+          }
+        }
+        return resposta({ status: 'erro', message: 'Usuário não encontrado.' });
+      } finally {
+        lockEU.releaseLock();
+      }
+    }
+
+    /* ── Listar usuários via POST (requer token admin) ───────────── */
+    if (acao === 'listar_usuarios') {
+      var sessLU2 = verificarToken(dados.token || '');
+      if (!sessLU2 || sessLU2.papel !== 'admin') return erro401();
+
+      var shU2   = abaUsuarios();
+      var rowsU2 = shU2.getDataRange().getValues();
+      var cabU2  = rowsU2[0];
+      var lista2 = [];
+      for (var iu2 = 1; iu2 < rowsU2.length; iu2++) {
+        var uObj2 = {};
+        for (var ju2 = 0; ju2 < cabU2.length; ju2++) uObj2[cabU2[ju2]] = rowsU2[iu2][ju2];
+        delete uObj2.senha_hash;
+        lista2.push(uObj2);
+      }
+      return resposta({ usuarios: lista2 });
     }
 
     /* ── Nova ficha (público — formulario.html) ──────────────────── */
+    if (dados.form_key !== 'LOCACAO_RES_2025') {
+      return resposta({ status: 'erro', message: 'Requisição inválida.' });
+    }
+    var nomeEnviado = String(dados.nome || '').trim();
+    var cpfEnviado  = String(dados.cpf  || '').trim();
+    if (!nomeEnviado || nomeEnviado.length < 3 || !cpfEnviado || cpfEnviado.length < 11) {
+      return resposta({ status: 'erro', message: 'Dados obrigatórios ausentes.' });
+    }
+
     var protocolo = gerarProtocolo();
     var agora = Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy HH:mm');
 
@@ -402,7 +560,14 @@ function doPost(e) {
       linha.push(dados[col] !== undefined ? dados[col] : '');
     }
 
-    obterOuCriarAba().appendRow(linha);
+    var lock = LockService.getScriptLock();
+    lock.waitLock(30000); // aguarda até 30s na fila antes de desistir
+    try {
+      obterOuCriarAba().appendRow(linha);
+    } finally {
+      lock.releaseLock();
+    }
+    marcarRevisao();
     return resposta({ status: 'ok', protocolo: protocolo });
 
   } catch (err) {
@@ -581,6 +746,10 @@ function doGet(e) {
 /* ═══════════════════════════════════════════════════════════════════
    Helpers
    ═══════════════════════════════════════════════════════════════════ */
+
+function marcarRevisao() {
+  CacheService.getScriptCache().put('revisao', new Date().getTime().toString(), 21600);
+}
 
 function gerarProtocolo() {
   var ts   = new Date().getTime().toString(36).toUpperCase();

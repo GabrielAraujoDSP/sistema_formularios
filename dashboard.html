@@ -522,7 +522,11 @@
   async function iniciar() {
     document.getElementById('relatorio-wrap').style.display = 'block';
     try {
-      const res  = await fetch(`${endpoint()}?acao=listar&token=${encodeURIComponent(getToken())}`);
+      const res  = await fetch(endpoint(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ acao: 'listar', token: getToken() })
+      });
       const json = await res.json();
       if (json.status === 'auth_error') {
         sessionStorage.removeItem('admin_token');
