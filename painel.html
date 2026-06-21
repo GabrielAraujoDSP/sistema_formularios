@@ -9,14 +9,14 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --primary: #1a3c6e;
-      --primary-light: #2a5298;
-      --accent: #e8a020;
+      --primary: #8C1C1C;
+      --primary-light: #6B1212;
+      --accent: #c9a227;
       --danger: #c0392b;
       --success: #27ae60;
-      --bg: #f0f3f9;
+      --bg: #faf8f8;
       --card: #ffffff;
-      --border: #d0d7e3;
+      --border: #ddd0d0;
       --text: #2c3e50;
       --muted: #6b7a99;
       --radius: 10px;
@@ -28,7 +28,7 @@
     #tela-login {
       display: flex; min-height: 100vh;
       align-items: center; justify-content: center;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      background: linear-gradient(135deg, #1a0808 0%, #8C1C1C 100%);
     }
     .login-card {
       background: #fff; border-radius: 16px; padding: 44px 40px;
@@ -57,11 +57,11 @@
     #app { display: none; }
 
     header {
-      background: var(--primary); color: #fff;
+      background: #1a0808; color: #fff;
       padding: 0 18px; height: 58px;
       display: flex; align-items: center; justify-content: space-between;
       position: sticky; top: 0; z-index: 100;
-      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+      box-shadow: 0 2px 8px rgba(0,0,0,.35);
     }
     .header-left { display: flex; align-items: center; gap: 12px; }
     .header-left h1 { font-size: 1.05rem; font-weight: 700; }
@@ -182,9 +182,9 @@
     .usuarios-form { background: #f8faff; border: 1.5px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 22px; }
     .usuarios-form h4 { font-size: .9rem; font-weight: 700; color: var(--primary); margin-bottom: 14px; }
     .usuarios-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
-    .usuarios-table th { background: #f0f3f9; padding: 9px 10px; text-align: left; border-bottom: 2px solid var(--border); font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
-    .usuarios-table td { padding: 9px 10px; border-bottom: 1px solid #f0f3f9; vertical-align: middle; }
-    .usuarios-table tr:hover td { background: #f8faff; }
+    .usuarios-table th { background: #faf8f8; padding: 9px 10px; text-align: left; border-bottom: 2px solid var(--border); font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+    .usuarios-table td { padding: 9px 10px; border-bottom: 1px solid #faf8f8; vertical-align: middle; }
+    .usuarios-table tr:hover td { background: #fff5f5; }
     .badge-papel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 9px; border-radius: 20px; }
     .badge-admin  { background: #dbeafe; color: #1e3a8a; }
     .badge-usuario { background: #f1f5f9; color: #475569; }
@@ -253,7 +253,7 @@
 <!-- ── Login ──────────────────────────────────────────────────────── -->
 <div id="tela-login">
   <div class="login-card">
-    <div class="icon">🔐</div>
+    <img src="logo-francisco-egito.png" alt="Francisco Egito Imóveis" style="height:64px;width:auto;object-fit:contain;margin-bottom:16px;" />
     <h1>Painel Administrativo</h1>
     <p class="sub">Fichas Cadastrais de Locação</p>
     <input type="email" id="login-email" placeholder="E-mail" autocomplete="email" />
@@ -267,7 +267,7 @@
 <div id="app">
   <header>
     <div class="header-left">
-      <span>🏠</span>
+      <img src="logo-francisco-egito.png" alt="Francisco Egito" style="height:36px;width:auto;object-fit:contain;filter:brightness(0) invert(1);" />
       <h1>Fichas Cadastrais</h1>
       <span class="badge-novas" id="badge-novas" style="display:none">0 novas</span>
       <span id="badge-live" style="display:none;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;letter-spacing:.2px">● Ao vivo</span>
