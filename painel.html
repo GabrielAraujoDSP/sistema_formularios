@@ -684,6 +684,16 @@
     if (b) b.style.display = 'none';
   }
 
+  // Celulares pausam setInterval quando a tela apaga ou o app vai para segundo plano.
+  // Ao voltar para a página, verifica imediatamente e reinicia o intervalo do zero.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && timerPolling) {
+      verificarAtualizacoes();
+      clearInterval(timerPolling);
+      timerPolling = setInterval(verificarAtualizacoes, 30000);
+    }
+  });
+
   async function verificarAtualizacoes() {
     try {
       const json = await apiPost({ acao: 'ping' });

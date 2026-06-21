@@ -439,6 +439,7 @@ function doPost(e) {
         for (var reXP = 1; reXP < dadosXP.length; reXP++) {
           if (dadosXP[reXP][colIdXP] === idXP) {
             shXP.deleteRow(reXP + 1);
+            excluirPastaDrive(idXP);
             marcarRevisao();
             return resposta({ status: 'ok' });
           }
@@ -645,6 +646,7 @@ function doGet(e) {
       for (var re = 1; re < dadosE.length; re++) {
         if (dadosE[re][colIdE] === idExcl) {
           sheetE.deleteRow(re + 1);
+          excluirPastaDrive(idExcl);
           return resposta({ status: 'ok' });
         }
       }
@@ -749,6 +751,21 @@ function doGet(e) {
 
 function marcarRevisao() {
   CacheService.getScriptCache().put('revisao', new Date().getTime().toString(), 21600);
+}
+
+function excluirPastaDrive(protocolo) {
+  try {
+    var pastas = DriveApp.getFolderById(FOLDER_ID).getFolders();
+    while (pastas.hasNext()) {
+      var pasta = pastas.next();
+      if (pasta.getName().indexOf(protocolo) === 0) {
+        pasta.setTrashed(true);
+        return;
+      }
+    }
+  } catch (e) {
+    Logger.log('Aviso: não foi possível excluir pasta do Drive para ' + protocolo + ': ' + e.message);
+  }
 }
 
 function gerarProtocolo() {
