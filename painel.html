@@ -703,7 +703,7 @@
         revisaoLocal = rev;
         const modalAberto = ['overlay-modal', 'overlay-editar', 'overlay-usuarios']
           .some(id => document.getElementById(id).classList.contains('ativo'));
-        if (!modalAberto) await carregarFichas();
+        if (!modalAberto) await carregarFichas(true);
       } else {
         revisaoLocal = rev;
       }
@@ -711,20 +711,24 @@
   }
 
   /* ── Fichas ──────────────────────────────────────────────────────── */
-  async function carregarFichas() {
-    document.getElementById('kanban-board').innerHTML =
-      '<div style="display:flex;align-items:center;gap:12px;padding:40px;width:100%"><div class="spinner"></div><span style="color:var(--muted)">Carregando fichas…</span></div>';
+  async function carregarFichas(silencioso = false) {
+    if (!silencioso) {
+      document.getElementById('kanban-board').innerHTML =
+        '<div style="display:flex;align-items:center;gap:12px;padding:40px;width:100%"><div class="spinner"></div><span style="color:var(--muted)">Carregando fichas…</span></div>';
+    }
     try {
       const json = await apiPost({ acao: 'listar' });
       if (!json) return;
       fichasTodas = json.fichas || [];
       renderKanban();
     } catch (err) {
-      document.getElementById('kanban-board').innerHTML =
-        `<div style="text-align:center;padding:40px;color:var(--muted);width:100%">
-          <div style="font-size:2rem">⚠️</div>
-          <p style="margin-top:10px">Erro ao carregar fichas.<br><small>${esc(err.message)}</small></p>
-        </div>`;
+      if (!silencioso) {
+        document.getElementById('kanban-board').innerHTML =
+          `<div style="text-align:center;padding:40px;color:var(--muted);width:100%">
+            <div style="font-size:2rem">⚠️</div>
+            <p style="margin-top:10px">Erro ao carregar fichas.<br><small>${esc(err.message)}</small></p>
+          </div>`;
+      }
     }
   }
 
