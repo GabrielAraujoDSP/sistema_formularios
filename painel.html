@@ -238,13 +238,29 @@
     .sem-fichas-aba .icon { font-size: 2.5rem; margin-bottom: 10px; }
 
     @media (max-width: 600px) {
-      .toolbar { padding: 10px 12px; }
-      main { padding: 10px 12px; }
+      html, body { overflow-x: hidden; }
+
+      header {
+        height: auto;
+        min-height: 50px;
+        padding: 7px 12px;
+        gap: 6px;
+      }
+      .header-left { gap: 8px; min-width: 0; flex: 1; overflow: hidden; }
+      .header-left img { height: 28px; max-width: 72px; }
+      .header-left h1 { display: none; }
+      .header-right { gap: 5px; flex-shrink: 0; }
+      .header-email { display: none; }
+      .btn-header { padding: 6px 9px; font-size: .75rem; }
+
+      .toolbar { padding: 8px 10px; }
+      .toolbar input[type=search] { min-width: 0; }
+
+      main { padding: 10px 10px; }
       .modal-corpo { max-height: 58vh; }
       .edit-grid { grid-template-columns: 1fr; }
       .eg-span2, .edit-sec { grid-column: span 1; }
-      .aba-btn { min-width: 90px; font-size: .78rem; }
-      .header-email { display: none; }
+      .aba-btn { min-width: 80px; font-size: .78rem; }
     }
   </style>
 </head>
