@@ -79,22 +79,23 @@
           <a class="btn-abrir-form" id="href-locatario" href="formulario.html" target="_blank" rel="noopener">Abrir formulário</a>
         </div>
 
-        <div class="link-card">
+        <div class="link-card link-card-futuro">
           <div class="link-card-top">
             <div class="link-card-icon">🏠</div>
             <div class="link-card-info">
-              <div class="link-card-nome">Ficha de Locador</div>
+              <div class="link-card-nome">Ficha de Locador <span class="tag-em-breve">Em breve</span></div>
               <div class="link-card-desc">Preenchida pelo proprietário do imóvel</div>
             </div>
           </div>
+          <div class="aviso-em-breve">🚧 Este formulário está em fase de finalização e estará disponível em breve.</div>
           <div class="link-url-row">
-            <input type="text" class="link-url-input" id="url-locador" readonly />
-            <button class="btn-copiar" onclick="copiarLink('url-locador', this)">Copiar</button>
+            <input type="text" class="link-url-input" id="url-locador" readonly placeholder="Link indisponível no momento" />
+            <button class="btn-copiar" disabled>Copiar</button>
           </div>
-          <a class="btn-abrir-form" id="href-locador" href="locador.html" target="_blank" rel="noopener">Abrir formulário</a>
+          <span class="btn-abrir-form btn-abrir-desabilitado">Abrir formulário</span>
         </div>
-
-      </div>
+ 
+      </div> 
     </div>
   </div>
 

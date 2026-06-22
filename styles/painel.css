@@ -228,7 +228,18 @@
       border: 1.5px solid var(--border); border-radius: 10px;
       padding: 14px 16px; background: #faf8f8;
     }
-    .link-card-futuro { opacity: .75; }
+    .link-card-futuro { opacity: .8; pointer-events: none; user-select: none; }
+    .aviso-em-breve {
+      background: #fff3cd; color: #856404;
+      border: 1px solid #ffc107; border-radius: 7px;
+      padding: 8px 12px; font-size: .82rem; font-weight: 600; line-height: 1.4;
+    }
+    .btn-abrir-desabilitado {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 7px 0; border-radius: 7px; background: #aab; color: #fff;
+      font-size: .82rem; font-weight: 700; text-decoration: none; cursor: not-allowed;
+    }
+    .btn-copiar:disabled { background: #f0f0f5; color: #bbb; border-color: #ddd; cursor: not-allowed; }
     .link-card-top { display: flex; align-items: flex-start; gap: 10px; }
     .link-card-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; }
     .link-card-info { flex: 1; }

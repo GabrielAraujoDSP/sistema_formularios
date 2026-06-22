@@ -73,25 +73,6 @@
       <div class="secao-titulo" id="titulo-dados-imovel">🏠 Dados do Imóvel</div>
       <div class="secao-corpo">
 
-        <!-- 0. Documento do imóvel (primeiro de tudo) -->
-        <div class="span3">
-          <strong style="font-size:.88rem;color:var(--primary)">📄 Documento do Imóvel</strong>
-        </div>
-        <div class="grid g2" style="margin-top:12px;margin-bottom:20px;">
-          <div>
-            <label>Escritura, matrícula ou contrato de compra e venda <span class="obrig">*</span></label>
-            <div class="upload-area" id="area-imovel-doc">
-              <div class="upload-icon">📜</div>
-              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
-              <div class="upload-name" id="nome-imovel-doc">Nenhum arquivo selecionado</div>
-              <input type="file" name="imovel_doc" accept=".pdf,.jpg,.jpeg,.png" required
-                data-preview="nome-imovel-doc" data-area="area-imovel-doc" />
-            </div>
-          </div>
-        </div>
-
-        <hr class="separador" />
-
         <!-- 1. Campos básicos (residencial) -->
         <div id="dados-imovel-res">
           <strong style="font-size:.88rem;color:var(--primary)">🏠 Características</strong>
@@ -254,10 +235,10 @@
                   <label><input type="radio" name="imovel_gas_incluso" value="sim" id="gas-sim" /> Sim</label>
                 </div>
               </div>
-              <div id="bloco-tipo-gas" style="display:none;">
+              <div id="bloco-tipo-gas">
                 <label>Tipo de gás <span class="obrig">*</span></label>
                 <div class="radio-group" style="padding-top:10px;">
-                  <label><input type="radio" name="imovel_tipo_gas" value="Gás de rua" /> Gás de rua</label>
+                  <label><input type="radio" name="imovel_tipo_gas" value="Gás encanado" /> Gás encanado</label>
                   <label><input type="radio" name="imovel_tipo_gas" value="Botijão" /> Botijão</label>
                 </div>
               </div>
@@ -270,6 +251,16 @@
         <!-- 6. Anexos do imóvel -->
         <strong style="font-size:.88rem;color:var(--primary)">📎 Documentos e Contas do Imóvel</strong>
         <div class="grid g3" style="margin-top:12px;">
+          <div>
+            <label>Escritura, matrícula ou contrato de compra e venda <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-imovel-doc">
+              <div class="upload-icon">📜</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-imovel-doc">Nenhum arquivo selecionado</div>
+              <input type="file" name="imovel_doc" accept=".pdf,.jpg,.jpeg,.png" required
+                data-preview="nome-imovel-doc" data-area="area-imovel-doc" />
+            </div>
+          </div>
           <div>
             <label>Boleto ou espelho do IPTU <span class="obrig">*</span></label>
             <div class="upload-area" id="area-boleto-iptu">
@@ -330,18 +321,15 @@
       <div class="secao-titulo">🏢 Dados da Locação Comercial</div>
       <div class="secao-corpo">
         <div class="grid g3">
-          <div>
-            <label>Vigência do contrato <span class="obrig">*</span></label>
-            <div class="radio-group">
-              <label><input type="radio" name="vigencia_contrato" value="24 meses" id="vig-24" /> 24 meses</label>
-              <label><input type="radio" name="vigencia_contrato" value="36 meses" id="vig-36" /> 36 meses</label>
-              <label><input type="radio" name="vigencia_contrato" value="60 meses" id="vig-60" /> 60 meses</label>
+          <div class="span3">
+            <label>Quais vigências são aceitas? <span class="obrig">*</span></label>
+            <div class="radio-group" style="margin-top:8px;flex-wrap:wrap;">
+              <label><input type="checkbox" name="vigencia_contrato" value="24 meses" /> 24 meses</label>
+              <label><input type="checkbox" name="vigencia_contrato" value="30 meses" /> 30 meses</label>
+              <label><input type="checkbox" name="vigencia_contrato" value="36 meses" /> 36 meses</label>
+              <label><input type="checkbox" name="vigencia_contrato" value="48 meses" /> 48 meses</label>
+              <label><input type="checkbox" name="vigencia_contrato" value="60 meses" /> 60 meses</label>
             </div>
-          </div>
-          <div>
-            <label>Ramo de atividade <span class="obrig">*</span></label>
-            <input type="text" name="ramo_atividade" id="campo-ramo-atividade"
-              placeholder="Ex: Alimentação, Saúde, Varejo…" />
           </div>
           <div>
             <label>Corretor responsável <span class="obrig">*</span></label>
@@ -366,10 +354,6 @@
             </select>
           </div>
           <div>
-            <label>Código do imóvel <span class="obrig">*</span></label>
-            <input type="text" name="codigo_imovel" placeholder="Ex: AP-1042" required />
-          </div>
-          <div>
             <label>Tem vaga de garagem? <span class="obrig">*</span></label>
             <div class="radio-group">
               <label><input type="radio" name="tem_vaga" value="nao" checked /> Não</label>
@@ -380,11 +364,13 @@
             <label>Quantidade de vagas <span class="obrig">*</span></label>
             <input type="number" name="qtd_vagas" min="1" max="10" placeholder="Ex: 1" />
           </div>
-          <div class="span2">
-            <label>Tipo de garantia <span class="obrig">*</span></label>
-            <div class="radio-group">
-              <label><input type="radio" name="tipo_garantia" value="Porto Seguro" required /> Porto Seguro</label>
-              <label><input type="radio" name="tipo_garantia" value="LOFT" /> LOFT</label>
+          <div class="span3">
+            <label>Quais garantias são aceitas? <span class="obrig">*</span></label>
+            <div class="radio-group" style="margin-top:8px;flex-wrap:wrap;">
+              <label><input type="checkbox" name="tipo_garantia" value="Porto Seguro" /> Porto Seguro</label>
+              <label><input type="checkbox" name="tipo_garantia" value="LOFT" /> LOFT</label>
+              <label><input type="checkbox" name="tipo_garantia" value="Caução" /> Caução</label>
+              <label><input type="checkbox" name="tipo_garantia" value="Fiador" /> Fiador</label>
             </div>
           </div>
         </div>
@@ -539,17 +525,16 @@
               <div class="assinatura-card-titulo">🖨️ Assinatura Física</div>
               <div class="assinatura-card-desc">
                 Imprima o contrato, assine e leve ao cartório para reconhecimento de firma de todas as partes.
-                Sem custo adicional por este canal.
               </div>
             </div>
           </label>
           <label class="assinatura-card">
             <input type="radio" name="tipo_assinatura" value="digital" />
             <div>
-              <div class="assinatura-card-titulo">💻 Assinatura Digital <span class="tag-preco">R$ 29,00 / assinatura</span></div>
+              <div class="assinatura-card-titulo">💻 Assinatura Digital</div>
               <div class="assinatura-card-desc">
                 Assine pelo celular ou computador com total validade jurídica (Lei nº 14.063/2020 e MP 2.200-2/2001).
-                Cobrado R$ 29,00 por assinatura de cada parte envolvida no contrato.
+                
               </div>
             </div>
           </label>

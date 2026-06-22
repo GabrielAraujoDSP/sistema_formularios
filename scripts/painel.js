@@ -39,9 +39,8 @@
   function inicializarLinks() {
     const BASE = 'https://formulario-residencial-locatarios.vercel.app/';
     document.getElementById('url-locatario').value = BASE + 'formulario.html';
-    document.getElementById('url-locador').value   = BASE + 'locador.html';
     document.getElementById('href-locatario').href = BASE + 'formulario.html';
-    document.getElementById('href-locador').href   = BASE + 'locador.html';
+    // url-locador mantém placeholder até o formulário ser liberado
   }
 
   function toggleLinks() {

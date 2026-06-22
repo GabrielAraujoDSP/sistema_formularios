@@ -17,8 +17,6 @@
     document.querySelectorAll('input[name="vigencia_contrato"]').forEach(r => {
       r.required = comercial;
     });
-    const ramo = document.getElementById('campo-ramo-atividade');
-    if (ramo) ramo.required = comercial;
 
     document.getElementById('header-titulo').textContent =
       comercial ? 'Ficha Cadastral de Locatário Comercial'
@@ -572,12 +570,22 @@
     try {
       const dados = {};
 
-      // Campos de texto/select/radio/checkbox
+      // Campos de texto/select/radio/checkbox (checkboxes múltiplos agrupados)
       const formData = new FormData(this);
       for (const [key, value] of formData.entries()) {
-        if (!(value instanceof File)) {
+        if (value instanceof File) continue;
+        if (key === 'tipo_garantia') {
+          dados[key] = dados[key] ? dados[key] + ', ' + value : value;
+        } else {
           dados[key] = value;
         }
+      }
+
+      if (!dados.tipo_garantia) {
+        alert('Selecione ao menos uma garantia aceita.');
+        btn.disabled = false;
+        statusDiv.className = '';
+        return;
       }
 
       dados.qtd_locatarios = contadorLocatarios;

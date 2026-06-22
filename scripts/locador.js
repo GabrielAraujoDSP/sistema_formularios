@@ -89,9 +89,6 @@ function selecionarTipoEspecifico(tipoEsp) {
 
   // Seção de campos exclusivamente comerciais
   document.getElementById('secao-campos-comercial').style.display = comercial ? 'block' : 'none';
-  document.querySelectorAll('input[name="vigencia_contrato"]').forEach(r => { r.required = comercial; });
-  const ramo = document.getElementById('campo-ramo-atividade');
-  if (ramo) ramo.required = comercial;
 
   // Regras condicionais por tipo de imóvel
   aplicarRegrasTipo(tipoEsp);
@@ -186,13 +183,9 @@ function aplicarRegrasTipo(tipoEsp) {
     if (inputG) inputG.required = false; // sempre opcional
   }
 
-  // Reseta radios de água/gás incluso e tipo de gás
+  // Reseta radio de água inclusa
   const aguaNao = document.getElementById('agua-nao');
-  const gasNao  = document.getElementById('gas-nao');
   if (aguaNao) aguaNao.checked = true;
-  if (gasNao)  gasNao.checked  = true;
-  document.getElementById('bloco-tipo-gas').style.display = 'none';
-  document.querySelectorAll('input[name="imovel_tipo_gas"]').forEach(i => { i.required = false; });
 }
 
 // ── Máscaras ──────────────────────────────────────────────────
@@ -275,22 +268,8 @@ document.querySelectorAll('input[name="imovel_tem_condo"]').forEach(r => {
 
     if (!temCondo) {
       const aguaNao = document.getElementById('agua-nao');
-      const gasNao  = document.getElementById('gas-nao');
       if (aguaNao) aguaNao.checked = true;
-      if (gasNao)  gasNao.checked  = true;
-      document.getElementById('bloco-tipo-gas').style.display = 'none';
-      document.querySelectorAll('input[name="imovel_tipo_gas"]').forEach(i => { i.required = false; });
     }
-  });
-});
-
-// ── Toggle: gás incluso → tipo de gás ────────────────────────
-document.querySelectorAll('input[name="imovel_gas_incluso"]').forEach(r => {
-  r.addEventListener('change', () => {
-    const temGas = r.value === 'sim' && r.checked;
-    const bloco  = document.getElementById('bloco-tipo-gas');
-    bloco.style.display = temGas ? 'block' : 'none';
-    document.querySelectorAll('input[name="imovel_tipo_gas"]').forEach(i => { i.required = temGas; });
   });
 });
 
@@ -339,9 +318,30 @@ document.getElementById('form-ficha').addEventListener('submit', async function 
   try {
     const dados    = {};
     const formData = new FormData(this);
+    const multiKeys = new Set(['tipo_garantia', 'vigencia_contrato']);
 
     for (const [key, value] of formData.entries()) {
-      if (!(value instanceof File)) dados[key] = value;
+      if (value instanceof File) continue;
+      if (multiKeys.has(key)) {
+        dados[key] = dados[key] ? dados[key] + ', ' + value : value;
+      } else {
+        dados[key] = value;
+      }
+    }
+
+    // Valida checkboxes obrigatórios
+    if (!dados.tipo_garantia) {
+      alert('Selecione ao menos uma garantia aceita.');
+      btn.disabled = false;
+      statusDiv.className = '';
+      return;
+    }
+    const comercialEnviando = document.getElementById('campo-tipo-imovel').value === 'comercial';
+    if (comercialEnviando && !dados.vigencia_contrato) {
+      alert('Selecione ao menos uma vigência aceita.');
+      btn.disabled = false;
+      statusDiv.className = '';
+      return;
     }
 
     dados.qtd_locatarios = 0;
@@ -399,7 +399,6 @@ document.getElementById('form-ficha').addEventListener('submit', async function 
       document.getElementById('campo-valor-condo').style.display      = 'none';
       document.getElementById('campo-boleto-condo').style.display     = 'none';
       document.getElementById('campo-conta-agua').style.display       = 'none';
-      document.getElementById('bloco-tipo-gas').style.display         = 'none';
     } else {
       throw new Error(json.message || 'Erro desconhecido');
     }
