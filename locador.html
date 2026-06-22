@@ -73,9 +73,29 @@
       <div class="secao-titulo" id="titulo-dados-imovel">🏠 Dados do Imóvel</div>
       <div class="secao-corpo">
 
-        <!-- Residencial -->
+        <!-- 0. Documento do imóvel (primeiro de tudo) -->
+        <div class="span3">
+          <strong style="font-size:.88rem;color:var(--primary)">📄 Documento do Imóvel</strong>
+        </div>
+        <div class="grid g2" style="margin-top:12px;margin-bottom:20px;">
+          <div>
+            <label>Escritura, matrícula ou contrato de compra e venda <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-imovel-doc">
+              <div class="upload-icon">📜</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-imovel-doc">Nenhum arquivo selecionado</div>
+              <input type="file" name="imovel_doc" accept=".pdf,.jpg,.jpeg,.png" required
+                data-preview="nome-imovel-doc" data-area="area-imovel-doc" />
+            </div>
+          </div>
+        </div>
+
+        <hr class="separador" />
+
+        <!-- 1. Campos básicos (residencial) -->
         <div id="dados-imovel-res">
-          <div class="grid g4">
+          <strong style="font-size:.88rem;color:var(--primary)">🏠 Características</strong>
+          <div class="grid g4" style="margin-top:12px;margin-bottom:4px;">
             <div>
               <label>Quartos <span class="obrig">*</span></label>
               <input type="number" name="imovel_quartos" min="0" max="20" placeholder="0" required />
@@ -99,9 +119,10 @@
           </div>
         </div>
 
-        <!-- Comercial -->
+        <!-- 1. Campos básicos (comercial) -->
         <div id="dados-imovel-com" style="display:none;">
-          <div class="grid g4">
+          <strong style="font-size:.88rem;color:var(--primary)">🏢 Características</strong>
+          <div class="grid g4" style="margin-top:12px;margin-bottom:4px;">
             <div>
               <label>Salas / ambientes <span class="obrig">*</span></label>
               <input type="number" name="imovel_salas" min="0" max="100" placeholder="0" />
@@ -121,6 +142,182 @@
             <div>
               <label>Pé direito (m)</label>
               <input type="number" name="imovel_pe_direito" min="1" step="0.01" placeholder="Ex: 3.0" />
+            </div>
+          </div>
+        </div>
+
+        <hr class="separador" />
+
+        <!-- 2. Informações financeiras -->
+        <strong style="font-size:.88rem;color:var(--primary)">💰 Informações Financeiras</strong>
+        <div class="grid g3" style="margin-top:12px;">
+          <div>
+            <label>Valor mínimo de aluguel pretendido <span class="obrig">*</span></label>
+            <input type="number" name="imovel_aluguel_min" min="0" step="0.01" placeholder="Ex: 1500.00" required />
+          </div>
+          <div>
+            <label>Valor máximo de aluguel pretendido <span class="obrig">*</span></label>
+            <input type="number" name="imovel_aluguel_max" min="0" step="0.01" placeholder="Ex: 2000.00" required />
+          </div>
+          <div>
+            <label>Valor do IPTU (anual) <span class="obrig">*</span></label>
+            <input type="number" name="imovel_iptu" min="0" step="0.01" placeholder="Ex: 800.00" required />
+          </div>
+          <div id="campo-valor-condo" style="display:none;">
+            <label>Valor do condomínio (mensal) <span class="obrig">*</span></label>
+            <input type="number" name="imovel_valor_condo" min="0" step="0.01" placeholder="Ex: 350.00" />
+          </div>
+        </div>
+
+        <hr class="separador" />
+
+        <!-- 3. Chaves -->
+        <strong style="font-size:.88rem;color:var(--primary)">🔑 Chaves</strong>
+        <div class="grid g3" style="margin-top:12px;">
+          <div>
+            <label>Quantidade de chaves disponíveis <span class="obrig">*</span></label>
+            <input type="number" name="imovel_qtd_chaves" min="1" max="20" placeholder="Ex: 2" required />
+          </div>
+          <div>
+            <label>Foto das chaves <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-foto-chaves">
+              <div class="upload-icon">📷</div>
+              <div class="upload-label">JPG, PNG ou PDF — máx. 10 MB</div>
+              <div class="upload-name" id="nome-foto-chaves">Nenhum arquivo selecionado</div>
+              <input type="file" name="imovel_foto_chaves" accept=".pdf,.jpg,.jpeg,.png" required
+                data-preview="nome-foto-chaves" data-area="area-foto-chaves" />
+            </div>
+          </div>
+        </div>
+
+        <hr class="separador" />
+
+        <!-- 4. Controle remoto de garagem / portão -->
+        <strong style="font-size:.88rem;color:var(--primary)">📡 Controle de Garagem / Portão</strong>
+        <div style="margin-top:12px;">
+          <label style="margin-bottom:8px;">Possui controle remoto? <span class="obrig">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="imovel_tem_controle" value="nao" checked /> Não</label>
+            <label><input type="radio" name="imovel_tem_controle" value="sim" /> Sim</label>
+          </div>
+          <div id="campos-controle" style="display:none;margin-top:16px;">
+            <div class="grid g3">
+              <div>
+                <label>Quantidade de controles <span class="obrig">*</span></label>
+                <input type="number" name="imovel_qtd_controles" min="1" max="20" placeholder="Ex: 1" />
+              </div>
+              <div>
+                <label>Foto dos controles <span class="obrig">*</span></label>
+                <div class="upload-area" id="area-foto-controles">
+                  <div class="upload-icon">📷</div>
+                  <div class="upload-label">JPG, PNG ou PDF — máx. 10 MB</div>
+                  <div class="upload-name" id="nome-foto-controles">Nenhum arquivo selecionado</div>
+                  <input type="file" name="imovel_foto_controles" accept=".pdf,.jpg,.jpeg,.png"
+                    data-preview="nome-foto-controles" data-area="area-foto-controles" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="separador" />
+
+        <!-- 5. Condomínio -->
+        <strong style="font-size:.88rem;color:var(--primary)">🏘️ Condomínio</strong>
+        <div style="margin-top:12px;">
+          <!-- Toggle: apenas para tipos onde condomínio é opcional -->
+          <div id="bloco-condo-toggle" style="display:none;">
+            <label style="margin-bottom:8px;">Possui condomínio? <span class="obrig">*</span></label>
+            <div class="radio-group">
+              <label><input type="radio" name="imovel_tem_condo" value="nao" checked /> Não</label>
+              <label><input type="radio" name="imovel_tem_condo" value="sim" /> Sim</label>
+            </div>
+          </div>
+          <!-- Campos de condomínio (visíveis quando obrigatório ou quando "sim" foi marcado) -->
+          <div id="campos-condo-info" style="display:none;margin-top:16px;">
+            <div class="grid g3">
+              <div class="span3">
+                <label>Nome do condomínio <span class="obrig">*</span></label>
+                <input type="text" name="imovel_nome_condo" id="campo-nome-condo" />
+              </div>
+              <div>
+                <label>Água inclusa no condomínio? <span class="obrig">*</span></label>
+                <div class="radio-group" style="padding-top:10px;">
+                  <label><input type="radio" name="imovel_agua_inclusa" value="nao" id="agua-nao" /> Não</label>
+                  <label><input type="radio" name="imovel_agua_inclusa" value="sim" id="agua-sim" /> Sim</label>
+                </div>
+              </div>
+              <div>
+                <label>Gás incluso no condomínio? <span class="obrig">*</span></label>
+                <div class="radio-group" style="padding-top:10px;">
+                  <label><input type="radio" name="imovel_gas_incluso" value="nao" id="gas-nao" /> Não</label>
+                  <label><input type="radio" name="imovel_gas_incluso" value="sim" id="gas-sim" /> Sim</label>
+                </div>
+              </div>
+              <div id="bloco-tipo-gas" style="display:none;">
+                <label>Tipo de gás <span class="obrig">*</span></label>
+                <div class="radio-group" style="padding-top:10px;">
+                  <label><input type="radio" name="imovel_tipo_gas" value="Gás de rua" /> Gás de rua</label>
+                  <label><input type="radio" name="imovel_tipo_gas" value="Botijão" /> Botijão</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="separador" />
+
+        <!-- 6. Anexos do imóvel -->
+        <strong style="font-size:.88rem;color:var(--primary)">📎 Documentos e Contas do Imóvel</strong>
+        <div class="grid g3" style="margin-top:12px;">
+          <div>
+            <label>Boleto ou espelho do IPTU <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-boleto-iptu">
+              <div class="upload-icon">📄</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-boleto-iptu">Nenhum arquivo selecionado</div>
+              <input type="file" name="imovel_boleto_iptu" accept=".pdf,.jpg,.jpeg,.png" required
+                data-preview="nome-boleto-iptu" data-area="area-boleto-iptu" />
+            </div>
+          </div>
+          <div>
+            <label>Conta de luz atualizada ou foto do medidor <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-conta-luz">
+              <div class="upload-icon">💡</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-conta-luz">Nenhum arquivo selecionado</div>
+              <input type="file" name="imovel_conta_luz" accept=".pdf,.jpg,.jpeg,.png" required
+                data-preview="nome-conta-luz" data-area="area-conta-luz" />
+            </div>
+          </div>
+          <div id="campo-boleto-condo" style="display:none;">
+            <label id="label-boleto-condo">Boleto do condomínio atualizado</label>
+            <div class="upload-area" id="area-boleto-condo">
+              <div class="upload-icon">🏘️</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-boleto-condo">Nenhum arquivo selecionado</div>
+              <input type="file" name="imovel_boleto_condo" accept=".pdf,.jpg,.jpeg,.png"
+                data-preview="nome-boleto-condo" data-area="area-boleto-condo" />
+            </div>
+          </div>
+          <div id="campo-conta-gas">
+            <label>Conta de gás</label>
+            <div class="upload-area" id="area-conta-gas">
+              <div class="upload-icon">🔥</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-conta-gas">Nenhum arquivo selecionado</div>
+              <input type="file" name="imovel_conta_gas" accept=".pdf,.jpg,.jpeg,.png"
+                data-preview="nome-conta-gas" data-area="area-conta-gas" />
+            </div>
+          </div>
+          <div id="campo-conta-agua" style="display:none;">
+            <label id="label-conta-agua">Conta de água</label>
+            <div class="upload-area" id="area-conta-agua">
+              <div class="upload-icon">💧</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-conta-agua">Nenhum arquivo selecionado</div>
+              <input type="file" name="imovel_conta_agua" accept=".pdf,.jpg,.jpeg,.png"
+                data-preview="nome-conta-agua" data-area="area-conta-agua" />
             </div>
           </div>
         </div>

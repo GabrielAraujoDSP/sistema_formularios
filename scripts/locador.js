@@ -3,14 +3,14 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxDm7JeQZqjXNd5
 // ── Opções de tipo específico ─────────────────────────────────
 const TIPOS_ESP = {
   residencial: [
-    { valor: 'Apartamento',       icone: '🏗️' },
-    { valor: 'Casa',              icone: '🏠' },
-    { valor: 'Casa em condomínio',icone: '🏡' },
-    { valor: 'Loft',              icone: '🛋️' },
-    { valor: 'Sobrado',           icone: '🏘️' },
-    { valor: 'Kitnet',            icone: '🚪' },
-    { valor: 'Cobertura',         icone: '🌇' },
-    { valor: 'Outros',            icone: '📋' },
+    { valor: 'Apartamento',        icone: '🏗️' },
+    { valor: 'Casa',               icone: '🏠' },
+    { valor: 'Casa em condomínio', icone: '🏡' },
+    { valor: 'Loft',               icone: '🛋️' },
+    { valor: 'Sobrado',            icone: '🏘️' },
+    { valor: 'Kitnet',             icone: '🚪' },
+    { valor: 'Cobertura',          icone: '🌇' },
+    { valor: 'Outros',             icone: '📋' },
   ],
   comercial: [
     { valor: 'Loja',              icone: '🏪' },
@@ -21,6 +21,25 @@ const TIPOS_ESP = {
     { valor: 'Terreno',           icone: '🌿' },
     { valor: 'Outros',            icone: '📋' },
   ],
+};
+
+// condo/agua/gas: 'obrigatorio' | 'opcional' | 'none'
+// boletoCondo:   'obrigatorio' | 'condicional' | 'none'
+const REGRAS_TIPO = {
+  'Apartamento':        { condo: 'obrigatorio', agua: 'none',        gas: 'opcional',  boletoCondo: 'obrigatorio'  },
+  'Casa':               { condo: 'opcional',    agua: 'obrigatorio',  gas: 'opcional',  boletoCondo: 'condicional'  },
+  'Casa em condomínio': { condo: 'obrigatorio', agua: 'obrigatorio',  gas: 'opcional',  boletoCondo: 'obrigatorio'  },
+  'Loft':               { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
+  'Sobrado':            { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
+  'Kitnet':             { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
+  'Cobertura':          { condo: 'obrigatorio', agua: 'none',         gas: 'opcional',  boletoCondo: 'obrigatorio'  },
+  'Loja':               { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
+  'Sala comercial':     { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
+  'Prédio comercial':   { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
+  'Casa comercial':     { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
+  'Galpão':             { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
+  'Terreno':            { condo: 'none',        agua: 'none',         gas: 'none',      boletoCondo: 'none'         },
+  'Outros':             { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
 };
 
 // ── Passo 1: Residencial ou Comercial ────────────────────────
@@ -59,22 +78,26 @@ function selecionarTipoEspecifico(tipoEsp) {
   const tipoGeral = document.getElementById('campo-tipo-imovel').value;
   const comercial = tipoGeral === 'comercial';
 
-  // Campos do imóvel: mostra o bloco correto
+  // Campos básicos: bloco residencial vs comercial
   document.getElementById('dados-imovel-res').style.display = comercial ? 'none' : 'block';
   document.getElementById('dados-imovel-com').style.display = comercial ? 'block' : 'none';
   document.querySelectorAll('#dados-imovel-res input').forEach(el => { el.required = !comercial; });
-  document.querySelectorAll('#dados-imovel-com input[name="imovel_salas"], #dados-imovel-com input[name="imovel_banheiros"], #dados-imovel-com input[name="imovel_vagas"], #dados-imovel-com input[name="imovel_metragem"]').forEach(el => { el.required = comercial; });
+  document.querySelectorAll(
+    '#dados-imovel-com input[name="imovel_salas"], #dados-imovel-com input[name="imovel_banheiros"], ' +
+    '#dados-imovel-com input[name="imovel_vagas"], #dados-imovel-com input[name="imovel_metragem"]'
+  ).forEach(el => { el.required = comercial; });
 
-  // Título da seção de dados do imóvel
-  document.getElementById('titulo-dados-imovel').textContent =
-    `${comercial ? '🏢' : '🏠'} Dados do Imóvel — ${tipoEsp}`;
-
-  // Seção de campos comerciais (vigência, ramo, etc.)
+  // Seção de campos exclusivamente comerciais
   document.getElementById('secao-campos-comercial').style.display = comercial ? 'block' : 'none';
   document.querySelectorAll('input[name="vigencia_contrato"]').forEach(r => { r.required = comercial; });
   const ramo = document.getElementById('campo-ramo-atividade');
   if (ramo) ramo.required = comercial;
 
+  // Regras condicionais por tipo de imóvel
+  aplicarRegrasTipo(tipoEsp);
+
+  document.getElementById('titulo-dados-imovel').textContent =
+    `${comercial ? '🏢' : '🏠'} Dados do Imóvel — ${tipoEsp}`;
   document.getElementById('header-titulo').textContent =
     comercial ? 'Ficha Cadastral de Locador Comercial'
               : 'Ficha Cadastral de Locador Residencial';
@@ -82,6 +105,94 @@ function selecionarTipoEspecifico(tipoEsp) {
     'Preencha todos os campos obrigatórios e envie seus documentos';
 
   document.getElementById('secao-dados-imovel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Regras condicionais por tipo de imóvel ───────────────────
+function aplicarRegrasTipo(tipoEsp) {
+  const regra = REGRAS_TIPO[tipoEsp] || REGRAS_TIPO['Outros'];
+
+  // Referências comuns
+  const blocoCondoInfo = document.getElementById('campos-condo-info');
+  const blocoToggle    = document.getElementById('bloco-condo-toggle');
+  const divValCondo    = document.getElementById('campo-valor-condo');
+  const inputNomeCondo = document.getElementById('campo-nome-condo');
+  const inputValCondo  = divValCondo.querySelector('input');
+
+  const divBolCondo   = document.getElementById('campo-boleto-condo');
+  const labelBolCondo = document.getElementById('label-boleto-condo');
+  const inputBolCondo = divBolCondo.querySelector('input[type=file]');
+
+  const divAgua   = document.getElementById('campo-conta-agua');
+  const labelAgua = document.getElementById('label-conta-agua');
+  const inputAgua = divAgua.querySelector('input[type=file]');
+
+  const divGas = document.getElementById('campo-conta-gas');
+
+  // ─ Condomínio ─────────────────────────────────────────────
+  if (regra.condo === 'obrigatorio') {
+    blocoToggle.style.display       = 'none';
+    blocoCondoInfo.style.display    = 'block';
+    divValCondo.style.display       = 'block';
+    inputNomeCondo.required         = true;
+    inputValCondo.required          = true;
+    document.querySelector('input[name="imovel_tem_condo"][value="sim"]').checked = true;
+  } else if (regra.condo === 'opcional') {
+    blocoToggle.style.display       = 'block';
+    blocoCondoInfo.style.display    = 'none';
+    divValCondo.style.display       = 'none';
+    inputNomeCondo.required         = false;
+    inputValCondo.required          = false;
+    document.querySelector('input[name="imovel_tem_condo"][value="nao"]').checked = true;
+  } else {
+    blocoToggle.style.display       = 'none';
+    blocoCondoInfo.style.display    = 'none';
+    divValCondo.style.display       = 'none';
+    inputNomeCondo.required         = false;
+    inputValCondo.required          = false;
+  }
+
+  // ─ Boleto de condomínio ───────────────────────────────────
+  if (regra.boletoCondo === 'obrigatorio') {
+    divBolCondo.style.display   = 'block';
+    labelBolCondo.innerHTML     = 'Boleto do condomínio atualizado <span class="obrig">*</span>';
+    inputBolCondo.required      = true;
+  } else if (regra.boletoCondo === 'condicional') {
+    divBolCondo.style.display   = 'none'; // aparece via toggle
+    labelBolCondo.textContent   = 'Boleto do condomínio atualizado';
+    inputBolCondo.required      = false;
+  } else {
+    divBolCondo.style.display   = 'none';
+    inputBolCondo.required      = false;
+  }
+
+  // ─ Conta de água ──────────────────────────────────────────
+  if (regra.agua === 'obrigatorio') {
+    divAgua.style.display  = 'block';
+    labelAgua.innerHTML    = 'Conta de água <span class="obrig">*</span>';
+    inputAgua.required     = true;
+  } else if (regra.agua === 'opcional') {
+    divAgua.style.display  = 'block';
+    labelAgua.textContent  = 'Conta de água';
+    inputAgua.required     = false;
+  } else {
+    divAgua.style.display  = 'none';
+    inputAgua.required     = false;
+  }
+
+  // ─ Conta de gás ───────────────────────────────────────────
+  if (divGas) {
+    divGas.style.display = (regra.gas === 'none') ? 'none' : 'block';
+    const inputG = divGas.querySelector('input[type=file]');
+    if (inputG) inputG.required = false; // sempre opcional
+  }
+
+  // Reseta radios de água/gás incluso e tipo de gás
+  const aguaNao = document.getElementById('agua-nao');
+  const gasNao  = document.getElementById('gas-nao');
+  if (aguaNao) aguaNao.checked = true;
+  if (gasNao)  gasNao.checked  = true;
+  document.getElementById('bloco-tipo-gas').style.display = 'none';
+  document.querySelectorAll('input[name="imovel_tipo_gas"]').forEach(i => { i.required = false; });
 }
 
 // ── Máscaras ──────────────────────────────────────────────────
@@ -127,11 +238,68 @@ document.addEventListener('change', e => {
   }
 });
 
-// ── Vaga condicional ──────────────────────────────────────────
+// ── Toggle: controle remoto ───────────────────────────────────
+document.querySelectorAll('input[name="imovel_tem_controle"]').forEach(r => {
+  r.addEventListener('change', () => {
+    const mostrar = r.value === 'sim' && r.checked;
+    const campos  = document.getElementById('campos-controle');
+    campos.style.display = mostrar ? 'block' : 'none';
+    campos.querySelector('input[name="imovel_qtd_controles"]').required  = mostrar;
+    campos.querySelector('input[name="imovel_foto_controles"]').required = mostrar;
+  });
+});
+
+// ── Toggle: condomínio opcional ───────────────────────────────
+document.querySelectorAll('input[name="imovel_tem_condo"]').forEach(r => {
+  r.addEventListener('change', () => {
+    const temCondo = r.value === 'sim' && r.checked;
+    const tipoEsp  = document.getElementById('campo-tipo-especifico').value;
+    const regra    = REGRAS_TIPO[tipoEsp] || REGRAS_TIPO['Outros'];
+    if (regra.condo !== 'opcional') return;
+
+    const blocoInfo  = document.getElementById('campos-condo-info');
+    const divValCond = document.getElementById('campo-valor-condo');
+    const inputNome  = document.getElementById('campo-nome-condo');
+    const divBol     = document.getElementById('campo-boleto-condo');
+    const inputBol   = divBol.querySelector('input[type=file]');
+
+    blocoInfo.style.display  = temCondo ? 'block' : 'none';
+    divValCond.style.display = temCondo ? 'block' : 'none';
+    inputNome.required       = temCondo;
+    divValCond.querySelector('input').required = temCondo;
+
+    if (regra.boletoCondo === 'condicional') {
+      divBol.style.display = temCondo ? 'block' : 'none';
+      inputBol.required    = false;
+    }
+
+    if (!temCondo) {
+      const aguaNao = document.getElementById('agua-nao');
+      const gasNao  = document.getElementById('gas-nao');
+      if (aguaNao) aguaNao.checked = true;
+      if (gasNao)  gasNao.checked  = true;
+      document.getElementById('bloco-tipo-gas').style.display = 'none';
+      document.querySelectorAll('input[name="imovel_tipo_gas"]').forEach(i => { i.required = false; });
+    }
+  });
+});
+
+// ── Toggle: gás incluso → tipo de gás ────────────────────────
+document.querySelectorAll('input[name="imovel_gas_incluso"]').forEach(r => {
+  r.addEventListener('change', () => {
+    const temGas = r.value === 'sim' && r.checked;
+    const bloco  = document.getElementById('bloco-tipo-gas');
+    bloco.style.display = temGas ? 'block' : 'none';
+    document.querySelectorAll('input[name="imovel_tipo_gas"]').forEach(i => { i.required = temGas; });
+  });
+});
+
+// ── Toggle: vaga condicional (locatário compat.) ──────────────
 document.querySelectorAll('input[name="tem_vaga"]').forEach(r => {
   r.addEventListener('change', () => {
-    const campo  = document.getElementById('campo-qtd-vagas');
+    const campo   = document.getElementById('campo-qtd-vagas');
     const mostrar = r.value === 'sim' && r.checked;
+    if (!campo) return;
     campo.style.display = mostrar ? 'block' : 'none';
     campo.querySelector('input').required = mostrar;
   });
@@ -190,7 +358,7 @@ document.getElementById('form-ficha').addEventListener('submit', async function 
       dados[input.name + '_tipo'] = result.tipo;
     }));
 
-    const res         = await fetch(APPS_SCRIPT_URL, {
+    const res = await fetch(APPS_SCRIPT_URL, {
       method:  'POST',
       headers: { 'Content-Type': 'text/plain' },
       body:    JSON.stringify(dados),
@@ -198,9 +366,8 @@ document.getElementById('form-ficha').addEventListener('submit', async function 
 
     const textoResposta = await res.text();
     let json;
-    try {
-      json = JSON.parse(textoResposta);
-    } catch (_) {
+    try { json = JSON.parse(textoResposta); }
+    catch (_) {
       throw new Error(
         'O Apps Script retornou uma resposta inesperada (não é JSON). ' +
         'Verifique se a URL está correta e se o script foi publicado como "Qualquer pessoa".'
@@ -225,6 +392,14 @@ document.getElementById('form-ficha').addEventListener('submit', async function 
       document.getElementById('campo-tipo-especifico').value          = '';
       document.getElementById('header-titulo').textContent            = 'Ficha Cadastral de Locador';
       document.getElementById('header-sub').textContent               = 'Selecione o tipo de imóvel para começar';
+      // Reseta condicionais de imóvel
+      document.getElementById('campos-controle').style.display        = 'none';
+      document.getElementById('campos-condo-info').style.display      = 'none';
+      document.getElementById('bloco-condo-toggle').style.display     = 'none';
+      document.getElementById('campo-valor-condo').style.display      = 'none';
+      document.getElementById('campo-boleto-condo').style.display     = 'none';
+      document.getElementById('campo-conta-agua').style.display       = 'none';
+      document.getElementById('bloco-tipo-gas').style.display         = 'none';
     } else {
       throw new Error(json.message || 'Erro desconhecido');
     }
