@@ -283,3 +283,36 @@
     .btn-tipo .tipo-icon { font-size: 3.2rem; }
     .btn-tipo .tipo-label { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
     .btn-tipo .tipo-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+
+    /* ── Seleção de tipo específico (grade de 4 colunas) ────── */
+    #secao-tipo-especifico {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 70px);
+      padding: 24px 16px;
+    }
+    .tipo-card-wrap-lg { max-width: 860px; }
+    .tipo-btns-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      justify-items: center;
+    }
+    @media (max-width: 700px) {
+      .tipo-btns-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .btn-tipo-sm {
+      min-width: unset; max-width: unset; width: 100%;
+      padding: 20px 12px; gap: 8px;
+    }
+    .btn-tipo-sm .tipo-icon  { font-size: 2.2rem; }
+    .btn-tipo-sm .tipo-label { font-size: .95rem; }
+    .btn-voltar-tipo {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: none; border: none; color: var(--muted);
+      font-size: .9rem; font-weight: 600; cursor: pointer;
+      padding: 0; margin-bottom: 20px;
+      transition: color .15s;
+    }
+    .btn-voltar-tipo:hover { color: var(--primary); }
