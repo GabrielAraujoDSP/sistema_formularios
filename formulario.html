@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <link rel="icon" type="image/png" href="assets/logo-francisco-egito.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ficha Cadastral de Locatário</title>
@@ -296,7 +297,7 @@
 
 <header>
   <div class="logo-wrap">
-    <img class="logo-img" src="logo-francisco-egito.png" alt="Francisco Egito Imóveis" />
+    <img class="logo-img" src="assets/logo-francisco-egito.png" alt="Francisco Egito Imóveis" />
     <div class="logo-divider"></div>
     <div class="logo-text">
       <h1 id="header-titulo">Ficha Cadastral de Locatário</h1>
@@ -312,12 +313,12 @@
     <div class="tipo-sub">Selecione abaixo para começar a preencher a ficha cadastral</div>
     <div class="tipo-btns">
       <button type="button" class="btn-tipo" onclick="selecionarTipo('residencial')">
-        <span class="tipo-icon">🏠</span>
+        <span class="tipo-icon"><img src="assets/house-chimney-blank-svgrepo-com (2).svg" alt=""></span>
         <span class="tipo-label">Residencial</span>
         <span class="tipo-desc">Imóvel de uso habitacional</span>
       </button>
       <button type="button" class="btn-tipo" onclick="selecionarTipo('comercial')">
-        <span class="tipo-icon">🏢</span>
+        <span class="tipo-icon"><img src="assets/commercial-buldings-svgrepo-com.svg" alt=""></span>
         <span class="tipo-label">Comercial</span>
         <span class="tipo-desc">Imóvel de uso empresarial ou comercial</span>
       </button>
@@ -421,12 +422,12 @@
       <div class="secao-corpo">
         <div style="display:flex;gap:16px;flex-wrap:wrap;">
           <button type="button" class="btn-tipo" id="btn-pf" onclick="selecionarTipoPessoa('pf')" style="flex:1;min-width:180px;padding:20px 16px;">
-            <span class="tipo-icon">👤</span>
+            <span class="tipo-icon"><img src="assets/person-male-svgrepo-com.svg" alt=""></span>
             <span class="tipo-label">Pessoa Física (PF)</span>
             <span class="tipo-desc">Locatário como pessoa natural</span>
           </button>
           <button type="button" class="btn-tipo" id="btn-pj" onclick="selecionarTipoPessoa('pj')" style="flex:1;min-width:180px;padding:20px 16px;">
-            <span class="tipo-icon">🏢</span>
+            <span class="tipo-icon"><img src="assets/commercial-buldings-svgrepo-com.svg" alt=""></span>
             <span class="tipo-label">Pessoa Jurídica (PJ)</span>
             <span class="tipo-desc">Locatário como empresa ou organização</span>
           </button>
