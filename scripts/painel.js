@@ -32,7 +32,35 @@
   /* ── Inicialização ───────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', () => {
     if (getToken()) mostrarApp();
+    inicializarLinks();
   });
+
+  /* ── Links dos formulários ───────────────────────────────────────── */
+  function inicializarLinks() {
+    const BASE = 'https://formulario-residencial-locatarios.vercel.app/';
+    document.getElementById('url-locatario').value = BASE + 'formulario.html';
+    document.getElementById('url-locador').value   = BASE + 'locador.html';
+    document.getElementById('href-locatario').href = BASE + 'formulario.html';
+    document.getElementById('href-locador').href   = BASE + 'locador.html';
+  }
+
+  function toggleLinks() {
+    const painel = document.getElementById('painel-links');
+    const btn    = document.getElementById('btn-links');
+    const aberto = painel.classList.toggle('aberto');
+    painel.setAttribute('aria-hidden', String(!aberto));
+    btn.classList.toggle('ativo', aberto);
+  }
+
+  function copiarLink(inputId, btn) {
+    const input = document.getElementById(inputId);
+    navigator.clipboard.writeText(input.value).then(() => {
+      const original = btn.textContent;
+      btn.textContent = 'Copiado!';
+      btn.classList.add('copiado');
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('copiado'); }, 2000);
+    });
+  }
 
   /* ── Telas ───────────────────────────────────────────────────────── */
   function mostrarLogin() {

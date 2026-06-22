@@ -54,7 +54,48 @@
     <button class="btn-marcar admin-only" onclick="marcarTodasLidas()">✅ Novas → Em análise</button>
     <button class="btn-atualizar" onclick="carregarFichas()">🔄 Atualizar</button>
     <button class="btn-trocar" id="btn-trocar" onclick="trocarInterface()">⊞ Trocar interface</button>
+    <button class="btn-trocar btn-links-toggle" id="btn-links" onclick="toggleLinks()">🔗 Links dos formulários</button>
     <a class="btn-dashboard" href="dashboard.html">📊 Dashboard</a>
+  </div>
+
+  <!-- ── Painel de links ──────────────────────────────────────────── -->
+  <div id="painel-links" class="painel-links" aria-hidden="true">
+    <div class="links-inner">
+      <div class="links-titulo">Links para compartilhar com os clientes</div>
+      <div class="links-grid">
+
+        <div class="link-card">
+          <div class="link-card-top">
+            <div class="link-card-icon">📋</div>
+            <div class="link-card-info">
+              <div class="link-card-nome">Ficha de Locatário</div>
+              <div class="link-card-desc">Preenchida pelo inquilino antes da locação</div>
+            </div>
+          </div>
+          <div class="link-url-row">
+            <input type="text" class="link-url-input" id="url-locatario" readonly />
+            <button class="btn-copiar" onclick="copiarLink('url-locatario', this)">Copiar</button>
+          </div>
+          <a class="btn-abrir-form" id="href-locatario" href="formulario.html" target="_blank" rel="noopener">Abrir formulário</a>
+        </div>
+
+        <div class="link-card link-card-futuro">
+          <div class="link-card-top">
+            <div class="link-card-icon">🏠</div>
+            <div class="link-card-info">
+              <div class="link-card-nome">Ficha de Locador <span class="tag-em-breve">Em breve</span></div>
+              <div class="link-card-desc">Preenchida pelo proprietário do imóvel</div>
+            </div>
+          </div>
+          <div class="link-url-row">
+            <input type="text" class="link-url-input" id="url-locador" readonly />
+            <button class="btn-copiar" onclick="copiarLink('url-locador', this)">Copiar</button>
+          </div>
+          <a class="btn-abrir-form" id="href-locador" href="locador.html" target="_blank" rel="noopener">Abrir formulário</a>
+        </div>
+
+      </div>
+    </div>
   </div>
 
   <main>

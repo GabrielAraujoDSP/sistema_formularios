@@ -198,6 +198,69 @@
       text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
     }
     .btn-dashboard:hover { opacity: .85; }
+    .btn-links-toggle.ativo { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* ── Painel de links dos formulários ── */
+    .painel-links {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease, padding .3s ease;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+    }
+    .painel-links.aberto { max-height: 400px; }
+    .links-inner { padding: 16px 20px; }
+    .links-titulo {
+      font-size: .78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .5px; color: var(--muted); margin-bottom: 14px;
+    }
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 640px) {
+      .links-grid { grid-template-columns: 1fr; }
+      .painel-links.aberto { max-height: 600px; }
+    }
+    .link-card {
+      display: flex; flex-direction: column; gap: 10px;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 14px 16px; background: #faf8f8;
+    }
+    .link-card-futuro { opacity: .75; }
+    .link-card-top { display: flex; align-items: flex-start; gap: 10px; }
+    .link-card-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; }
+    .link-card-info { flex: 1; }
+    .link-card-nome { font-size: .9rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 7px; }
+    .link-card-desc { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+    .tag-em-breve {
+      font-size: .65rem; font-weight: 700; padding: 1px 7px; border-radius: 20px;
+      background: #fff3cd; color: #856404; white-space: nowrap;
+    }
+    .link-url-row { display: flex; gap: 6px; align-items: center; }
+    .link-url-input {
+      flex: 1; padding: 7px 10px; border: 1.5px solid var(--border);
+      border-radius: 6px; font-size: .78rem; font-family: monospace;
+      color: var(--muted); background: #fff; cursor: text;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .link-url-input:focus { outline: none; border-color: var(--primary); }
+    .btn-copiar {
+      flex-shrink: 0; padding: 7px 12px; background: var(--card);
+      border: 1.5px solid var(--border); border-radius: 6px;
+      font-size: .78rem; font-weight: 700; color: var(--primary);
+      cursor: pointer; transition: background .15s, color .15s; white-space: nowrap;
+    }
+    .btn-copiar:hover { background: #fff5f5; border-color: var(--primary); }
+    .btn-copiar.copiado { background: var(--success); color: #fff; border-color: var(--success); }
+    .btn-abrir-form {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 7px 0; border-radius: 7px; background: var(--primary); color: #fff;
+      font-size: .82rem; font-weight: 700; text-decoration: none;
+      transition: opacity .15s;
+    }
+    .btn-abrir-form:hover { opacity: .85; }
 
     /* ── View abas ── */
     .aba-nav { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 18px; overflow-x: auto; flex-shrink: 0; }
