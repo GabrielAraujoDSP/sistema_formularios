@@ -80,6 +80,21 @@
   }
 
   /* ── Login ───────────────────────────────────────────────────────── */
+  function toggleSenhaLogin(btn) {
+    const input = document.getElementById('login-senha');
+    const aberto = btn.querySelector('.olho-aberto');
+    const fechado = btn.querySelector('.olho-fechado');
+    if (input.type === 'password') {
+      input.type = 'text';
+      aberto.style.display = 'none';
+      fechado.style.display = '';
+    } else {
+      input.type = 'password';
+      aberto.style.display = '';
+      fechado.style.display = 'none';
+    }
+  }
+
   async function fazerLogin() {
     const email = document.getElementById('login-email').value.trim().toLowerCase();
     const senha = document.getElementById('login-senha').value;

@@ -36,6 +36,15 @@
       transition: border-color .2s;
     }
     .login-card input:focus { outline: none; border-color: var(--primary-light); }
+    .input-senha-wrap { position: relative; width: 100%; }
+    .input-senha-wrap input { width: 100%; box-sizing: border-box; padding-right: 42px; }
+    .btn-toggle-senha {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-60%);
+      background: none; border: none; cursor: pointer; padding: 4px;
+      color: var(--muted); display: flex; align-items: center;
+    }
+    .btn-toggle-senha:hover { color: var(--primary); }
+    .btn-toggle-senha svg { width: 18px; height: 18px; }
     .btn-login {
       width: 100%; padding: 13px; background: var(--primary); color: #fff;
       border: none; border-radius: 8px; font-size: 1rem; font-weight: 700;
