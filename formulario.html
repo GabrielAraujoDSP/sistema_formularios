@@ -100,6 +100,10 @@
             </select>
           </div>
           <div>
+            <label>Código do imóvel <span class="obrig">*</span></label>
+            <input type="text" name="codigo_imovel" placeholder="Ex: AP-1042" required />
+          </div>
+          <div>
             <label>Tem vaga de garagem? <span class="obrig">*</span></label>
             <div class="radio-group">
               <label><input type="radio" name="tem_vaga" value="nao" checked /> Não</label>
@@ -111,12 +115,10 @@
             <input type="number" name="qtd_vagas" min="1" max="10" placeholder="Ex: 1" />
           </div>
           <div class="span2">
-            <label>Quais garantias são aceitas? <span class="obrig">*</span></label>
-            <div class="radio-group" style="margin-top:8px;flex-wrap:wrap;">
-              <label><input type="checkbox" name="tipo_garantia" value="Porto Seguro" /> Porto Seguro</label>
-              <label><input type="checkbox" name="tipo_garantia" value="LOFT" /> LOFT</label>
-              <label><input type="checkbox" name="tipo_garantia" value="Caução" /> Caução</label>
-              <label><input type="checkbox" name="tipo_garantia" value="Fiador" /> Fiador</label>
+            <label>Tipo de garantia <span class="obrig">*</span></label>
+            <div class="radio-group">
+              <label><input type="radio" name="tipo_garantia" value="Porto Seguro" required /> Porto Seguro</label>
+              <label><input type="radio" name="tipo_garantia" value="LOFT" /> LOFT</label>
             </div>
           </div>
         </div>
