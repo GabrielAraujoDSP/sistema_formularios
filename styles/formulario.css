@@ -123,6 +123,21 @@
     .upload-name { font-size: 0.85rem; color: var(--primary); font-weight: 600; margin-top: 6px; word-break: break-all; }
     .upload-area.tem-arquivo { border-color: var(--success); background: #f0fff4; }
 
+    .grid-uploads > div {
+      display: flex;
+      flex-direction: column;
+    }
+    .grid-uploads > div > label {
+      font-size: 0.88rem;
+      color: var(--text);
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+    .grid-uploads > div .upload-area {
+      flex: 1;
+      min-height: 100px;
+    }
+
     .radio-group { display: flex; gap: 20px; flex-wrap: wrap; padding-top: 6px; }
     .radio-group label { display: flex; align-items: center; gap: 7px; font-size: 0.93rem; color: var(--text); font-weight: 500; cursor: pointer; }
     .radio-group input[type=radio] { width: auto; accent-color: var(--primary); }
@@ -280,9 +295,10 @@
       transform: translateY(-4px); box-shadow: 0 10px 28px rgba(140,28,28,.18);
     }
     .btn-tipo:active { transform: translateY(-1px); }
-    .btn-tipo .tipo-icon { font-size: 3.2rem; }
+    .btn-tipo .tipo-icon { font-size: 3.2rem; display: flex; align-items: center; justify-content: center; }
     .btn-tipo .tipo-label { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
     .btn-tipo .tipo-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+    .tipo-icon svg { width: 1em; height: 1em; display: block; }
 
     /* ── Seleção de tipo específico (grade de 4 colunas) ────── */
     #secao-tipo-especifico {
@@ -306,7 +322,7 @@
       min-width: unset; max-width: unset; width: 100%;
       padding: 20px 12px; gap: 8px;
     }
-    .btn-tipo-sm .tipo-icon  { font-size: 2.2rem; }
+    .btn-tipo-sm .tipo-icon  { font-size: 2.2rem; display: flex; align-items: center; justify-content: center; }
     .btn-tipo-sm .tipo-label { font-size: .95rem; }
     .btn-voltar-tipo {
       display: inline-flex; align-items: center; gap: 6px;

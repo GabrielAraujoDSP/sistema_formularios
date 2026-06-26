@@ -14,11 +14,11 @@
 
   /* ── Estados globais ─────────────────────────────────────────────── */
   const COLUNAS = [
-    { id: 'nova',      label: 'Novo',        emoji: '🟡', cls: 'col-nova'      },
-    { id: 'analise',   label: 'Em análise',  emoji: '🔵', cls: 'col-analise'   },
-    { id: 'concluida', label: 'Concluído',   emoji: '🟢', cls: 'col-concluida' },
-    { id: 'reprovada', label: 'Reprovado',   emoji: '🔴', cls: 'col-reprovada' },
-    { id: 'arquivada', label: 'Arquivado',   emoji: '⚫', cls: 'col-arquivada' },
+    { id: 'nova',             label: 'Novo',                  emoji: '🟡', cls: 'col-nova'            },
+    { id: 'reprovada',        label: 'Reprovado',             emoji: '🔴', cls: 'col-reprovada'       },
+    { id: 'concluida',        label: 'Aprovado',              emoji: '🟢', cls: 'col-concluida'       },
+    { id: 'confeccao',        label: 'Confecção de Contrato', emoji: '🔵', cls: 'col-confeccao'       },
+    { id: 'contrato_enviado', label: 'Contrato Enviado',      emoji: '📬', cls: 'col-contrato-enviado'},
   ];
 
   let interfaceAtual = 'kanban';
@@ -328,6 +328,24 @@
       .filter(c => c.id !== (f.status || 'nova'))
       .map(c => `<button class="btn-mv bm-${c.id}" onclick="moverFichaAba('${esc(f.id)}','${c.id}')">${c.emoji} ${c.label}</button>`)
       .join('') : '';
+    const vigIniG = dataParaInput(f.vigencia_inicio);
+    const vigFimG = dataParaInput(f.vigencia_fim);
+    const vigHtml = isAdmin
+      ? `<div class="card-g-vigencia vig-container">
+          <div class="vig-titulo">📅 Vigência do Contrato</div>
+          <div class="vig-row">
+            <div class="vig-campo"><label>Início</label><input type="date" class="v-ini" value="${esc(vigIniG)}"></div>
+            <div class="vig-campo"><label>Final</label><input type="date" class="v-fim" value="${esc(vigFimG)}"></div>
+            <button class="btn-vig-salvar" onclick="salvarVigencia('${esc(f.id)}', this)">💾</button>
+          </div>
+          ${vigIniG || vigFimG ? `<div class="vig-texto" style="margin-top:4px;font-size:.78rem;color:var(--muted)">${formatarDataVig(f.vigencia_inicio)} → ${formatarDataVig(f.vigencia_fim)}</div>` : ''}
+        </div>`
+      : (f.vigencia_inicio || f.vigencia_fim
+          ? `<div class="card-g-vigencia">
+              <div class="vig-titulo">📅 Vigência do Contrato</div>
+              <div class="vig-texto">${formatarDataVig(f.vigencia_inicio)} → ${formatarDataVig(f.vigencia_fim)}</div>
+            </div>`
+          : '');
     return `
       <div class="card-g">
         <div class="card-g-body" onclick="abrirModal('${esc(f.id)}')">
@@ -341,6 +359,7 @@
           </div>
           <div class="card-g-data">📅 ${esc(f.data_envio || '—')} &nbsp;·&nbsp; Prot: <strong>${esc(f.id || '—')}</strong></div>
         </div>
+        ${vigHtml}
         <div class="card-g-footer">
           ${isAdmin ? `<div class="mover-label">Mover para</div><div class="mover-btns">${btnsMover}</div>` : ''}
           <div class="card-k-acoes">
@@ -376,11 +395,29 @@
   function cardKanban(f, statusAtual) {
     const tipoAs    = f.tipo_assinatura === 'digital' ? '💻 Digital' : f.tipo_assinatura === 'fisica' ? '🖨️ Física' : '—';
     const tipoIm    = String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
-    const isAdmin = getPapel() === 'admin';
+    const isAdmin   = getPapel() === 'admin';
     const btnsMover = isAdmin ? COLUNAS
       .filter(c => c.id !== statusAtual)
       .map(c => `<button class="btn-mv bm-${c.id}" onclick="moverFicha('${esc(f.id)}','${c.id}')">${c.emoji} ${c.label}</button>`)
       .join('') : '';
+    const vigIni = dataParaInput(f.vigencia_inicio);
+    const vigFim = dataParaInput(f.vigencia_fim);
+    const vigHtml = isAdmin
+      ? `<div class="card-k-vigencia vig-container">
+          <div class="vig-titulo">📅 Vigência do Contrato</div>
+          <div class="vig-row">
+            <div class="vig-campo"><label>Início</label><input type="date" class="v-ini" value="${esc(vigIni)}"></div>
+            <div class="vig-campo"><label>Final</label><input type="date" class="v-fim" value="${esc(vigFim)}"></div>
+            <button class="btn-vig-salvar" onclick="salvarVigencia('${esc(f.id)}', this)">💾</button>
+          </div>
+          ${vigIni || vigFim ? `<div class="vig-texto" style="margin-top:4px;font-size:.7rem;color:var(--muted)">${formatarDataVig(f.vigencia_inicio)} → ${formatarDataVig(f.vigencia_fim)}</div>` : ''}
+        </div>`
+      : (f.vigencia_inicio || f.vigencia_fim
+          ? `<div class="card-k-vigencia">
+              <div class="vig-titulo">📅 Vigência do Contrato</div>
+              <div class="vig-texto">${formatarDataVig(f.vigencia_inicio)} → ${formatarDataVig(f.vigencia_fim)}</div>
+            </div>`
+          : '');
     return `
       <div class="card-k">
         <div class="card-k-body" onclick="abrirModal('${esc(f.id)}')">
@@ -393,6 +430,7 @@
           </div>
           <div class="card-k-data">📅 ${esc(f.data_envio || '—')} · Prot: ${esc(f.id || '—')}</div>
         </div>
+        ${vigHtml}
         <div class="card-k-footer">
           ${isAdmin ? `<div class="mover-label">Mover para</div><div class="mover-btns">${btnsMover}</div>` : ''}
           <div class="card-k-acoes">
@@ -430,12 +468,12 @@
   function marcarTodasLidas() {
     const novas = fichasTodas.filter(f => (f.status || 'nova') === 'nova');
     if (!novas.length) { alert('Não há fichas novas.'); return; }
-    if (!confirm(`Marcar ${novas.length} ficha(s) como "Em análise"?`)) return;
-    novas.forEach(f => { f.status = 'analise'; });
+    if (!confirm(`Marcar ${novas.length} ficha(s) como "Confecção de Contrato"?`)) return;
+    novas.forEach(f => { f.status = 'confeccao'; });
     renderKanban();
     novas.forEach(f =>
       fetch(endpoint(), { method: 'POST', headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ acao: 'status', token: getToken(), id: f.id, status: 'analise' }) })
+        body: JSON.stringify({ acao: 'status', token: getToken(), id: f.id, status: 'confeccao' }) })
         .catch(() => {})
     );
   }
@@ -693,6 +731,25 @@
     return String(t || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  // Converte qualquer formato de data (dd/mm/yyyy, yyyy-mm-dd, ISO) para o valor de <input type="date"> (yyyy-mm-dd)
+  function dataParaInput(s) {
+    if (!s) return '';
+    s = String(s);
+    const mBR  = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (mBR) return mBR[3] + '-' + mBR[2] + '-' + mBR[1];
+    const mISO = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return mISO ? mISO[1] + '-' + mISO[2] + '-' + mISO[3] : '';
+  }
+
+  // Converte qualquer formato de data para exibição dd/mm/yyyy
+  function formatarDataVig(s) {
+    if (!s) return '—';
+    s = String(s);
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? m[3] + '/' + m[2] + '/' + m[1] : '—';
+  }
+
   function labelStatus(s) {
     const c = COLUNAS.find(x => x.id === s);
     return c ? `${c.emoji} ${c.label}` : (s || '—');
@@ -700,11 +757,11 @@
 
   function statusStyle(s) {
     const map = {
-      nova:      'background:#fef3c7;color:#78350f',
-      analise:   'background:#dbeafe;color:#1e3a8a',
-      concluida: 'background:#d1fae5;color:#064e3b',
-      reprovada: 'background:#fee2e2;color:#7f1d1d',
-      arquivada: 'background:#e2e8f0;color:#334155',
+      nova:             'background:#fef3c7;color:#78350f',
+      reprovada:        'background:#fee2e2;color:#7f1d1d',
+      concluida:        'background:#d1fae5;color:#064e3b',
+      confeccao:        'background:#dbeafe;color:#1e3a8a',
+      contrato_enviado: 'background:#e2e8f0;color:#334155',
     };
     return map[s] || 'background:#f1f5f9;color:#374151';
   }
@@ -813,6 +870,32 @@
         campo('Emerg. Nome', f[`loc${i}_emerg_nome`]),
         campo('Emerg. Celular', f[`loc${i}_emerg_cel`]),
         campo('Parentesco', f[`loc${i}_emerg_parentesco`]),
+      ]);
+    }
+
+    const isAdminModal = getPapel() === 'admin';
+    if (isAdminModal) {
+      html += `<div class="secao-detalhe vig-container">
+        <h4>📅 Vigência do Contrato</h4>
+        <div class="detalhe-grid">
+          <div class="campo-det">
+            <label>Início</label>
+            <input type="date" class="v-ini" value="${esc(dataParaInput(f.vigencia_inicio))}"
+              style="padding:5px 8px;border:1.5px solid var(--border);border-radius:5px;font-size:.85rem;width:100%;margin-top:3px">
+          </div>
+          <div class="campo-det">
+            <label>Final</label>
+            <input type="date" class="v-fim" value="${esc(dataParaInput(f.vigencia_fim))}"
+              style="padding:5px 8px;border:1.5px solid var(--border);border-radius:5px;font-size:.85rem;width:100%;margin-top:3px">
+          </div>
+        </div>
+        <button class="btn-vig-salvar" style="margin-top:10px"
+          onclick="salvarVigencia('${esc(f.id)}', this)">💾 Salvar vigência</button>
+      </div>`;
+    } else {
+      html += secaoDetalhe('📅 Vigência do Contrato', [
+        campo('Início', formatarDataVig(f.vigencia_inicio)),
+        campo('Final',  formatarDataVig(f.vigencia_fim)),
       ]);
     }
 
@@ -992,6 +1075,11 @@
       sep();
     }
 
+    titulo('VIGÊNCIA DO CONTRATO');
+    linha('Início', formatarDataVig(fichaAtual.vigencia_inicio));
+    linha('Final',  formatarDataVig(fichaAtual.vigencia_fim));
+    sep();
+
     titulo('DATA DE VENCIMENTO DO BOLETO');
     linha('Vencimento', fichaAtual.vencimento_boleto);
     sep();
@@ -1008,4 +1096,43 @@
     }
 
     doc.save(`ficha_${(fichaAtual.nome || 'locatario').replace(/\s+/g, '_')}_${fichaAtual.id || Date.now()}.pdf`);
+  }
+
+  /* ── Vigência do Contrato (admin-only) ───────────────────────────── */
+  async function salvarVigencia(fichaId, btn) {
+    const container = btn.closest('.vig-container');
+    const ini = container.querySelector('.v-ini').value;
+    const fim = container.querySelector('.v-fim').value;
+
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '⏳';
+
+    try {
+      const json = await apiPost({ acao: 'vigencia', id: fichaId, vigencia_inicio: ini, vigencia_fim: fim });
+      if (!json) { btn.textContent = orig; btn.disabled = false; return; }
+      if (json.status === 'ok') {
+        const f = fichasTodas.find(x => x.id === fichaId);
+        if (f) { f.vigencia_inicio = ini; f.vigencia_fim = fim; }
+        // Atualiza o texto de exibição abaixo dos inputs no mesmo container
+        let textoEl = container.querySelector('.vig-texto');
+        const textoFormatado = `${formatarDataVig(ini)} → ${formatarDataVig(fim)}`;
+        if (textoEl) {
+          textoEl.textContent = textoFormatado;
+        } else if (ini || fim) {
+          textoEl = document.createElement('div');
+          textoEl.className = 'vig-texto';
+          textoEl.style.cssText = 'margin-top:4px;font-size:.7rem;color:var(--muted)';
+          textoEl.textContent = textoFormatado;
+          container.appendChild(textoEl);
+        }
+        btn.textContent = '✅';
+      } else {
+        btn.textContent = '❌';
+        alert(json.message || 'Erro ao salvar vigência.');
+      }
+    } catch (_) {
+      btn.textContent = '❌';
+    }
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
   }

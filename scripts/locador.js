@@ -1,45 +1,65 @@
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxDm7JeQZqjXNd5ISaXfkt_zrkNFLlDs9bdLKJMlrY4JwA8KNpATfSaRm4mqVHqg70/exec';
 
+// ── Ícones SVG por tipo de imóvel ─────────────────────────────
+const ICONES = {
+  Apartamento:          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="1"/><rect x="7" y="5" width="3" height="3"/><rect x="14" y="5" width="3" height="3"/><rect x="7" y="10" width="3" height="3"/><rect x="14" y="10" width="3" height="3"/><rect x="7" y="15" width="3" height="3"/><rect x="14" y="15" width="3" height="3"/><path d="M10 22v-4h4v4"/></svg>`,
+  Casa:                 `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,12 12,3 21,12"/><path d="M5 12v9h14v-9"/><rect x="7" y="14" width="3" height="3"/><rect x="14" y="14" width="3" height="3"/><path d="M10 21v-5h4v5"/></svg>`,
+  'Casa em condomínio': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,11 12,5 18,11"/><path d="M8 11v7h8v-7"/><path d="M11 18v-4h2v4"/><path d="M1 20h22"/><line x1="2" y1="20" x2="2" y2="17"/><line x1="5" y1="20" x2="5" y2="17"/><line x1="2" y1="17" x2="5" y2="17"/><line x1="19" y1="20" x2="19" y2="17"/><line x1="22" y1="20" x2="22" y2="17"/><line x1="19" y1="17" x2="22" y2="17"/></svg>`,
+  Loft:                 `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="1"/><path d="M2 14h13"/><path d="M15 14V3"/><path d="M11 14L15 3"/><path d="M8 14v7"/></svg>`,
+  Sobrado:              `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,11 12,4 20,11"/><rect x="6" y="11" width="12" height="5"/><rect x="4" y="16" width="16" height="5"/><path d="M10 21v-3h4v3"/><rect x="8" y="12" width="2.5" height="2.5"/><rect x="13.5" y="12" width="2.5" height="2.5"/></svg>`,
+  Kitnet:               `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="1"/><path d="M10 22v-7h4v7"/><path d="M10 15h4"/><circle cx="14.5" cy="11" r="1" fill="currentColor" stroke="none"/><line x1="9" y1="6" x2="15" y2="6"/><line x1="9" y1="9" x2="13" y2="9"/></svg>`,
+  Cobertura:            `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="1"/><line x1="2" y1="10" x2="22" y2="10"/><rect x="8" y="3" width="8" height="7"/><line x1="8" y1="7" x2="16" y2="7"/><rect x="10" y="14" width="4" height="7"/></svg>`,
+  Loja:                 `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="1"/><path d="M3 8l2-5h14l2 5z"/><line x1="1" y1="8" x2="23" y2="8"/><rect x="6" y="11" width="5" height="4"/><rect x="13" y="11" width="5" height="4"/><path d="M10 21v-5h4v5"/></svg>`,
+  'Sala comercial':     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M3 10h18"/><rect x="9" y="7" width="6" height="3"/><path d="M8 22v-6h8v6"/><line x1="3" y1="22" x2="21" y2="22"/></svg>`,
+  'Prédio comercial':   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="1"/><line x1="2" y1="8" x2="22" y2="8"/><line x1="2" y1="14" x2="22" y2="14"/><rect x="5" y="3" width="3" height="4"/><rect x="11" y="3" width="3" height="4"/><rect x="17" y="3" width="3" height="4"/><rect x="5" y="9" width="3" height="4"/><rect x="17" y="9" width="3" height="4"/><rect x="5" y="15" width="3" height="4"/><rect x="17" y="15" width="3" height="4"/><rect x="10" y="15" width="5" height="7"/></svg>`,
+  'Casa comercial':     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,12 12,3 21,12"/><path d="M5 12v9h14v-9"/><rect x="7" y="13" width="10" height="5"/><path d="M10 21v-4h4v4"/><line x1="9" y1="15" x2="15" y2="15"/></svg>`,
+  Galpão:               `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 20V9l11-6 11 6v11H1z"/><line x1="1" y1="20" x2="23" y2="20"/><line x1="7" y1="20" x2="7" y2="9.5"/><line x1="17" y1="20" x2="17" y2="9.5"/><rect x="9" y="13" width="6" height="7"/></svg>`,
+  Terreno:              `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" stroke-dasharray="3,2"/><circle cx="3" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="21" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="3" cy="18" r="1.5" fill="currentColor" stroke="none"/><circle cx="21" cy="18" r="1.5" fill="currentColor" stroke="none"/><path d="M3 18l5-4 4 3 5-5 4 2"/></svg>`,
+  Outros:               `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>`,
+};
+
 // ── Opções de tipo específico ─────────────────────────────────
 const TIPOS_ESP = {
   residencial: [
-    { valor: 'Apartamento',        icone: '🏗️' },
-    { valor: 'Casa',               icone: '🏠' },
-    { valor: 'Casa em condomínio', icone: '🏡' },
-    { valor: 'Loft',               icone: '🛋️' },
-    { valor: 'Sobrado',            icone: '🏘️' },
-    { valor: 'Kitnet',             icone: '🚪' },
-    { valor: 'Cobertura',          icone: '🌇' },
-    { valor: 'Outros',             icone: '📋' },
+    { valor: 'Apartamento',        icone: ICONES['Apartamento'] },
+    { valor: 'Casa',               icone: ICONES['Casa'] },
+    { valor: 'Casa em condomínio', icone: ICONES['Casa em condomínio'] },
+    { valor: 'Loft',               icone: ICONES['Loft'] },
+    { valor: 'Sobrado',            icone: ICONES['Sobrado'] },
+    { valor: 'Kitnet',             icone: ICONES['Kitnet'] },
+    { valor: 'Cobertura',          icone: ICONES['Cobertura'] },
+    { valor: 'Outros',             icone: ICONES['Outros'] },
   ],
   comercial: [
-    { valor: 'Loja',              icone: '🏪' },
-    { valor: 'Sala comercial',    icone: '💼' },
-    { valor: 'Prédio comercial',  icone: '🏢' },
-    { valor: 'Casa comercial',    icone: '🏠' },
-    { valor: 'Galpão',            icone: '🏭' },
-    { valor: 'Terreno',           icone: '🌿' },
-    { valor: 'Outros',            icone: '📋' },
+    { valor: 'Loja',              icone: ICONES['Loja'] },
+    { valor: 'Sala comercial',    icone: ICONES['Sala comercial'] },
+    { valor: 'Prédio comercial',  icone: ICONES['Prédio comercial'] },
+    { valor: 'Casa comercial',    icone: ICONES['Casa comercial'] },
+    { valor: 'Galpão',            icone: ICONES['Galpão'] },
+    { valor: 'Terreno',           icone: ICONES['Terreno'] },
+    { valor: 'Outros',            icone: ICONES['Outros'] },
   ],
 };
 
-// condo/agua/gas: 'obrigatorio' | 'opcional' | 'none'
-// boletoCondo:   'obrigatorio' | 'condicional' | 'none'
+// condo/agua/gas:  'obrigatorio' | 'opcional' | 'none'
+// boletoCondo:     'obrigatorio' | 'condicional' | 'none'
+// complemento:     'obrigatorio' | 'opcional'
+// loteQuadra:      true | false  (exibe campos lote e quadra)
 const REGRAS_TIPO = {
-  'Apartamento':        { condo: 'obrigatorio', agua: 'none',        gas: 'opcional',  boletoCondo: 'obrigatorio'  },
-  'Casa':               { condo: 'opcional',    agua: 'obrigatorio',  gas: 'opcional',  boletoCondo: 'condicional'  },
-  'Casa em condomínio': { condo: 'obrigatorio', agua: 'obrigatorio',  gas: 'opcional',  boletoCondo: 'obrigatorio'  },
-  'Loft':               { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
-  'Sobrado':            { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
-  'Kitnet':             { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
-  'Cobertura':          { condo: 'obrigatorio', agua: 'none',         gas: 'opcional',  boletoCondo: 'obrigatorio'  },
-  'Loja':               { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
-  'Sala comercial':     { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
-  'Prédio comercial':   { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
-  'Casa comercial':     { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
-  'Galpão':             { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
-  'Terreno':            { condo: 'none',        agua: 'none',         gas: 'none',      boletoCondo: 'none'         },
-  'Outros':             { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional'  },
+  'Apartamento':        { condo: 'obrigatorio', agua: 'none',        gas: 'opcional',  boletoCondo: 'obrigatorio', complemento: 'obrigatorio', loteQuadra: false },
+  'Casa':               { condo: 'opcional',    agua: 'obrigatorio',  gas: 'opcional',  boletoCondo: 'condicional', complemento: 'opcional',    loteQuadra: true  },
+  'Casa em condomínio': { condo: 'obrigatorio', agua: 'obrigatorio',  gas: 'opcional',  boletoCondo: 'obrigatorio', complemento: 'obrigatorio', loteQuadra: false },
+  'Loft':               { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional', complemento: 'obrigatorio', loteQuadra: false },
+  'Sobrado':            { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional', complemento: 'obrigatorio', loteQuadra: false },
+  'Kitnet':             { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional', complemento: 'opcional',    loteQuadra: true  },
+  'Cobertura':          { condo: 'obrigatorio', agua: 'none',         gas: 'opcional',  boletoCondo: 'obrigatorio', complemento: 'obrigatorio', loteQuadra: false },
+  'Loja':               { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional', complemento: 'obrigatorio', loteQuadra: false },
+  'Sala comercial':     { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional', complemento: 'obrigatorio', loteQuadra: false },
+  'Prédio comercial':   { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional', complemento: 'opcional',    loteQuadra: false },
+  'Casa comercial':     { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional', complemento: 'opcional',    loteQuadra: false },
+  'Galpão':             { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional', complemento: 'opcional',    loteQuadra: false },
+  'Terreno':            { condo: 'none',        agua: 'none',         gas: 'none',      boletoCondo: 'none',        complemento: 'opcional',    loteQuadra: false },
+  'Outros':             { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional', complemento: 'opcional',    loteQuadra: false },
 };
 
 // ── Passo 1: Residencial ou Comercial ────────────────────────
@@ -183,6 +203,23 @@ function aplicarRegrasTipo(tipoEsp) {
     if (inputG) inputG.required = false; // sempre opcional
   }
 
+  // ─ Complemento do imóvel ──────────────────────────────────
+  const labelCompl = document.getElementById('label-imovel-complemento');
+  const inputCompl = document.getElementById('input-imovel-complemento');
+  if (regra.complemento === 'obrigatorio') {
+    labelCompl.innerHTML = 'Complemento <span class="obrig">*</span>';
+    inputCompl.required  = true;
+  } else {
+    labelCompl.textContent = 'Complemento';
+    inputCompl.required    = false;
+  }
+
+  // ─ Lote e Quadra (apenas Casa e Kitnet) ───────────────────
+  const divLote   = document.getElementById('campo-imovel-lote');
+  const divQuadra = document.getElementById('campo-imovel-quadra');
+  divLote.style.display   = regra.loteQuadra ? 'block' : 'none';
+  divQuadra.style.display = regra.loteQuadra ? 'block' : 'none';
+
   // Reseta radio de água inclusa
   const aguaNao = document.getElementById('agua-nao');
   if (aguaNao) aguaNao.checked = true;
@@ -281,6 +318,25 @@ document.querySelectorAll('input[name="tem_vaga"]').forEach(r => {
     if (!campo) return;
     campo.style.display = mostrar ? 'block' : 'none';
     campo.querySelector('input').required = mostrar;
+  });
+});
+
+// ── Toggle: repasse para terceiro ────────────────────────────
+const CAMPOS_TERC_OBRIG = [
+  'terc_nome', 'terc_cpf', 'terc_email', 'terc_cel',
+  'terc_logradouro', 'terc_numero', 'terc_bairro',
+  'terc_cep', 'terc_cidade', 'terc_estado', 'terc_doc',
+];
+
+document.querySelectorAll('input[name="repasse_destinatario"]').forEach(r => {
+  r.addEventListener('change', () => {
+    const terceiro = r.value === 'terceiro' && r.checked;
+    const bloco    = document.getElementById('bloco-terceiro');
+    bloco.style.display = terceiro ? 'block' : 'none';
+    CAMPOS_TERC_OBRIG.forEach(name => {
+      const el = bloco.querySelector(`[name="${name}"]`);
+      if (el) el.required = terceiro;
+    });
   });
 });
 
@@ -399,6 +455,13 @@ document.getElementById('form-ficha').addEventListener('submit', async function 
       document.getElementById('campo-valor-condo').style.display      = 'none';
       document.getElementById('campo-boleto-condo').style.display     = 'none';
       document.getElementById('campo-conta-agua').style.display       = 'none';
+      // Reseta bloco terceiro
+      const blocoTerc = document.getElementById('bloco-terceiro');
+      blocoTerc.style.display = 'none';
+      CAMPOS_TERC_OBRIG.forEach(name => {
+        const el = blocoTerc.querySelector(`[name="${name}"]`);
+        if (el) el.required = false;
+      });
     } else {
       throw new Error(json.message || 'Erro desconhecido');
     }

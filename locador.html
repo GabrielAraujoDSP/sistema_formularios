@@ -27,12 +27,12 @@
     <div class="tipo-sub">Selecione a categoria do imóvel que deseja cadastrar</div>
     <div class="tipo-btns">
       <button type="button" class="btn-tipo" onclick="selecionarTipo('residencial')">
-        <span class="tipo-icon">🏠</span>
+        <span class="tipo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,12 12,3 21,12"/><path d="M5 12v9h14v-9"/><rect x="7" y="14" width="3" height="3"/><rect x="14" y="14" width="3" height="3"/><path d="M10 21v-5h4v5"/></svg></span>
         <span class="tipo-label">Residencial</span>
         <span class="tipo-desc">Apartamentos, casas e imóveis para moradia</span>
       </button>
       <button type="button" class="btn-tipo" onclick="selecionarTipo('comercial')">
-        <span class="tipo-icon">🏢</span>
+        <span class="tipo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="1"/><rect x="7" y="6" width="3" height="3"/><rect x="14" y="6" width="3" height="3"/><rect x="7" y="12" width="3" height="3"/><rect x="14" y="12" width="3" height="3"/><path d="M10 22v-5h4v5"/></svg></span>
         <span class="tipo-label">Comercial</span>
         <span class="tipo-desc">Salas, lojas, galpões e espaços empresariais</span>
       </button>
@@ -129,7 +129,59 @@
 
         <hr class="separador" />
 
-        <!-- 2. Informações financeiras -->
+        <!-- 2. Endereço do imóvel -->
+        <strong style="font-size:.88rem;color:var(--primary)">📍 Endereço do Imóvel</strong>
+        <div class="grid g3" style="margin-top:12px;">
+          <div class="span3">
+            <label>Logradouro (Rua / Avenida / Estrada) <span class="obrig">*</span></label>
+            <input type="text" name="imovel_logradouro" placeholder="Ex: Rua das Flores" required />
+          </div>
+          <div>
+            <label>Número <span class="obrig">*</span></label>
+            <input type="text" name="imovel_numero" placeholder="Ex: 123" required />
+          </div>
+          <div>
+            <label>Bairro <span class="obrig">*</span></label>
+            <input type="text" name="imovel_bairro" required />
+          </div>
+          <div>
+            <label id="label-imovel-complemento">Complemento</label>
+            <input type="text" id="input-imovel-complemento" name="imovel_complemento" placeholder="Apto, Bloco, Casa, Sala…" />
+          </div>
+          <div id="campo-imovel-lote" style="display:none;">
+            <label>Lote</label>
+            <input type="text" name="imovel_lote" placeholder="Se houver" />
+          </div>
+          <div id="campo-imovel-quadra" style="display:none;">
+            <label>Quadra</label>
+            <input type="text" name="imovel_quadra" placeholder="Se houver" />
+          </div>
+          <div>
+            <label>CEP <span class="obrig">*</span></label>
+            <input type="text" name="imovel_cep" placeholder="00000-000" maxlength="9" data-mask="cep" required />
+          </div>
+          <div>
+            <label>Cidade <span class="obrig">*</span></label>
+            <input type="text" name="imovel_cidade" required />
+          </div>
+          <div>
+            <label>Estado <span class="obrig">*</span></label>
+            <select name="imovel_estado" required>
+              <option value="">UF</option>
+              <option>AC</option><option>AL</option><option>AM</option><option>AP</option>
+              <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+              <option>GO</option><option>MA</option><option>MG</option><option>MS</option>
+              <option>MT</option><option>PA</option><option>PB</option><option>PE</option>
+              <option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
+              <option>RO</option><option>RR</option><option>RS</option><option>SC</option>
+              <option>SE</option><option>SP</option><option>TO</option>
+            </select>
+          </div>
+        </div>
+
+        <hr class="separador" />
+
+        <!-- 3. Informações financeiras -->
         <strong style="font-size:.88rem;color:var(--primary)">💰 Informações Financeiras</strong>
         <div class="grid g3" style="margin-top:12px;">
           <div>
@@ -250,7 +302,7 @@
 
         <!-- 6. Anexos do imóvel -->
         <strong style="font-size:.88rem;color:var(--primary)">📎 Documentos e Contas do Imóvel</strong>
-        <div class="grid g3" style="margin-top:12px;">
+        <div class="grid g3 grid-uploads" style="margin-top:12px;">
           <div>
             <label>Escritura, matrícula ou contrato de compra e venda <span class="obrig">*</span></label>
             <div class="upload-area" id="area-imovel-doc">
@@ -510,6 +562,131 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ── DADOS BANCÁRIOS ──────────────────────────────────── -->
+    <div class="secao" id="secao-bancario">
+      <div class="secao-titulo">🏦 Dados Bancários para Repasse do Aluguel</div>
+      <div class="secao-corpo">
+
+        <!-- 1. Destinatário do repasse -->
+        <label style="margin-bottom:8px;">O repasse do aluguel será realizado para: <span class="obrig">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="repasse_destinatario" value="proprio" checked required /> Para mim mesmo(a)</label>
+          <label><input type="radio" name="repasse_destinatario" value="terceiro" /> Para um terceiro</label>
+        </div>
+
+        <!-- Subsessão: dados do terceiro (oculto por padrão) -->
+        <div id="bloco-terceiro" style="display:none;">
+          <hr class="separador" />
+          <strong style="font-size:.88rem;color:var(--primary)">👤 Dados do Beneficiário do Repasse</strong>
+          <div class="grid g3" style="margin-top:12px;">
+            <div class="span3">
+              <label>Nome completo <span class="obrig">*</span></label>
+              <input type="text" name="terc_nome" />
+            </div>
+            <div>
+              <label>CPF <span class="obrig">*</span></label>
+              <input type="text" name="terc_cpf" placeholder="000.000.000-00" maxlength="14" data-mask="cpf" />
+            </div>
+            <div>
+              <label>E-mail <span class="obrig">*</span></label>
+              <input type="email" name="terc_email" />
+            </div>
+            <div>
+              <label>Celular <span class="obrig">*</span></label>
+              <input type="text" name="terc_cel" placeholder="(00) 00000-0000" maxlength="15" data-mask="tel" />
+            </div>
+
+            <hr class="separador span3" />
+
+            <div class="span3">
+              <label>Logradouro (Rua / Avenida / Estrada) <span class="obrig">*</span></label>
+              <input type="text" name="terc_logradouro" placeholder="Ex: Rua das Flores" />
+            </div>
+            <div>
+              <label>Número <span class="obrig">*</span></label>
+              <input type="text" name="terc_numero" placeholder="Ex: 123" />
+            </div>
+            <div>
+              <label>Bairro <span class="obrig">*</span></label>
+              <input type="text" name="terc_bairro" />
+            </div>
+            <div>
+              <label>Complemento</label>
+              <input type="text" name="terc_complemento" placeholder="Apto, Bloco, Casa…" />
+            </div>
+            <div>
+              <label>Lote</label>
+              <input type="text" name="terc_lote" placeholder="Se houver" />
+            </div>
+            <div>
+              <label>Quadra</label>
+              <input type="text" name="terc_quadra" placeholder="Se houver" />
+            </div>
+            <div>
+              <label>CEP <span class="obrig">*</span></label>
+              <input type="text" name="terc_cep" placeholder="00000-000" maxlength="9" data-mask="cep" />
+            </div>
+            <div>
+              <label>Cidade <span class="obrig">*</span></label>
+              <input type="text" name="terc_cidade" />
+            </div>
+            <div>
+              <label>Estado <span class="obrig">*</span></label>
+              <select name="terc_estado">
+                <option value="">UF</option>
+                <option>AC</option><option>AL</option><option>AM</option><option>AP</option>
+                <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+                <option>GO</option><option>MA</option><option>MG</option><option>MS</option>
+                <option>MT</option><option>PA</option><option>PB</option><option>PE</option>
+                <option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
+                <option>RO</option><option>RR</option><option>RS</option><option>SC</option>
+                <option>SE</option><option>SP</option><option>TO</option>
+              </select>
+            </div>
+
+            <hr class="separador span3" />
+
+            <div class="span3">
+              <label>Documento oficial com foto <span class="obrig">*</span></label>
+              <div class="upload-area" id="area-terc-doc">
+                <div class="upload-icon">📎</div>
+                <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+                <div class="upload-name" id="nome-terc-doc">Nenhum arquivo selecionado</div>
+                <input type="file" name="terc_doc" accept=".pdf,.jpg,.jpeg,.png"
+                  data-preview="nome-terc-doc" data-area="area-terc-doc" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Conta para recebimento -->
+        <hr class="separador" />
+        <strong style="font-size:.88rem;color:var(--primary)">💳 Conta para Recebimento</strong>
+        <div class="grid g3" style="margin-top:12px;">
+          <div>
+            <label>Tipo de conta <span class="obrig">*</span></label>
+            <div class="radio-group" style="padding-top:10px;">
+              <label><input type="radio" name="banco_tipo_conta" value="Corrente" required /> Corrente</label>
+              <label><input type="radio" name="banco_tipo_conta" value="Poupança" /> Poupança</label>
+            </div>
+          </div>
+          <div class="span2">
+            <label>Instituição financeira <span class="obrig">*</span></label>
+            <input type="text" name="banco_instituicao" placeholder="Ex: Banco do Brasil, Nubank, Caixa…" required />
+          </div>
+          <div>
+            <label>Agência <span class="obrig">*</span></label>
+            <input type="text" name="banco_agencia" placeholder="Ex: 0001" required />
+          </div>
+          <div>
+            <label>Conta <span class="obrig">*</span></label>
+            <input type="text" name="banco_conta" placeholder="Ex: 12345-6" required />
+          </div>
+        </div>
+
       </div>
     </div>
 

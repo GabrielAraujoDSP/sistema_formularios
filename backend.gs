@@ -365,6 +365,52 @@ function doPost(e) {
       }
     }
 
+    /* ── Vigência do Contrato (requer token admin) ──────────────── */
+    if (acao === 'vigencia') {
+      var sessVig = verificarToken(dados.token || '');
+      if (!sessVig || sessVig.papel !== 'admin') return erro401();
+
+      var idVig  = dados.id              || '';
+      var inicio = dados.vigencia_inicio || '';
+      var fim    = dados.vigencia_fim    || '';
+      if (!idVig) return resposta({ status: 'erro', message: 'Parâmetro id obrigatório.' });
+
+      var lockVig = LockService.getScriptLock();
+      lockVig.waitLock(15000);
+      try {
+        var shVig = obterOuCriarAba();
+        var hdrs  = shVig.getRange(1, 1, 1, shVig.getLastColumn()).getValues()[0];
+        var colId = hdrs.indexOf('id');
+
+        var colIni = hdrs.indexOf('vigencia_inicio');
+        if (colIni === -1) {
+          shVig.getRange(1, hdrs.length + 1).setValue('vigencia_inicio');
+          hdrs   = shVig.getRange(1, 1, 1, shVig.getLastColumn()).getValues()[0];
+          colIni = hdrs.indexOf('vigencia_inicio');
+        }
+        var colFim = hdrs.indexOf('vigencia_fim');
+        if (colFim === -1) {
+          shVig.getRange(1, hdrs.length + 1).setValue('vigencia_fim');
+          hdrs   = shVig.getRange(1, 1, 1, shVig.getLastColumn()).getValues()[0];
+          colFim = hdrs.indexOf('vigencia_fim');
+        }
+
+        var dadosVig = shVig.getDataRange().getValues();
+        var rowVig   = -1;
+        for (var rv = 1; rv < dadosVig.length; rv++) {
+          if (dadosVig[rv][colId] === idVig) { rowVig = rv + 1; break; }
+        }
+        if (rowVig === -1) return resposta({ status: 'erro', message: 'ID não encontrado.' });
+
+        shVig.getRange(rowVig, colIni + 1).setNumberFormat('@').setValue(yyyymmddParaBR(inicio));
+        shVig.getRange(rowVig, colFim + 1).setNumberFormat('@').setValue(yyyymmddParaBR(fim));
+        marcarRevisao();
+        return resposta({ status: 'ok' });
+      } finally {
+        lockVig.releaseLock();
+      }
+    }
+
     /* ── Ping — polling em tempo real (token no corpo) ──────────── */
     if (acao === 'ping') {
       if (!verificarToken(dados.token || '')) return erro401();
@@ -397,7 +443,7 @@ function doPost(e) {
       if (!idSt || !stVal) {
         return resposta({ status: 'erro', message: 'Parâmetros id e status são obrigatórios.' });
       }
-      var STATUS_OK = ['nova', 'analise', 'concluida', 'reprovada', 'arquivada'];
+      var STATUS_OK = ['nova', 'confeccao', 'concluida', 'reprovada', 'contrato_enviado'];
       if (STATUS_OK.indexOf(stVal) === -1) {
         return resposta({ status: 'erro', message: 'Status inválido.' });
       }
@@ -786,7 +832,7 @@ function obterOuCriarAba() {
     ? sheet.getRange(1, 1, 1, ultimaCol).getValues()[0]
     : [];
 
-  var schemaOk = (headerAtual.length === colunas.length &&
+  var schemaOk = (headerAtual.length >= colunas.length &&
                   headerAtual[0] === colunas[0] &&
                   headerAtual[8] === colunas[8]);
 
@@ -810,6 +856,12 @@ function criarAba(ss, colunas) {
   sheet.setColumnWidth(4, 150);
   sheet.setColumnWidth(9, 200);
   return sheet;
+}
+
+function yyyymmddParaBR(s) {
+  if (!s) return '';
+  var m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? m[3] + '/' + m[2] + '/' + m[1] : String(s);
 }
 
 function parseDateGS(str) {

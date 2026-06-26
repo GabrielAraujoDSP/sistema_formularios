@@ -17,6 +17,7 @@
     document.querySelectorAll('input[name="vigencia_contrato"]').forEach(r => {
       r.required = comercial;
     });
+    document.getElementById('campo-ramo-atividade').required = comercial;
 
     document.getElementById('header-titulo').textContent =
       comercial ? 'Ficha Cadastral de Locatário Comercial'

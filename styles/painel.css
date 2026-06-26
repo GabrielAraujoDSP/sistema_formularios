@@ -104,11 +104,11 @@
     .kanban-col { flex: 0 0 264px; background: #eaecf4; border-radius: 10px; display: flex; flex-direction: column; max-height: calc(100vh - 240px); min-height: 180px; }
     .col-header { padding: 10px 13px; border-radius: 10px 10px 0 0; display: flex; align-items: center; justify-content: space-between; font-weight: 700; font-size: .88rem; color: #fff; flex-shrink: 0; }
     .col-count { background: rgba(255,255,255,.3); font-size: .72rem; font-weight: 800; padding: 1px 7px; border-radius: 20px; }
-    .col-nova      .col-header { background: #b45309; }
-    .col-analise   .col-header { background: #1d4ed8; }
-    .col-concluida .col-header { background: #047857; }
-    .col-reprovada .col-header { background: #b91c1c; }
-    .col-arquivada .col-header { background: #475569; }
+    .col-nova              .col-header { background: #b45309; }
+    .col-confeccao         .col-header { background: #1d4ed8; }
+    .col-concluida         .col-header { background: #047857; }
+    .col-reprovada         .col-header { background: #b91c1c; }
+    .col-contrato-enviado  .col-header { background: #475569; }
     .col-cards { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
     .col-cards::-webkit-scrollbar { width: 4px; }
     .col-cards::-webkit-scrollbar-thumb { background: #c0cad8; border-radius: 2px; }
@@ -130,11 +130,11 @@
     .btn-mv { font-size: .66rem; font-weight: 700; padding: 2px 7px; border: none; border-radius: 10px; cursor: pointer; transition: opacity .15s, transform .1s; white-space: nowrap; }
     .btn-mv:hover { opacity: .8; transform: scale(1.04); }
     .btn-mv:active { transform: scale(.95); }
-    .bm-nova      { background: #fef3c7; color: #78350f; }
-    .bm-analise   { background: #dbeafe; color: #1e3a8a; }
-    .bm-concluida { background: #d1fae5; color: #064e3b; }
-    .bm-reprovada { background: #fee2e2; color: #7f1d1d; }
-    .bm-arquivada { background: #e2e8f0; color: #334155; }
+    .bm-nova              { background: #fef3c7; color: #78350f; }
+    .bm-confeccao         { background: #dbeafe; color: #1e3a8a; }
+    .bm-concluida         { background: #d1fae5; color: #064e3b; }
+    .bm-reprovada         { background: #fee2e2; color: #7f1d1d; }
+    .bm-contrato_enviado  { background: #e2e8f0; color: #334155; }
     .card-k-acoes { display: flex; gap: 5px; justify-content: flex-end; }
     .btn-ac { font-size: .7rem; padding: 3px 9px; border-radius: 5px; border: none; cursor: pointer; font-weight: 600; transition: opacity .15s; }
     .btn-ac:hover { opacity: .8; }
@@ -287,16 +287,16 @@
     .aba-btn { flex: 1; min-width: 120px; padding: 11px 10px; border: none; background: none; cursor: pointer; font-size: .85rem; font-weight: 600; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color .15s, border-color .15s; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .aba-btn:hover { color: var(--primary); }
     .ab-count { font-size: .7rem; background: var(--border); color: var(--text); padding: 1px 7px; border-radius: 20px; font-weight: 700; }
-    .aba-nova.ativa      { color: #b45309; border-bottom-color: #b45309; }
-    .aba-nova.ativa .ab-count      { background: #b45309; color: #fff; }
-    .aba-analise.ativa   { color: #1d4ed8; border-bottom-color: #1d4ed8; }
-    .aba-analise.ativa .ab-count   { background: #1d4ed8; color: #fff; }
-    .aba-concluida.ativa { color: #047857; border-bottom-color: #047857; }
-    .aba-concluida.ativa .ab-count { background: #047857; color: #fff; }
-    .aba-reprovada.ativa { color: #b91c1c; border-bottom-color: #b91c1c; }
-    .aba-reprovada.ativa .ab-count { background: #b91c1c; color: #fff; }
-    .aba-arquivada.ativa { color: #475569; border-bottom-color: #475569; }
-    .aba-arquivada.ativa .ab-count { background: #475569; color: #fff; }
+    .aba-nova.ativa              { color: #b45309; border-bottom-color: #b45309; }
+    .aba-nova.ativa .ab-count              { background: #b45309; color: #fff; }
+    .aba-confeccao.ativa         { color: #1d4ed8; border-bottom-color: #1d4ed8; }
+    .aba-confeccao.ativa .ab-count         { background: #1d4ed8; color: #fff; }
+    .aba-concluida.ativa         { color: #047857; border-bottom-color: #047857; }
+    .aba-concluida.ativa .ab-count         { background: #047857; color: #fff; }
+    .aba-reprovada.ativa         { color: #b91c1c; border-bottom-color: #b91c1c; }
+    .aba-reprovada.ativa .ab-count         { background: #b91c1c; color: #fff; }
+    .aba-contrato_enviado.ativa  { color: #475569; border-bottom-color: #475569; }
+    .aba-contrato_enviado.ativa .ab-count  { background: #475569; color: #fff; }
 
     .grid-fichas { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
     .card-g { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: box-shadow .2s, transform .15s; }
@@ -311,6 +311,47 @@
     .card-g-footer { padding: 10px 14px; background: #f7f8fc; border-top: 1px solid #eaecf4; }
     .sem-fichas-aba { grid-column: 1 / -1; text-align: center; padding: 54px 20px; color: var(--muted); }
     .sem-fichas-aba .icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+    /* ── Vigência do Contrato no card ── */
+    .card-k-vigencia {
+      padding: 7px 10px;
+      background: #f0f4ff;
+      border-top: 1px solid #dde3f0;
+    }
+    .card-g-vigencia {
+      padding: 8px 14px;
+      background: #f0f4ff;
+      border-top: 1px solid #dde3f0;
+    }
+    .vig-titulo {
+      font-size: .65rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      margin-bottom: 5px;
+    }
+    .vig-row { display: flex; align-items: flex-end; gap: 6px; flex-wrap: wrap; }
+    .vig-campo { display: flex; flex-direction: column; gap: 2px; }
+    .vig-campo label {
+      font-size: .62rem; color: var(--muted); font-weight: 600;
+      margin: 0; text-transform: none; letter-spacing: 0;
+    }
+    .vig-campo input[type=date] {
+      font-size: .72rem; padding: 3px 6px;
+      border: 1.5px solid var(--border); border-radius: 5px;
+      width: 118px; height: 26px; font-family: inherit; color: var(--text);
+    }
+    .vig-campo input[type=date]:focus { outline: none; border-color: var(--primary); }
+    .btn-vig-salvar {
+      background: var(--primary); color: #fff; border: none;
+      padding: 3px 9px; border-radius: 5px; font-size: .7rem;
+      font-weight: 700; cursor: pointer; height: 26px; white-space: nowrap;
+    }
+    .btn-vig-salvar:hover { opacity: .85; }
+    .btn-vig-salvar:disabled { opacity: .5; cursor: not-allowed; }
+    .vig-texto { font-size: .76rem; color: var(--text); }
+    .vig-nd { color: var(--muted); font-style: italic; }
 
     @media (max-width: 600px) {
       html, body { overflow-x: hidden; }
