@@ -372,7 +372,6 @@ function doPost(e) {
 
       var idVig  = dados.id              || '';
       var inicio = dados.vigencia_inicio || '';
-      var fim    = dados.vigencia_fim    || '';
       if (!idVig) return resposta({ status: 'erro', message: 'Parâmetro id obrigatório.' });
 
       var lockVig = LockService.getScriptLock();
@@ -388,12 +387,6 @@ function doPost(e) {
           hdrs   = shVig.getRange(1, 1, 1, shVig.getLastColumn()).getValues()[0];
           colIni = hdrs.indexOf('vigencia_inicio');
         }
-        var colFim = hdrs.indexOf('vigencia_fim');
-        if (colFim === -1) {
-          shVig.getRange(1, hdrs.length + 1).setValue('vigencia_fim');
-          hdrs   = shVig.getRange(1, 1, 1, shVig.getLastColumn()).getValues()[0];
-          colFim = hdrs.indexOf('vigencia_fim');
-        }
 
         var dadosVig = shVig.getDataRange().getValues();
         var rowVig   = -1;
@@ -403,7 +396,6 @@ function doPost(e) {
         if (rowVig === -1) return resposta({ status: 'erro', message: 'ID não encontrado.' });
 
         shVig.getRange(rowVig, colIni + 1).setNumberFormat('@').setValue(yyyymmddParaBR(inicio));
-        shVig.getRange(rowVig, colFim + 1).setNumberFormat('@').setValue(yyyymmddParaBR(fim));
         marcarRevisao();
         return resposta({ status: 'ok' });
       } finally {

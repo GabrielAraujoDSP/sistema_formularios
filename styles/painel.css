@@ -351,6 +351,18 @@
     .btn-vig-salvar:hover { opacity: .85; }
     .btn-vig-salvar:disabled { opacity: .5; cursor: not-allowed; }
     .vig-texto { font-size: .76rem; color: var(--text); }
+    .vig-texto--set {
+      display: inline-block;
+      background: #fff0f0;
+      border: 1.5px solid var(--primary);
+      border-radius: 6px;
+      padding: 4px 10px;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: .78rem;
+      margin-top: 6px;
+      letter-spacing: .01em;
+    }
     .vig-nd { color: var(--muted); font-style: italic; }
 
     @media (max-width: 600px) {

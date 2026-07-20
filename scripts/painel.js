@@ -329,21 +329,19 @@
       .map(c => `<button class="btn-mv bm-${c.id}" onclick="moverFichaAba('${esc(f.id)}','${c.id}')">${c.emoji} ${c.label}</button>`)
       .join('') : '';
     const vigIniG = dataParaInput(f.vigencia_inicio);
-    const vigFimG = dataParaInput(f.vigencia_fim);
     const vigHtml = isAdmin
-      ? `<div class="card-g-vigencia vig-container">
+      ? `<div class="card-g-vigencia vig-container" data-id="${esc(f.id)}">
           <div class="vig-titulo">📅 Vigência do Contrato</div>
           <div class="vig-row">
             <div class="vig-campo"><label>Início</label><input type="date" class="v-ini" value="${esc(vigIniG)}"></div>
-            <div class="vig-campo"><label>Final</label><input type="date" class="v-fim" value="${esc(vigFimG)}"></div>
             <button class="btn-vig-salvar" onclick="salvarVigencia('${esc(f.id)}', this)">💾</button>
           </div>
-          ${vigIniG || vigFimG ? `<div class="vig-texto" style="margin-top:4px;font-size:.78rem;color:var(--muted)">${formatarDataVig(f.vigencia_inicio)} → ${formatarDataVig(f.vigencia_fim)}</div>` : ''}
+          ${vigIniG ? `<div class="vig-texto vig-texto--set">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>` : ''}
         </div>`
-      : (f.vigencia_inicio || f.vigencia_fim
+      : (f.vigencia_inicio
           ? `<div class="card-g-vigencia">
               <div class="vig-titulo">📅 Vigência do Contrato</div>
-              <div class="vig-texto">${formatarDataVig(f.vigencia_inicio)} → ${formatarDataVig(f.vigencia_fim)}</div>
+              <div class="vig-texto vig-texto--set">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>
             </div>`
           : '');
     return `
@@ -401,21 +399,19 @@
       .map(c => `<button class="btn-mv bm-${c.id}" onclick="moverFicha('${esc(f.id)}','${c.id}')">${c.emoji} ${c.label}</button>`)
       .join('') : '';
     const vigIni = dataParaInput(f.vigencia_inicio);
-    const vigFim = dataParaInput(f.vigencia_fim);
     const vigHtml = isAdmin
-      ? `<div class="card-k-vigencia vig-container">
+      ? `<div class="card-k-vigencia vig-container" data-id="${esc(f.id)}">
           <div class="vig-titulo">📅 Vigência do Contrato</div>
           <div class="vig-row">
             <div class="vig-campo"><label>Início</label><input type="date" class="v-ini" value="${esc(vigIni)}"></div>
-            <div class="vig-campo"><label>Final</label><input type="date" class="v-fim" value="${esc(vigFim)}"></div>
             <button class="btn-vig-salvar" onclick="salvarVigencia('${esc(f.id)}', this)">💾</button>
           </div>
-          ${vigIni || vigFim ? `<div class="vig-texto" style="margin-top:4px;font-size:.7rem;color:var(--muted)">${formatarDataVig(f.vigencia_inicio)} → ${formatarDataVig(f.vigencia_fim)}</div>` : ''}
+          ${vigIni ? `<div class="vig-texto vig-texto--set">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>` : ''}
         </div>`
-      : (f.vigencia_inicio || f.vigencia_fim
+      : (f.vigencia_inicio
           ? `<div class="card-k-vigencia">
               <div class="vig-titulo">📅 Vigência do Contrato</div>
-              <div class="vig-texto">${formatarDataVig(f.vigencia_inicio)} → ${formatarDataVig(f.vigencia_fim)}</div>
+              <div class="vig-texto vig-texto--set">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>
             </div>`
           : '');
     return `
@@ -875,27 +871,23 @@
 
     const isAdminModal = getPapel() === 'admin';
     if (isAdminModal) {
-      html += `<div class="secao-detalhe vig-container">
+      const vigIniModal = dataParaInput(f.vigencia_inicio);
+      html += `<div class="secao-detalhe vig-container" data-id="${esc(f.id)}">
         <h4>📅 Vigência do Contrato</h4>
         <div class="detalhe-grid">
           <div class="campo-det">
             <label>Início</label>
-            <input type="date" class="v-ini" value="${esc(dataParaInput(f.vigencia_inicio))}"
-              style="padding:5px 8px;border:1.5px solid var(--border);border-radius:5px;font-size:.85rem;width:100%;margin-top:3px">
-          </div>
-          <div class="campo-det">
-            <label>Final</label>
-            <input type="date" class="v-fim" value="${esc(dataParaInput(f.vigencia_fim))}"
+            <input type="date" class="v-ini" value="${esc(vigIniModal)}"
               style="padding:5px 8px;border:1.5px solid var(--border);border-radius:5px;font-size:.85rem;width:100%;margin-top:3px">
           </div>
         </div>
+        ${vigIniModal ? `<div class="vig-texto vig-texto--set" style="margin-top:8px">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>` : ''}
         <button class="btn-vig-salvar" style="margin-top:10px"
           onclick="salvarVigencia('${esc(f.id)}', this)">💾 Salvar vigência</button>
       </div>`;
     } else {
       html += secaoDetalhe('📅 Vigência do Contrato', [
         campo('Início', formatarDataVig(f.vigencia_inicio)),
-        campo('Final',  formatarDataVig(f.vigencia_fim)),
       ]);
     }
 
@@ -1077,7 +1069,6 @@
 
     titulo('VIGÊNCIA DO CONTRATO');
     linha('Início', formatarDataVig(fichaAtual.vigencia_inicio));
-    linha('Final',  formatarDataVig(fichaAtual.vigencia_fim));
     sep();
 
     titulo('DATA DE VENCIMENTO DO BOLETO');
@@ -1102,30 +1093,39 @@
   async function salvarVigencia(fichaId, btn) {
     const container = btn.closest('.vig-container');
     const ini = container.querySelector('.v-ini').value;
-    const fim = container.querySelector('.v-fim').value;
 
     const orig = btn.textContent;
     btn.disabled = true;
     btn.textContent = '⏳';
 
     try {
-      const json = await apiPost({ acao: 'vigencia', id: fichaId, vigencia_inicio: ini, vigencia_fim: fim });
+      const json = await apiPost({ acao: 'vigencia', id: fichaId, vigencia_inicio: ini });
       if (!json) { btn.textContent = orig; btn.disabled = false; return; }
       if (json.status === 'ok') {
         const f = fichasTodas.find(x => x.id === fichaId);
-        if (f) { f.vigencia_inicio = ini; f.vigencia_fim = fim; }
-        // Atualiza o texto de exibição abaixo dos inputs no mesmo container
-        let textoEl = container.querySelector('.vig-texto');
-        const textoFormatado = `${formatarDataVig(ini)} → ${formatarDataVig(fim)}`;
-        if (textoEl) {
-          textoEl.textContent = textoFormatado;
-        } else if (ini || fim) {
-          textoEl = document.createElement('div');
-          textoEl.className = 'vig-texto';
-          textoEl.style.cssText = 'margin-top:4px;font-size:.7rem;color:var(--muted)';
-          textoEl.textContent = textoFormatado;
-          container.appendChild(textoEl);
-        }
+        if (f) { f.vigencia_inicio = ini; }
+        document.querySelectorAll(`.vig-container[data-id="${fichaId}"]`).forEach(ct => {
+          const inputIni = ct.querySelector('.v-ini');
+          if (inputIni) inputIni.value = ini;
+          let textoEl = ct.querySelector('.vig-texto');
+          if (ini) {
+            const textoFormatado = `📅 Início: ${formatarDataVig(ini)}`;
+            if (textoEl) {
+              textoEl.textContent = textoFormatado;
+              textoEl.classList.add('vig-texto--set');
+            } else {
+              textoEl = document.createElement('div');
+              textoEl.className = 'vig-texto vig-texto--set';
+              textoEl.style.marginTop = '6px';
+              textoEl.textContent = textoFormatado;
+              const salvarBtn = ct.querySelector('.btn-vig-salvar');
+              if (salvarBtn) salvarBtn.insertAdjacentElement('beforebegin', textoEl);
+              else ct.appendChild(textoEl);
+            }
+          } else if (textoEl) {
+            textoEl.remove();
+          }
+        });
         btn.textContent = '✅';
       } else {
         btn.textContent = '❌';

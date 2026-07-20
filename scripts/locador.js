@@ -62,6 +62,50 @@ const REGRAS_TIPO = {
   'Outros':             { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional', complemento: 'opcional',    loteQuadra: false },
 };
 
+// ── Campos obrigatórios do locador PF ────────────────────────
+const CAMPOS_LOCADOR_PF_OBRIG = new Set([
+  'nome', 'cpf', 'nascimento', 'estado_civil', 'nacionalidade', 'profissao',
+  'email', 'celular', 'endereco_logradouro', 'endereco_numero', 'endereco_bairro',
+  'cep_atual', 'cidade_atual', 'estado_atual',
+  'emerg_nome', 'emerg_cel', 'emerg_parentesco',
+  'doc_identificacao', 'comprovante_residencia',
+]);
+
+// ── Campos obrigatórios do locador PJ ────────────────────────
+const CAMPOS_LOCADOR_PJ_OBRIG = new Set([
+  'pj_razao_social', 'pj_cnpj', 'pj_email', 'pj_celular',
+  'pj_logradouro', 'pj_numero', 'pj_bairro', 'pj_cep', 'pj_cidade', 'pj_estado',
+  'pj_rep_nome', 'pj_rep_cpf', 'pj_rep_nascimento',
+  'pj_rep_estado_civil', 'pj_rep_nacionalidade', 'pj_rep_profissao',
+  'pj_rep_email', 'pj_rep_celular',
+  'pj_rep_logradouro', 'pj_rep_numero', 'pj_rep_bairro',
+  'pj_rep_cep', 'pj_rep_cidade', 'pj_rep_estado',
+  'pj_rep_emerg_nome', 'pj_rep_emerg_cel', 'pj_rep_emerg_parentesco',
+  'pj_contrato_social', 'pj_doc_representante', 'pj_rep_comp_residencia',
+]);
+
+// ── Campos obrigatórios do terceiro PF ───────────────────────
+const CAMPOS_TERC_PF_OBRIG = new Set([
+  'terc_nome', 'terc_cpf', 'terc_email', 'terc_cel',
+  'terc_logradouro', 'terc_numero', 'terc_bairro',
+  'terc_cep', 'terc_cidade', 'terc_estado', 'terc_doc',
+]);
+
+// ── Campos obrigatórios do terceiro PJ ───────────────────────
+const CAMPOS_TERC_PJ_OBRIG = new Set([
+  'terc_pj_razao_social', 'terc_pj_cnpj', 'terc_pj_email', 'terc_pj_cel',
+  'terc_pj_logradouro', 'terc_pj_numero', 'terc_pj_bairro',
+  'terc_pj_cep', 'terc_pj_cidade', 'terc_pj_estado',
+  'terc_pj_contrato_social', 'terc_pj_doc_rep',
+  'terc_pj_rep_nome', 'terc_pj_rep_cpf', 'terc_pj_rep_email', 'terc_pj_rep_cel',
+  'terc_pj_rep_logradouro', 'terc_pj_rep_numero', 'terc_pj_rep_bairro',
+  'terc_pj_rep_cep', 'terc_pj_rep_cidade', 'terc_pj_rep_estado',
+]);
+
+// ── Estado dos locadores adicionais ─────────────────────────
+let contadorLocadores = 0;
+let conjugeAdicionado  = false;
+
 // ── Passo 1: Residencial ou Comercial ────────────────────────
 function selecionarTipo(tipo) {
   document.getElementById('campo-tipo-imovel').value = tipo;
@@ -128,7 +172,6 @@ function selecionarTipoEspecifico(tipoEsp) {
 function aplicarRegrasTipo(tipoEsp) {
   const regra = REGRAS_TIPO[tipoEsp] || REGRAS_TIPO['Outros'];
 
-  // Referências comuns
   const blocoCondoInfo = document.getElementById('campos-condo-info');
   const blocoToggle    = document.getElementById('bloco-condo-toggle');
   const divValCondo    = document.getElementById('campo-valor-condo');
@@ -174,7 +217,7 @@ function aplicarRegrasTipo(tipoEsp) {
     labelBolCondo.innerHTML     = 'Boleto do condomínio atualizado <span class="obrig">*</span>';
     inputBolCondo.required      = true;
   } else if (regra.boletoCondo === 'condicional') {
-    divBolCondo.style.display   = 'none'; // aparece via toggle
+    divBolCondo.style.display   = 'none';
     labelBolCondo.textContent   = 'Boleto do condomínio atualizado';
     inputBolCondo.required      = false;
   } else {
@@ -200,7 +243,7 @@ function aplicarRegrasTipo(tipoEsp) {
   if (divGas) {
     divGas.style.display = (regra.gas === 'none') ? 'none' : 'block';
     const inputG = divGas.querySelector('input[type=file]');
-    if (inputG) inputG.required = false; // sempre opcional
+    if (inputG) inputG.required = false;
   }
 
   // ─ Complemento do imóvel ──────────────────────────────────
@@ -214,15 +257,262 @@ function aplicarRegrasTipo(tipoEsp) {
     inputCompl.required    = false;
   }
 
-  // ─ Lote e Quadra (apenas Casa e Kitnet) ───────────────────
+  // ─ Lote e Quadra ──────────────────────────────────────────
   const divLote   = document.getElementById('campo-imovel-lote');
   const divQuadra = document.getElementById('campo-imovel-quadra');
   divLote.style.display   = regra.loteQuadra ? 'block' : 'none';
   divQuadra.style.display = regra.loteQuadra ? 'block' : 'none';
 
-  // Reseta radio de água inclusa
   const aguaNao = document.getElementById('agua-nao');
   if (aguaNao) aguaNao.checked = true;
+}
+
+// ── Seleção PF / PJ do locador ───────────────────────────────
+function selecionarTipoLocador(tipo) {
+  document.getElementById('campo-tipo-locador').value = tipo;
+
+  const secaoPf = document.getElementById('secao-locador');
+  const secaoPj = document.getElementById('secao-locador-pj');
+
+  document.getElementById('btn-locador-pf').classList.toggle('ativo', tipo === 'pf');
+  document.getElementById('btn-locador-pj').classList.toggle('ativo', tipo === 'pj');
+
+  // Reseta locadores adicionais ao trocar de tipo
+  document.getElementById('container-locadores-adicionais').innerHTML = '';
+  document.getElementById('secao-pergunta-locador').style.display = 'none';
+  contadorLocadores = 0;
+  conjugeAdicionado  = false;
+
+  if (tipo === 'pf') {
+    secaoPf.style.display = 'block';
+    secaoPj.style.display = 'none';
+    secaoPf.querySelectorAll('input, select').forEach(el => {
+      el.required = CAMPOS_LOCADOR_PF_OBRIG.has(el.name);
+    });
+    secaoPj.querySelectorAll('input, select').forEach(el => { el.required = false; });
+    mostrarPerguntaLocador();
+  } else {
+    secaoPj.style.display = 'block';
+    secaoPf.style.display = 'none';
+    secaoPj.querySelectorAll('input, select').forEach(el => {
+      el.required = CAMPOS_LOCADOR_PJ_OBRIG.has(el.name);
+    });
+    secaoPf.querySelectorAll('input, select').forEach(el => { el.required = false; });
+  }
+
+  ['secao-bancario', 'secao-mobilia', 'secao-assinatura', 'secao-declaracao', 'btn-enviar-wrap'].forEach(id => {
+    document.getElementById(id).style.display = 'block';
+  });
+
+  const target = tipo === 'pf' ? secaoPf : secaoPj;
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Loop de proprietários adicionais ────────────────────────
+function mostrarPerguntaLocador() {
+  const secao = document.getElementById('secao-pergunta-locador');
+  const texto = document.getElementById('texto-pergunta-locador');
+  const btns  = document.getElementById('btns-pergunta-locador');
+
+  secao.style.display = 'block';
+
+  if (contadorLocadores === 0 && !conjugeAdicionado) {
+    texto.textContent = 'Há cônjuge, companheiro(a) ou outro proprietário no contrato?';
+    btns.innerHTML = `
+      <button type="button" class="btn-nao" onclick="finalizarLocadores()">✘ Não há outro proprietário</button>
+      <button type="button" class="btn-sim" onclick="adicionarLocador('conjuge')">💑 Cônjuge / Companheiro(a)</button>
+      <button type="button" class="btn-sim" onclick="adicionarLocador('adicional')">👤 Proprietário Adicional</button>`;
+  } else {
+    texto.textContent = 'Há outro proprietário no contrato?';
+    btns.innerHTML = `
+      <button type="button" class="btn-nao" onclick="finalizarLocadores()">✘ Não há outro proprietário</button>
+      <button type="button" class="btn-sim" onclick="adicionarLocador('adicional')">👤 Proprietário Adicional</button>`;
+  }
+}
+
+function adicionarLocador(tipo) {
+  contadorLocadores++;
+  if (tipo === 'conjuge') conjugeAdicionado = true;
+
+  const container = document.getElementById('container-locadores-adicionais');
+  container.insertAdjacentHTML('beforeend', gerarSecaoLocadorAdicional(contadorLocadores, tipo));
+
+  mostrarPerguntaLocador();
+
+  const novaSecao = document.getElementById(`secao-locador-ad-${contadorLocadores}`);
+  if (novaSecao) novaSecao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function finalizarLocadores() {
+  document.getElementById('secao-pergunta-locador').style.display = 'none';
+}
+
+function gerarSecaoLocadorAdicional(indice, tipo) {
+  const tipoLabel = tipo === 'conjuge' ? 'Cônjuge / Companheiro(a)' : 'Proprietário Adicional';
+  const icone     = tipo === 'conjuge' ? '💑' : '👤';
+  const p         = `loc${indice}`;
+
+  return `
+<div class="secao" id="secao-locador-ad-${indice}">
+  <input type="hidden" name="${p}_tipo" value="${tipo}" />
+  <div class="secao-titulo">${icone} ${tipoLabel}</div>
+  <div class="secao-corpo">
+    <div class="grid g3">
+      <div class="span3">
+        <label>Nome completo <span class="obrig">*</span></label>
+        <input type="text" name="${p}_nome" required />
+      </div>
+      <div>
+        <label>CPF <span class="obrig">*</span></label>
+        <input type="text" name="${p}_cpf" placeholder="000.000.000-00" maxlength="14" data-mask="cpf" required />
+      </div>
+      <div>
+        <label>Data de nascimento <span class="obrig">*</span></label>
+        <input type="date" name="${p}_nascimento" required />
+      </div>
+      <div>
+        <label>Estado civil <span class="obrig">*</span></label>
+        <select name="${p}_estado_civil" required>
+          <option value="">Selecione</option>
+          <option>Solteiro(a)</option><option>Casado(a)</option>
+          <option>Divorciado(a)</option><option>Viúvo(a)</option><option>União estável</option>
+        </select>
+      </div>
+      <div>
+        <label>Nacionalidade <span class="obrig">*</span></label>
+        <input type="text" name="${p}_nacionalidade" value="Brasileiro(a)" required />
+      </div>
+      <div>
+        <label>Profissão <span class="obrig">*</span></label>
+        <input type="text" name="${p}_profissao" required />
+      </div>
+      <div>
+        <label>E-mail <span class="obrig">*</span></label>
+        <input type="email" name="${p}_email" required />
+      </div>
+      <div>
+        <label>Celular / WhatsApp <span class="obrig">*</span></label>
+        <input type="text" name="${p}_celular" placeholder="(00) 00000-0000" maxlength="15" data-mask="tel" required />
+      </div>
+
+      <hr class="separador span3" />
+
+      <div class="span3">
+        <label>Logradouro (Rua / Avenida / Estrada) <span class="obrig">*</span></label>
+        <input type="text" name="${p}_logradouro" placeholder="Ex: Rua das Flores" required />
+      </div>
+      <div>
+        <label>Número <span class="obrig">*</span></label>
+        <input type="text" name="${p}_numero" placeholder="Ex: 123" required />
+      </div>
+      <div>
+        <label>Bairro <span class="obrig">*</span></label>
+        <input type="text" name="${p}_bairro" required />
+      </div>
+      <div>
+        <label>Complemento</label>
+        <input type="text" name="${p}_complemento" placeholder="Apto, Bloco, Casa…" />
+      </div>
+      <div>
+        <label>Lote</label>
+        <input type="text" name="${p}_lote" placeholder="Se houver" />
+      </div>
+      <div>
+        <label>Quadra</label>
+        <input type="text" name="${p}_quadra" placeholder="Se houver" />
+      </div>
+      <div>
+        <label>CEP <span class="obrig">*</span></label>
+        <input type="text" name="${p}_cep" placeholder="00000-000" maxlength="9" data-mask="cep" required />
+      </div>
+      <div>
+        <label>Cidade <span class="obrig">*</span></label>
+        <input type="text" name="${p}_cidade" required />
+      </div>
+      <div>
+        <label>Estado <span class="obrig">*</span></label>
+        <select name="${p}_estado" required>
+          <option value="">UF</option>
+          <option>AC</option><option>AL</option><option>AM</option><option>AP</option>
+          <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+          <option>GO</option><option>MA</option><option>MG</option><option>MS</option>
+          <option>MT</option><option>PA</option><option>PB</option><option>PE</option>
+          <option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
+          <option>RO</option><option>RR</option><option>RS</option><option>SC</option>
+          <option>SE</option><option>SP</option><option>TO</option>
+        </select>
+      </div>
+
+      <hr class="separador span3" />
+      <div class="span3"><strong style="font-size:.88rem;color:var(--primary)">📞 Contato de Emergência</strong></div>
+
+      <div>
+        <label>Nome completo <span class="obrig">*</span></label>
+        <input type="text" name="${p}_emerg_nome" required />
+      </div>
+      <div>
+        <label>Celular <span class="obrig">*</span></label>
+        <input type="text" name="${p}_emerg_cel" placeholder="(00) 00000-0000" maxlength="15" data-mask="tel" required />
+      </div>
+      <div>
+        <label>Grau de parentesco <span class="obrig">*</span></label>
+        <input type="text" name="${p}_emerg_parentesco" placeholder="Ex: Mãe, Pai, Irmão…" required />
+      </div>
+
+      <hr class="separador span3" />
+      <div class="span3"><strong style="font-size:.88rem;color:var(--primary)">📄 Documentos</strong></div>
+
+      <div>
+        <label>Documento de identificação (RG ou CNH) <span class="obrig">*</span></label>
+        <div class="upload-area" id="area-${p}-doc-id">
+          <div class="upload-icon">📎</div>
+          <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+          <div class="upload-name" id="nome-${p}-doc-id">Nenhum arquivo selecionado</div>
+          <input type="file" name="${p}_doc_identificacao" accept=".pdf,.jpg,.jpeg,.png" required
+            data-preview="nome-${p}-doc-id" data-area="area-${p}-doc-id" />
+        </div>
+      </div>
+      ${tipo !== 'conjuge' ? `<div>
+        <label>Comprovante de residência <span class="obrig">*</span></label>
+        <div class="upload-area" id="area-${p}-comp-res">
+          <div class="upload-icon">🏠</div>
+          <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+          <div class="upload-name" id="nome-${p}-comp-res">Nenhum arquivo selecionado</div>
+          <input type="file" name="${p}_comprovante_residencia" accept=".pdf,.jpg,.jpeg,.png" required
+            data-preview="nome-${p}-comp-res" data-area="area-${p}-comp-res" />
+        </div>
+      </div>` : ''}
+    </div>
+  </div>
+</div>`;
+}
+
+// ── Seleção PF / PJ do terceiro beneficiário ─────────────────
+function selecionarTipoTerceiro(tipo) {
+  const pfDiv = document.getElementById('dados-terc-pf');
+  const pjDiv = document.getElementById('dados-terc-pj');
+  const btnPf = document.getElementById('btn-terc-pf');
+  const btnPj = document.getElementById('btn-terc-pj');
+
+  btnPf.classList.toggle('ativo', tipo === 'pf');
+  btnPj.classList.toggle('ativo', tipo === 'pj');
+
+  [pfDiv, pjDiv].forEach(div => {
+    div.querySelectorAll('input, select').forEach(el => { el.required = false; });
+    div.style.display = 'none';
+  });
+
+  if (tipo === 'pf') {
+    pfDiv.style.display = 'block';
+    pfDiv.querySelectorAll('input, select').forEach(el => {
+      el.required = CAMPOS_TERC_PF_OBRIG.has(el.name);
+    });
+  } else {
+    pjDiv.style.display = 'block';
+    pjDiv.querySelectorAll('input, select').forEach(el => {
+      el.required = CAMPOS_TERC_PJ_OBRIG.has(el.name);
+    });
+  }
 }
 
 // ── Máscaras ──────────────────────────────────────────────────
@@ -230,6 +520,8 @@ function aplicarMascara(val, tipo) {
   const d = val.replace(/\D/g, '');
   if (tipo === 'cpf')
     return d.slice(0,3) + (d.length>3?'.':'') + d.slice(3,6) + (d.length>6?'.':'') + d.slice(6,9) + (d.length>9?'-':'') + d.slice(9,11);
+  if (tipo === 'cnpj')
+    return d.slice(0,2) + (d.length>2?'.':'') + d.slice(2,5) + (d.length>5?'.':'') + d.slice(5,8) + (d.length>8?'/':'') + d.slice(8,12) + (d.length>12?'-':'') + d.slice(12,14);
   if (tipo === 'tel') {
     if (d.length <= 10)
       return '(' + d.slice(0,2) + (d.length>2?') ':'') + d.slice(2,6) + (d.length>6?'-':'') + d.slice(6,10);
@@ -310,7 +602,7 @@ document.querySelectorAll('input[name="imovel_tem_condo"]').forEach(r => {
   });
 });
 
-// ── Toggle: vaga condicional (locatário compat.) ──────────────
+// ── Toggle: vaga condicional ──────────────────────────────────
 document.querySelectorAll('input[name="tem_vaga"]').forEach(r => {
   r.addEventListener('change', () => {
     const campo   = document.getElementById('campo-qtd-vagas');
@@ -321,22 +613,31 @@ document.querySelectorAll('input[name="tem_vaga"]').forEach(r => {
   });
 });
 
-// ── Toggle: repasse para terceiro ────────────────────────────
-const CAMPOS_TERC_OBRIG = [
-  'terc_nome', 'terc_cpf', 'terc_email', 'terc_cel',
-  'terc_logradouro', 'terc_numero', 'terc_bairro',
-  'terc_cep', 'terc_cidade', 'terc_estado', 'terc_doc',
-];
+// ── Toggle: mobília ──────────────────────────────────────────
+document.querySelectorAll('input[name="mobiliado"]').forEach(r => {
+  r.addEventListener('change', () => {
+    const sim    = r.value === 'sim' && r.checked;
+    const campos = document.getElementById('campos-mobilia');
+    const area   = document.getElementById('campo-descricao-mobilia');
+    campos.style.display = sim ? 'block' : 'none';
+    area.required        = sim;
+  });
+});
 
+// ── Toggle: repasse para terceiro ────────────────────────────
 document.querySelectorAll('input[name="repasse_destinatario"]').forEach(r => {
   r.addEventListener('change', () => {
     const terceiro = r.value === 'terceiro' && r.checked;
     const bloco    = document.getElementById('bloco-terceiro');
     bloco.style.display = terceiro ? 'block' : 'none';
-    CAMPOS_TERC_OBRIG.forEach(name => {
-      const el = bloco.querySelector(`[name="${name}"]`);
-      if (el) el.required = terceiro;
-    });
+
+    if (!terceiro) {
+      bloco.querySelectorAll('input, select').forEach(el => { el.required = false; });
+      document.getElementById('dados-terc-pf').style.display = 'none';
+      document.getElementById('dados-terc-pj').style.display = 'none';
+      document.getElementById('btn-terc-pf').classList.remove('ativo');
+      document.getElementById('btn-terc-pj').classList.remove('ativo');
+    }
   });
 });
 
@@ -400,8 +701,9 @@ document.getElementById('form-ficha').addEventListener('submit', async function 
       return;
     }
 
-    dados.qtd_locatarios = 0;
-    dados.qtd_socios     = 0;
+    dados.qtd_locatarios              = 0;
+    dados.qtd_socios                  = 0;
+    dados.qtd_locadores_adicionais    = contadorLocadores;
 
     const fileInputs = [...this.querySelectorAll('input[type=file]')].filter(i => i.files && i.files[0]);
     await Promise.all(fileInputs.map(async input => {
@@ -448,6 +750,7 @@ document.getElementById('form-ficha').addEventListener('submit', async function 
       document.getElementById('campo-tipo-especifico').value          = '';
       document.getElementById('header-titulo').textContent            = 'Ficha Cadastral de Locador';
       document.getElementById('header-sub').textContent               = 'Selecione o tipo de imóvel para começar';
+
       // Reseta condicionais de imóvel
       document.getElementById('campos-controle').style.display        = 'none';
       document.getElementById('campos-condo-info').style.display      = 'none';
@@ -455,13 +758,34 @@ document.getElementById('form-ficha').addEventListener('submit', async function 
       document.getElementById('campo-valor-condo').style.display      = 'none';
       document.getElementById('campo-boleto-condo').style.display     = 'none';
       document.getElementById('campo-conta-agua').style.display       = 'none';
+
+      // Reseta seleção PF/PJ do locador
+      document.getElementById('secao-locador').style.display    = 'none';
+      document.getElementById('secao-locador-pj').style.display = 'none';
+      document.getElementById('secao-bancario').style.display   = 'none';
+      document.getElementById('secao-mobilia').style.display    = 'none';
+      document.getElementById('campos-mobilia').style.display   = 'none';
+      document.getElementById('campo-descricao-mobilia').required = false;
+      document.getElementById('secao-assinatura').style.display = 'none';
+      document.getElementById('secao-declaracao').style.display = 'none';
+      document.getElementById('btn-enviar-wrap').style.display  = 'none';
+      document.getElementById('campo-tipo-locador').value       = '';
+      document.getElementById('btn-locador-pf').classList.remove('ativo');
+      document.getElementById('btn-locador-pj').classList.remove('ativo');
+      // Reseta locadores adicionais
+      document.getElementById('container-locadores-adicionais').innerHTML = '';
+      document.getElementById('secao-pergunta-locador').style.display     = 'none';
+      contadorLocadores = 0;
+      conjugeAdicionado  = false;
+
       // Reseta bloco terceiro
       const blocoTerc = document.getElementById('bloco-terceiro');
       blocoTerc.style.display = 'none';
-      CAMPOS_TERC_OBRIG.forEach(name => {
-        const el = blocoTerc.querySelector(`[name="${name}"]`);
-        if (el) el.required = false;
-      });
+      blocoTerc.querySelectorAll('input, select').forEach(el => { el.required = false; });
+      document.getElementById('dados-terc-pf').style.display = 'none';
+      document.getElementById('dados-terc-pj').style.display = 'none';
+      document.getElementById('btn-terc-pf').classList.remove('ativo');
+      document.getElementById('btn-terc-pj').classList.remove('ativo');
     } else {
       throw new Error(json.message || 'Erro desconhecido');
     }

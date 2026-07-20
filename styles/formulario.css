@@ -295,6 +295,7 @@
       transform: translateY(-4px); box-shadow: 0 10px 28px rgba(140,28,28,.18);
     }
     .btn-tipo:active { transform: translateY(-1px); }
+    .btn-tipo.ativo { border-color: var(--primary); background: #fff5f5; box-shadow: 0 6px 20px rgba(140,28,28,.22); }
     .btn-tipo .tipo-icon { font-size: 3.2rem; display: flex; align-items: center; justify-content: center; }
     .btn-tipo .tipo-label { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
     .btn-tipo .tipo-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
