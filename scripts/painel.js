@@ -233,6 +233,7 @@
       const json = await apiPost({ acao: 'listar' });
       if (!json) return;
       fichasTodas = json.fichas || [];
+      atualizarFiltroCorretores();
       renderKanban();
     } catch (err) {
       if (!silencioso) {
@@ -243,6 +244,14 @@
           </div>`;
       }
     }
+  }
+
+  function atualizarFiltroCorretores() {
+    const sel = document.getElementById('filtro-corretor');
+    const atual = sel.value;
+    const corretores = [...new Set(fichasTodas.map(f => f.corretor).filter(Boolean))].sort();
+    sel.innerHTML = '<option value="">Todos os corretores</option>' +
+      corretores.map(c => `<option${c === atual ? ' selected' : ''}>${esc(c)}</option>`).join('');
   }
 
   function fichasFiltradas() {
