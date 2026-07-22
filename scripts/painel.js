@@ -258,7 +258,7 @@
     const busca    = (document.getElementById('busca').value || '').toLowerCase();
     const corretor = document.getElementById('filtro-corretor').value;
     return fichasTodas.filter(f => {
-      const okBusca    = !busca    || (f.nome||'').toLowerCase().includes(busca) || (f.cpf||'').includes(busca);
+      const okBusca    = !busca    || (f.nome||'').toLowerCase().includes(busca) || (f.cpf||'').includes(busca) || (f.id||'').toLowerCase().includes(busca);
       const okCorretor = !corretor || f.corretor === corretor;
       return okBusca && okCorretor;
     });
