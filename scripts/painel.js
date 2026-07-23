@@ -564,6 +564,7 @@
       body: JSON.stringify({ acao: 'editar', token: getToken(), id: fichaEditando.id, dados: fichaEditando }),
     }).catch(() => {});
     fecharEditar();
+    atualizarFiltroCorretores();
     renderKanban();
   }
 
