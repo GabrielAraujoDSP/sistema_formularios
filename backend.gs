@@ -831,16 +831,13 @@ function marcarRevisao() {
 
 function excluirPastaDrive(protocolo) {
   try {
-    var pastas = DriveApp.getFolderById(FOLDER_ID).getFolders();
-    while (pastas.hasNext()) {
-      var pasta = pastas.next();
-      if (pasta.getName().indexOf(protocolo) === 0) {
-        pasta.setTrashed(true);
-        return;
-      }
+    var raiz = DriveApp.getFolderById(FOLDER_ID);
+    var it   = raiz.searchFolders('title contains "' + protocolo + '"');
+    while (it.hasNext()) {
+      it.next().setTrashed(true);
     }
   } catch (e) {
-    Logger.log('Aviso: não foi possível excluir pasta do Drive para ' + protocolo + ': ' + e.message);
+    Logger.log('Aviso ao excluir pasta do Drive [' + protocolo + ']: ' + e.message);
   }
 }
 
