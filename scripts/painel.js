@@ -15,7 +15,7 @@
   /* ── Estados globais ─────────────────────────────────────────────── */
   const COLUNAS = [
     { id: 'nova',             label: 'Novo',                  emoji: '🟡', cls: 'col-nova'            },
-    { id: 'reprovada',        label: 'Reprovado',             emoji: '🔴', cls: 'col-reprovada'       },
+    { id: 'reprovada',        label: 'Pendência',             emoji: '🔴', cls: 'col-reprovada'       },
     { id: 'concluida',        label: 'Aprovado',              emoji: '🟢', cls: 'col-concluida'       },
     { id: 'confeccao',        label: 'Confecção de Contrato', emoji: '🔵', cls: 'col-confeccao'       },
     { id: 'contrato_enviado', label: 'Contrato Enviado',      emoji: '📬', cls: 'col-contrato-enviado'},
@@ -353,8 +353,9 @@
               <div class="vig-texto vig-texto--set">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>
             </div>`
           : '');
+    const obsPendenteG = f.observacao && (f.status || 'nova') === 'reprovada';
     const obsHtmlG = f.observacao
-      ? `<div class="card-g-obs">
+      ? `<div class="card-g-obs${obsPendenteG ? ' obs-pendente' : ''}">
           <span class="obs-card-icon">💬</span>
           <span class="obs-card-texto">${esc(f.observacao.length > 100 ? f.observacao.substring(0, 100) + '…' : f.observacao)}</span>
         </div>`
@@ -429,8 +430,9 @@
               <div class="vig-texto vig-texto--set">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>
             </div>`
           : '');
+    const obsPendenteK = f.observacao && statusAtual === 'reprovada';
     const obsHtml = f.observacao
-      ? `<div class="card-k-obs">
+      ? `<div class="card-k-obs${obsPendenteK ? ' obs-pendente' : ''}">
           <span class="obs-card-icon">💬</span>
           <span class="obs-card-texto">${esc(f.observacao.length > 80 ? f.observacao.substring(0, 80) + '…' : f.observacao)}</span>
         </div>`

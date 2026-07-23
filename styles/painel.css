@@ -401,6 +401,19 @@
     }
     .btn-obs-salvar:hover { opacity: .85; }
     .btn-obs-salvar:disabled { opacity: .5; cursor: not-allowed; }
+    .card-k-obs.obs-pendente,
+    .card-g-obs.obs-pendente {
+      background: #fee2e2;
+      border-top-color: #fca5a5;
+    }
+    .card-k-obs.obs-pendente .obs-card-texto,
+    .card-g-obs.obs-pendente .obs-card-texto {
+      color: #7f1d1d;
+      font-weight: 700;
+    }
+    .card-k-obs.obs-pendente .obs-card-icon,
+    .card-g-obs.obs-pendente .obs-card-icon { color: #dc2626; }
+
     .obs-texto-modal {
       font-size: .87rem; color: #78350f;
       background: #fef3c7; border: 1px solid #fde68a;
