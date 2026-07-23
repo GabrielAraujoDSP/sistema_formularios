@@ -403,6 +403,44 @@ function doPost(e) {
       }
     }
 
+    /* ── Observação interna (requer token admin) ─────────────────── */
+    if (acao === 'observacao') {
+      var sessObs = verificarToken(dados.token || '');
+      if (!sessObs || sessObs.papel !== 'admin') return erro401();
+
+      var idObs   = dados.id         || '';
+      var textoObs = dados.observacao !== undefined ? String(dados.observacao) : '';
+      if (!idObs) return resposta({ status: 'erro', message: 'Parâmetro id obrigatório.' });
+
+      var lockObs = LockService.getScriptLock();
+      lockObs.waitLock(15000);
+      try {
+        var shObs   = obterOuCriarAba();
+        var hdrsObs = shObs.getRange(1, 1, 1, shObs.getLastColumn()).getValues()[0];
+        var colIdObs = hdrsObs.indexOf('id');
+
+        var colObsIdx = hdrsObs.indexOf('observacao');
+        if (colObsIdx === -1) {
+          shObs.getRange(1, hdrsObs.length + 1).setValue('observacao');
+          hdrsObs   = shObs.getRange(1, 1, 1, shObs.getLastColumn()).getValues()[0];
+          colObsIdx = hdrsObs.indexOf('observacao');
+        }
+
+        var dadosObs = shObs.getDataRange().getValues();
+        var rowObs   = -1;
+        for (var ro = 1; ro < dadosObs.length; ro++) {
+          if (dadosObs[ro][colIdObs] === idObs) { rowObs = ro + 1; break; }
+        }
+        if (rowObs === -1) return resposta({ status: 'erro', message: 'ID não encontrado.' });
+
+        shObs.getRange(rowObs, colObsIdx + 1).setValue(textoObs);
+        marcarRevisao();
+        return resposta({ status: 'ok' });
+      } finally {
+        lockObs.releaseLock();
+      }
+    }
+
     /* ── Ping — polling em tempo real (token no corpo) ──────────── */
     if (acao === 'ping') {
       if (!verificarToken(dados.token || '')) return erro401();

@@ -353,6 +353,12 @@
               <div class="vig-texto vig-texto--set">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>
             </div>`
           : '');
+    const obsHtmlG = f.observacao
+      ? `<div class="card-g-obs">
+          <span class="obs-card-icon">💬</span>
+          <span class="obs-card-texto">${esc(f.observacao.length > 100 ? f.observacao.substring(0, 100) + '…' : f.observacao)}</span>
+        </div>`
+      : '';
     return `
       <div class="card-g">
         <div class="card-g-body" onclick="abrirModal('${esc(f.id)}')">
@@ -366,7 +372,7 @@
           </div>
           <div class="card-g-data">📅 ${esc(f.data_envio || '—')} &nbsp;·&nbsp; Prot: <strong>${esc(f.id || '—')}</strong></div>
         </div>
-        ${vigHtml}
+        ${obsHtmlG}${vigHtml}
         <div class="card-g-footer">
           ${isAdmin ? `<div class="mover-label">Mover para</div><div class="mover-btns">${btnsMover}</div>` : ''}
           <div class="card-k-acoes">
@@ -423,6 +429,12 @@
               <div class="vig-texto vig-texto--set">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>
             </div>`
           : '');
+    const obsHtml = f.observacao
+      ? `<div class="card-k-obs">
+          <span class="obs-card-icon">💬</span>
+          <span class="obs-card-texto">${esc(f.observacao.length > 80 ? f.observacao.substring(0, 80) + '…' : f.observacao)}</span>
+        </div>`
+      : '';
     return `
       <div class="card-k">
         <div class="card-k-body" onclick="abrirModal('${esc(f.id)}')">
@@ -435,7 +447,7 @@
           </div>
           <div class="card-k-data">📅 ${esc(f.data_envio || '—')} · Prot: ${esc(f.id || '—')}</div>
         </div>
-        ${vigHtml}
+        ${obsHtml}${vigHtml}
         <div class="card-k-footer">
           ${isAdmin ? `<div class="mover-label">Mover para</div><div class="mover-btns">${btnsMover}</div>` : ''}
           <div class="card-k-acoes">
@@ -780,12 +792,26 @@
   }
 
   function renderDetalhe(f) {
+    const isAdminModal = getPapel() === 'admin';
     let html = `<div style="margin-bottom:14px;">
       <span style="font-size:.8rem;padding:4px 12px;border-radius:20px;font-weight:700;${statusStyle(f.status)}">${labelStatus(f.status)}</span>
       <span style="margin-left:12px;font-size:.8rem;color:var(--muted)">
         Enviado em: <strong>${esc(f.data_envio)}</strong> &nbsp;|&nbsp; Protocolo: <strong>${esc(f.id)}</strong>
       </span>
     </div>`;
+
+    if (isAdminModal) {
+      html += `<div class="secao-detalhe obs-container" data-id="${esc(f.id)}">
+        <h4>💬 Observações</h4>
+        <textarea class="obs-textarea" rows="3" placeholder="Adicione observações, pendências ou anotações sobre esta ficha…">${esc(f.observacao || '')}</textarea>
+        <button class="btn-obs-salvar" onclick="salvarObservacao('${esc(f.id)}', this)">💾 Salvar</button>
+      </div>`;
+    } else if (f.observacao) {
+      html += `<div class="secao-detalhe">
+        <h4>💬 Observações</h4>
+        <div class="obs-texto-modal">${esc(f.observacao)}</div>
+      </div>`;
+    }
 
     var _tipoImModal = String(f.tipo_imovel || '').toLowerCase();
     html += secaoDetalhe('🏢 Dados do Imóvel', [
@@ -879,7 +905,6 @@
       ]);
     }
 
-    const isAdminModal = getPapel() === 'admin';
     if (isAdminModal) {
       const vigIniModal = dataParaInput(f.vigencia_inicio);
       html += `<div class="secao-detalhe vig-container" data-id="${esc(f.id)}">
@@ -1140,6 +1165,33 @@
       } else {
         btn.textContent = '❌';
         alert(json.message || 'Erro ao salvar vigência.');
+      }
+    } catch (_) {
+      btn.textContent = '❌';
+    }
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
+  }
+
+  /* ── Observações internas (admin-only) ───────────────────────────── */
+  async function salvarObservacao(fichaId, btn) {
+    const container = btn.closest('.obs-container');
+    const texto = container.querySelector('.obs-textarea').value.trim();
+
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '⏳';
+
+    try {
+      const json = await apiPost({ acao: 'observacao', id: fichaId, observacao: texto });
+      if (!json) { btn.textContent = orig; btn.disabled = false; return; }
+      if (json.status === 'ok') {
+        const f = fichasTodas.find(x => x.id === fichaId);
+        if (f) f.observacao = texto;
+        renderKanban();
+        btn.textContent = '✅';
+      } else {
+        btn.textContent = '❌';
+        alert(json.message || 'Erro ao salvar observação.');
       }
     } catch (_) {
       btn.textContent = '❌';
