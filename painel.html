@@ -327,6 +327,22 @@
   </div>
 </div>
 
+<!-- ── Modal: Rotina ──────────────────────────────────────────────── -->
+<div class="overlay" id="overlay-rotina">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <h2>📋 Rotina</h2>
+      <button class="btn-fechar" onclick="fecharRotina()">✕</button>
+    </div>
+    <div class="modal-corpo">
+      <pre id="rotina-texto" style="font-family:inherit;font-size:.88rem;line-height:1.8;white-space:pre-wrap;background:#f8fafc;padding:14px 16px;border-radius:8px;border:1.5px solid var(--border);margin:0;color:var(--text)"></pre>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-pdf" id="btn-copiar-rotina" onclick="copiarRotina(this)">📋 Copiar texto</button>
+    </div>
+  </div>
+</div>
+
 <script src="scripts/painel.js"></script>
 </body>
 </html>

@@ -378,6 +378,7 @@
           ${isAdmin ? `<div class="mover-label">Mover para</div><div class="mover-btns">${btnsMover}</div>` : ''}
           <div class="card-k-acoes">
             <button class="btn-ac btn-ver" onclick="abrirModal('${esc(f.id)}')">🔍 Ver</button>
+            <button class="btn-ac btn-ver" onclick="abrirRotina('${esc(f.id)}')">📋 Rotina</button>
             ${isAdmin ? `
             <button class="btn-ac btn-editar"  onclick="abrirEditar('${esc(f.id)}')">✏️ Editar</button>
             <button class="btn-ac btn-excluir" onclick="excluirFichaAba('${esc(f.id)}')">🗑️ Excluir</button>` : ''}
@@ -454,6 +455,7 @@
           ${isAdmin ? `<div class="mover-label">Mover para</div><div class="mover-btns">${btnsMover}</div>` : ''}
           <div class="card-k-acoes">
             <button class="btn-ac btn-ver" onclick="abrirModal('${esc(f.id)}')">🔍 Ver</button>
+            <button class="btn-ac btn-ver" onclick="abrirRotina('${esc(f.id)}')">📋 Rotina</button>
             ${isAdmin ? `
             <button class="btn-ac btn-editar"  onclick="abrirEditar('${esc(f.id)}')">✏️ Editar</button>
             <button class="btn-ac btn-excluir" onclick="excluirFicha('${esc(f.id)}')">🗑️ Excluir</button>` : ''}
@@ -599,6 +601,10 @@
 
   document.getElementById('overlay-usuarios').addEventListener('click', e => {
     if (e.target === document.getElementById('overlay-usuarios')) fecharUsuarios();
+  });
+
+  document.getElementById('overlay-rotina').addEventListener('click', e => {
+    if (e.target === document.getElementById('overlay-rotina')) fecharRotina();
   });
 
   async function carregarUsuarios() {
@@ -1124,6 +1130,52 @@
     }
 
     doc.save(`ficha_${(fichaAtual.nome || 'locatario').replace(/\s+/g, '_')}_${fichaAtual.id || Date.now()}.pdf`);
+  }
+
+  /* ── Rotina — popup por ficha ───────────────────────────────────── */
+  function abrirRotina(id) {
+    const f = fichasTodas.find(x => x.id === id);
+    if (!f) return;
+
+    const vaga = f.tem_vaga === 'sim'
+      ? `Sim (${f.qtd_vagas} vaga${parseInt(f.qtd_vagas) > 1 ? 's' : ''})`
+      : 'Não';
+
+    let texto =
+      `Imóvel: ${f.codigo_imovel || '—'}\n` +
+      `Corretor: ${f.corretor || '—'}\n` +
+      `Vaga: ${vaga}\n` +
+      `Vencimento: ${f.vencimento_boleto || '—'}\n` +
+      `Nome: ${f.nome || '—'}\n` +
+      `CPF: ${f.cpf || '—'}\n` +
+      `E-mail: ${f.email || '—'}\n` +
+      `Celular: ${f.celular || '—'}`;
+
+    if (f.tem_conjuge === 'sim' && (f.conj_nome || f.conj_cpf)) {
+      texto +=
+        `\n\n— Cônjuge —\n` +
+        `Nome: ${f.conj_nome || '—'}\n` +
+        `CPF: ${f.conj_cpf || '—'}\n` +
+        `E-mail: ${f.conj_email || '—'}\n` +
+        `Celular: ${f.conj_celular || '—'}`;
+    }
+
+    document.getElementById('rotina-texto').textContent = texto;
+    document.getElementById('btn-copiar-rotina').textContent = '📋 Copiar texto';
+    document.getElementById('overlay-rotina').classList.add('ativo');
+  }
+
+  function fecharRotina() {
+    document.getElementById('overlay-rotina').classList.remove('ativo');
+  }
+
+  function copiarRotina(btn) {
+    const texto = document.getElementById('rotina-texto').textContent;
+    navigator.clipboard.writeText(texto).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = '✅ Copiado!';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
   }
 
   /* ── Vigência do Contrato (admin-only) ───────────────────────────── */
