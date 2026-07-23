@@ -33,6 +33,15 @@
   document.addEventListener('DOMContentLoaded', () => {
     if (getToken()) mostrarApp();
     inicializarLinks();
+    const salvo = localStorage.getItem('login_salvo');
+    if (salvo) {
+      try {
+        const { email, senha } = JSON.parse(salvo);
+        document.getElementById('login-email').value = email || '';
+        document.getElementById('login-senha').value = senha || '';
+        document.getElementById('lembrar-acesso').checked = true;
+      } catch (_) {}
+    }
   });
 
   /* ── Links dos formulários ───────────────────────────────────────── */
@@ -123,6 +132,11 @@
         sessionStorage.setItem('admin_token', json.token);
         sessionStorage.setItem('admin_papel', json.papel);
         sessionStorage.setItem('admin_email', json.email);
+        if (document.getElementById('lembrar-acesso').checked) {
+          localStorage.setItem('login_salvo', JSON.stringify({ email, senha }));
+        } else {
+          localStorage.removeItem('login_salvo');
+        }
         mostrarApp();
       } else {
         erroEl.textContent = 'E-mail ou senha incorretos.';
@@ -137,9 +151,6 @@
     }
   }
 
-  document.getElementById('login-senha').addEventListener('keydown', e => {
-    if (e.key === 'Enter') fazerLogin();
-  });
   document.getElementById('login-email').addEventListener('keydown', e => {
     if (e.key === 'Enter') document.getElementById('login-senha').focus();
   });
