@@ -40,8 +40,7 @@ var COLUNAS_BASE = [
   'emerg_nome', 'emerg_cel', 'emerg_parentesco',
   'tem_conjuge', 'conj_nome', 'conj_cpf', 'conj_nascimento',
   'conj_nacionalidade', 'conj_profissao', 'conj_email', 'conj_celular',
-  'qtd_locatarios', 'qtd_socios',
-  'destinacao_pj_tipo', 'destinacao_pj_ref'
+  'qtd_locatarios', 'qtd_socios'
 ];
 
 var COLUNAS_LOC_SUFIXOS = [
@@ -641,7 +640,31 @@ function doPost(e) {
     var lock = LockService.getScriptLock();
     lock.waitLock(30000); // aguarda até 30s na fila antes de desistir
     try {
-      obterOuCriarAba().appendRow(linha);
+      var fichaSheet = obterOuCriarAba();
+      fichaSheet.appendRow(linha);
+
+      // Persiste destinacao_pj_tipo e destinacao_pj_ref como colunas dinâmicas,
+      // igual a vigencia_inicio e observacao — sem alterar o schema fixo.
+      if (dados.destinacao_pj_tipo || dados.destinacao_pj_ref) {
+        var lastRow = fichaSheet.getLastRow();
+        var hdrs    = fichaSheet.getRange(1, 1, 1, fichaSheet.getLastColumn()).getValues()[0];
+
+        var colDest = hdrs.indexOf('destinacao_pj_tipo');
+        if (colDest === -1) {
+          colDest = hdrs.length;
+          fichaSheet.getRange(1, colDest + 1).setValue('destinacao_pj_tipo');
+          hdrs.push('destinacao_pj_tipo');
+        }
+
+        var colRef = hdrs.indexOf('destinacao_pj_ref');
+        if (colRef === -1) {
+          colRef = hdrs.length;
+          fichaSheet.getRange(1, colRef + 1).setValue('destinacao_pj_ref');
+        }
+
+        fichaSheet.getRange(lastRow, colDest + 1).setValue(dados.destinacao_pj_tipo || '');
+        fichaSheet.getRange(lastRow, colRef  + 1).setValue(dados.destinacao_pj_ref  || '');
+      }
     } finally {
       lock.releaseLock();
     }
