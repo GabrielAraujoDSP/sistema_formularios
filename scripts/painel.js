@@ -1202,7 +1202,9 @@
     const xB20 = bolNum === '20' ? 'X' : ' ';
 
     const qtdAdicionais = parseInt(f.qtd_locatarios) || 0;
-    const temMultiplos  = qtdAdicionais > 0;
+    const qtdSocios     = parseInt(f.qtd_socios) || 0;
+    const temConjuge    = f.tem_conjuge === 'sim';
+    const temMultiplos  = qtdAdicionais > 0 || temConjuge || qtdSocios > 0;
 
     let blocoLocatarios =
       `* NOME: ${f.nome || '—'}${temMultiplos ? ' (principal)' : ''}\n\n` +
@@ -1216,6 +1218,22 @@
         `* Cpf: ${f[`loc${i}_cpf`] || '—'}\n\n` +
         `* Celular: ${f[`loc${i}_celular`] || '—'}\n\n` +
         `* E-maill: ${f[`loc${i}_email`] || '—'}`;
+    }
+
+    if (temConjuge) {
+      blocoLocatarios +=
+        `\n\n* CÔNJUGE: ${f.conj_nome || '—'}\n\n` +
+        `* Cpf: ${f.conj_cpf || '—'}\n\n` +
+        `* Celular: ${f.conj_celular || '—'}\n\n` +
+        `* E-maill: ${f.conj_email || '—'}`;
+    }
+
+    for (let i = 1; i <= qtdSocios; i++) {
+      blocoLocatarios +=
+        `\n\n* SÓCIO ${i}: ${f[`soc${i}_nome`] || '—'}\n\n` +
+        `* Cpf: ${f[`soc${i}_cpf`] || '—'}\n\n` +
+        `* Celular: ${f[`soc${i}_celular`] || '—'}\n\n` +
+        `* E-maill: ${f[`soc${i}_email`] || '—'}`;
     }
 
     const texto =
