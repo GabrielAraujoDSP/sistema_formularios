@@ -342,7 +342,8 @@
   function cardGrande(f) {
     const col     = COLUNAS.find(c => c.id === (f.status || 'nova')) || COLUNAS[0];
     const tipoAs  = f.tipo_assinatura === 'digital' ? '💻 Digital' : f.tipo_assinatura === 'fisica' ? '🖨️ Física' : '—';
-    const tipoIm  = String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
+    const tipoIm  = f.destinacao_pj_tipo === 'membro' ? '⚖️ Não Residencial' :
+                    String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
     const isAdmin = getPapel() === 'admin';
     const btnsMover = isAdmin ? COLUNAS
       .filter(c => c.id !== (f.status || 'nova'))
@@ -420,7 +421,8 @@
 
   function cardKanban(f, statusAtual) {
     const tipoAs    = f.tipo_assinatura === 'digital' ? '💻 Digital' : f.tipo_assinatura === 'fisica' ? '🖨️ Física' : '—';
-    const tipoIm    = String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
+    const tipoIm    = f.destinacao_pj_tipo === 'membro' ? '⚖️ Não Residencial' :
+                      String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
     const isAdmin   = getPapel() === 'admin';
     const btnsMover = isAdmin ? COLUNAS
       .filter(c => c.id !== statusAtual)
@@ -832,8 +834,10 @@
     }
 
     var _tipoImModal = String(f.tipo_imovel || '').toLowerCase();
+    var _classificacaoModal = f.destinacao_pj_tipo === 'membro' ? '⚖️ Não Residencial' :
+                              _tipoImModal === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
     html += secaoDetalhe('🏢 Dados do Imóvel', [
-      campo('Tipo de imóvel', _tipoImModal === 'comercial' ? '🏢 Comercial' : '🏠 Residencial'),
+      campo('Tipo de imóvel', _classificacaoModal),
       campo('Corretor', f.corretor), campo('Código do imóvel', f.codigo_imovel),
       campo('Vaga', f.tem_vaga === 'sim' ? `Sim (${f.qtd_vagas} vaga${f.qtd_vagas > 1 ? 's' : ''})` : 'Não'),
       campo('Tipo de garantia', f.tipo_garantia),
@@ -903,9 +907,34 @@
       }
     }
 
+    // Destinação da locação (PJ Residencial)
+    if (String(f.tipo_pessoa || '').toLowerCase() === 'pj' && f.destinacao_pj_tipo) {
+      const _destLabel = f.destinacao_pj_tipo === 'membro'
+        ? 'Um membro da empresa'
+        : 'Um terceiro (sem vínculo com a empresa)';
+      const _destCampos = [campo('Opção escolhida', _destLabel)];
+      if (f.destinacao_pj_tipo === 'membro' && f.destinacao_pj_ref) {
+        let _ocupNome;
+        if (f.destinacao_pj_ref === 'representante') {
+          _ocupNome = `Representante Legal: ${f.nome || '—'}`;
+        } else {
+          const _mRef = String(f.destinacao_pj_ref).match(/^socio_(\d+)$/);
+          const _nRef = _mRef ? _mRef[1] : '?';
+          _ocupNome = `Sócio #${_nRef}: ${f[`soc${_nRef}_nome`] || '—'}`;
+        }
+        _destCampos.push(campo('Ocupante do imóvel', _ocupNome));
+        _destCampos.push(campo('Cadastro', 'Dados já preenchidos acima — sem redigitação'));
+      } else if (f.destinacao_pj_tipo === 'membro' && !f.destinacao_pj_ref) {
+        _destCampos.push(campo('Ocupante do imóvel', 'Outro membro da empresa (dados abaixo)'));
+      }
+      html += secaoDetalhe('🏡 Destinação da Locação', _destCampos);
+    }
+
     const qtd = parseInt(f.qtd_locatarios) || 0;
+    const _isPJOcup = String(f.tipo_pessoa || '').toLowerCase() === 'pj' && !!f.destinacao_pj_tipo;
     for (let i = 1; i <= qtd; i++) {
-      html += secaoDetalhe(`👥 Locatário Adicional #${i}`, [
+      const _locLabel = (_isPJOcup && i === 1) ? '👤 Locatário (Ocupante do Imóvel)' : `👥 Locatário Adicional #${i}`;
+      html += secaoDetalhe(_locLabel, [
         campo('Nome', f[`loc${i}_nome`]), campo('CPF', f[`loc${i}_cpf`]),
         campo('Estado civil', f[`loc${i}_estado_civil`]),
         campo('Nacionalidade', f[`loc${i}_nacionalidade`]),
@@ -1017,7 +1046,8 @@
     doc.rect(0, 0, 210, 22, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(13); doc.setFont(undefined, 'bold');
-    var _tipoImovel = String(fichaAtual.tipo_imovel || '').toLowerCase() === 'comercial' ? 'Comercial' : 'Residencial';
+    var _tipoImovel = fichaAtual.destinacao_pj_tipo === 'membro' ? 'Não Residencial' :
+                      String(fichaAtual.tipo_imovel || '').toLowerCase() === 'comercial' ? 'Comercial' : 'Residencial';
     doc.text('Ficha Cadastral de Locatário ' + _tipoImovel, 105, 11, { align: 'center' });
     doc.setFontSize(8); doc.setFont(undefined, 'normal');
     const stLabel = COLUNAS.find(c => c.id === fichaAtual.status);
@@ -1147,9 +1177,11 @@
     const f = fichasTodas.find(x => x.id === id);
     if (!f) return;
 
-    const tipoIm = String(f.tipo_imovel || '').toLowerCase();
-    const xRes = tipoIm !== 'comercial' ? 'X' : ' ';
-    const xCom = tipoIm === 'comercial' ? 'X' : ' ';
+    const tipoIm  = String(f.tipo_imovel || '').toLowerCase();
+    const eNaoRes = f.destinacao_pj_tipo === 'membro';
+    const xRes    = !eNaoRes && tipoIm !== 'comercial' ? 'X' : ' ';
+    const xCom    = !eNaoRes && tipoIm === 'comercial'  ? 'X' : ' ';
+    const xNaoRes = eNaoRes ? 'X' : ' ';
 
     const vaga = f.tem_vaga === 'sim'
       ? `Sim (${f.qtd_vagas} vaga${parseInt(f.qtd_vagas) > 1 ? 's' : ''})`
@@ -1192,6 +1224,7 @@
       `Tem vaga de garagem? ${vaga}\n` +
       `Residencial (${xRes}) \n` +
       `Comercial (${xCom})\n` +
+      `Não Residencial (${xNaoRes})\n` +
       `Ramo de atividade? ${tipoIm === 'comercial' ? (f.ramo_atividade || '') : ''}\n\n` +
       `Colocar vigência (${x24}) 24 36 (${x36}) ou 60(${x60}) meses\n\n` +
       `Garantia utilizada: ${f.tipo_garantia || ''}\n\n` +

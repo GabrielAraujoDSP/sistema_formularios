@@ -54,6 +54,8 @@
     <!-- ── TIPO DO IMÓVEL (hidden) ───────────────────────── -->
     <input type="hidden" name="tipo_imovel" id="campo-tipo-imovel" value="" />
     <input type="hidden" name="tipo_pessoa" id="campo-tipo-pessoa" value="" />
+    <input type="hidden" name="destinacao_pj_ref"  id="campo-destinacao-pj-ref"  value="" />
+    <input type="hidden" name="destinacao_pj_tipo" id="campo-destinacao-pj-tipo" value="" />
 
     <!-- ── DADOS COMERCIAIS (apenas imóvel comercial) ────── -->
     <div class="secao" id="secao-campos-comercial" style="display:none;">
@@ -341,6 +343,52 @@
         <div class="btn-sim-nao">
           <button type="button" class="btn-sim" onclick="adicionarSocio()">✔ Sim</button>
           <button type="button" class="btn-nao" onclick="finalizarSocios()">✘ Não</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DESTINAÇÃO DO IMÓVEL (apenas PJ Residencial) ─────── -->
+    <div class="secao" id="secao-destinacao-imovel" style="display:none;">
+      <div class="secao-titulo">🏡 Destinação do Imóvel</div>
+      <div class="secao-corpo">
+        <p style="font-size:.95rem;margin-bottom:20px;">O imóvel será alugado com destinação a quem?</p>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;">
+          <button type="button" class="btn-tipo" onclick="selecionarDestinacaoMembro()" style="flex:1;min-width:200px;padding:20px 16px;">
+            <span class="tipo-icon">👥</span>
+            <span class="tipo-label">Um membro da empresa</span>
+            <span class="tipo-desc">Representante legal, sócio, diretor, gerente ou outro integrante</span>
+          </button>
+          <button type="button" class="btn-tipo" onclick="selecionarDestinacaoTerceiro()" style="flex:1;min-width:200px;padding:20px 16px;">
+            <span class="tipo-icon">👤</span>
+            <span class="tipo-label">Um terceiro</span>
+            <span class="tipo-desc">Sem vínculo com a empresa</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SELETOR DE MEMBRO PJ ──────────────────────────────── -->
+    <div class="secao" id="secao-selecionar-membro" style="display:none;">
+      <div class="secao-titulo">🔄 Reaproveitar dados cadastrados</div>
+      <div class="secao-corpo">
+        <label style="display:block;margin-bottom:10px;font-size:.9rem;">Selecione um membro já cadastrado, ou escolha <strong>Outro membro</strong> para inserir alguém novo:</label>
+        <select id="select-membro-pj" onchange="preencherLocatarioPJDeMembro()" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.95rem;font-family:inherit;color:var(--text);">
+          <option value="">— Preencher manualmente —</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ── LOCATÁRIO PJ (ocupante do imóvel) ─────────────────── -->
+    <div class="secao" id="secao-locatario-pj" style="display:none;">
+      <div class="secao-titulo">👤 Locatário (Ocupante do Imóvel)</div>
+      <div class="secao-corpo" id="corpo-locatario-pj"></div>
+    </div>
+
+    <!-- ── CONFIRMAR LOCATÁRIO PJ ──────────────────────────── -->
+    <div class="secao" id="secao-confirmar-locatario-pj" style="display:none;">
+      <div class="secao-corpo">
+        <div class="btn-sim-nao">
+          <button type="button" class="btn-sim" onclick="confirmarLocatarioPJ()">✔ Confirmar e continuar</button>
         </div>
       </div>
     </div>

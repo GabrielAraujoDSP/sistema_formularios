@@ -44,6 +44,13 @@
     document.getElementById('container-socios').innerHTML     = '';
     document.getElementById('container-socios').style.display = 'none';
     document.getElementById('secao-pergunta-socio').style.display = 'none';
+    document.getElementById('secao-destinacao-imovel').style.display      = 'none';
+    document.getElementById('secao-selecionar-membro').style.display      = 'none';
+    document.getElementById('secao-locatario-pj').style.display           = 'none';
+    document.getElementById('corpo-locatario-pj').innerHTML               = '';
+    document.getElementById('secao-confirmar-locatario-pj').style.display = 'none';
+    document.getElementById('campo-destinacao-pj-ref').value              = '';
+    document.getElementById('campo-destinacao-pj-tipo').value             = '';
     contadorLocatarios = 0;
     contadorSocios     = 0;
   }
@@ -103,6 +110,14 @@
       document.getElementById('secao-declaracao').style.display  = 'none';
       document.getElementById('btn-enviar-wrap').style.display   = 'none';
     }
+    // Reset das seções PJ de destinação (ao trocar PF↔PJ ou mudar tipo de imóvel)
+    document.getElementById('secao-destinacao-imovel').style.display      = 'none';
+    document.getElementById('secao-selecionar-membro').style.display      = 'none';
+    document.getElementById('secao-locatario-pj').style.display           = 'none';
+    document.getElementById('corpo-locatario-pj').innerHTML               = '';
+    document.getElementById('secao-confirmar-locatario-pj').style.display = 'none';
+    document.getElementById('campo-destinacao-pj-ref').value              = '';
+    document.getElementById('campo-destinacao-pj-tipo').value             = '';
   }
 
   // ── Máscaras ────────────────────────────────────────────────
@@ -521,7 +536,134 @@
   }
 
   function finalizarSocios() {
-    document.getElementById('secao-pergunta-socio').style.display    = 'none';
+    document.getElementById('secao-pergunta-socio').style.display = 'none';
+    if (document.getElementById('campo-tipo-imovel').value === 'residencial') {
+      document.getElementById('secao-destinacao-imovel').style.display = 'block';
+      document.getElementById('secao-destinacao-imovel').scrollIntoView({ behavior: 'smooth' });
+    } else {
+      document.getElementById('secao-vencimento-boleto').style.display  = 'block';
+      document.getElementById('secao-assinatura').style.display         = 'block';
+      document.getElementById('secao-declaracao').style.display         = 'block';
+      document.getElementById('btn-enviar-wrap').style.display          = 'block';
+      document.getElementById('secao-vencimento-boleto').scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  // ── Destinação do imóvel — PJ Residencial ───────────────────
+  function populaSelectMembro() {
+    const sel = document.getElementById('select-membro-pj');
+    sel.innerHTML = '<option value="">— Selecione —</option>';
+
+    const repNome = (document.querySelector('[name="nome"]') || {}).value.trim() || '';
+    const optRep = document.createElement('option');
+    optRep.value = 'representante';
+    optRep.textContent = repNome ? `Representante Legal: ${repNome}` : 'Representante Legal';
+    sel.appendChild(optRep);
+
+    document.querySelectorAll('#container-socios .secao').forEach((bloco, idx) => {
+      const n = idx + 1;
+      const nomeEl = bloco.querySelector(`[name="soc${n}_nome"]`);
+      const nome = nomeEl ? nomeEl.value.trim() : '';
+      const opt = document.createElement('option');
+      opt.value = `socio_${n}`;
+      opt.textContent = nome ? `Sócio #${n}: ${nome}` : `Sócio #${n}`;
+      sel.appendChild(opt);
+    });
+
+    const optOutro = document.createElement('option');
+    optOutro.value = 'outro';
+    optOutro.textContent = '+ Outro membro da empresa (não cadastrado)';
+    sel.appendChild(optOutro);
+  }
+
+  function selecionarDestinacaoMembro() {
+    populaSelectMembro();
+    document.getElementById('select-membro-pj').value = '';
+    document.getElementById('secao-selecionar-membro').style.display = 'block';
+    // Não abre o formulário ainda — aguarda seleção no dropdown
+    document.getElementById('secao-locatario-pj').style.display = 'none';
+    document.getElementById('secao-confirmar-locatario-pj').style.display = 'none';
+    document.getElementById('corpo-locatario-pj').innerHTML = '';
+    document.getElementById('campo-destinacao-pj-ref').value  = '';
+    document.getElementById('campo-destinacao-pj-tipo').value = 'membro';
+    document.getElementById('secao-vencimento-boleto').style.display = 'none';
+    document.getElementById('secao-assinatura').style.display = 'none';
+    document.getElementById('secao-declaracao').style.display = 'none';
+    document.getElementById('btn-enviar-wrap').style.display = 'none';
+    contadorLocatarios = 0;
+    document.getElementById('secao-selecionar-membro').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function selecionarDestinacaoTerceiro() {
+    document.getElementById('secao-selecionar-membro').style.display = 'none';
+    document.getElementById('campo-destinacao-pj-ref').value  = '';
+    document.getElementById('campo-destinacao-pj-tipo').value = 'terceiro';
+    document.getElementById('corpo-locatario-pj').innerHTML = gerarBlocoLocatario(1);
+    document.getElementById('secao-locatario-pj').style.display = 'block';
+    document.getElementById('secao-confirmar-locatario-pj').style.display = 'block';
+    document.getElementById('secao-vencimento-boleto').style.display = 'none';
+    document.getElementById('secao-assinatura').style.display = 'none';
+    document.getElementById('secao-declaracao').style.display = 'none';
+    document.getElementById('btn-enviar-wrap').style.display = 'none';
+    contadorLocatarios = 1;
+    document.getElementById('secao-locatario-pj').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function preencherLocatarioPJDeMembro() {
+    const val = document.getElementById('select-membro-pj').value;
+    const corpo = document.getElementById('corpo-locatario-pj');
+    const refInput = document.getElementById('campo-destinacao-pj-ref');
+
+    if (!val) {
+      // Nenhuma seleção: oculta bloco do locatário
+      document.getElementById('secao-locatario-pj').style.display = 'none';
+      document.getElementById('secao-confirmar-locatario-pj').style.display = 'none';
+      corpo.innerHTML = '';
+      refInput.value = '';
+      contadorLocatarios = 0;
+      return;
+    }
+
+    if (val === 'outro') {
+      // Membro não cadastrado: exibe formulário completo
+      corpo.innerHTML = gerarBlocoLocatario(1);
+      document.getElementById('secao-locatario-pj').style.display = 'block';
+      document.getElementById('secao-confirmar-locatario-pj').style.display = 'block';
+      refInput.value = '';
+      contadorLocatarios = 1;
+      document.getElementById('secao-locatario-pj').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    // Membro já cadastrado: apenas exibe cartão de confirmação, sem redigitar nada
+    let nome = '';
+    if (val === 'representante') {
+      nome = (document.querySelector('[name="nome"]') || {}).value.trim() || 'Representante Legal';
+      refInput.value = 'representante';
+    } else {
+      const n = parseInt(val.split('_')[1]);
+      const el = document.querySelector(`[name="soc${n}_nome"]`);
+      nome = (el ? el.value.trim() : '') || `Sócio #${n}`;
+      refInput.value = val;
+    }
+
+    corpo.innerHTML = `
+      <div style="display:flex;align-items:center;gap:14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:16px 20px;">
+        <span style="font-size:1.6rem;">✅</span>
+        <div>
+          <strong style="font-size:.95rem;">${nome}</strong> selecionado(a) como locatário.<br>
+          <span style="font-size:.85rem;color:#166534;">Os dados e documentos já foram preenchidos acima — nenhuma informação precisa ser inserida novamente.</span>
+        </div>
+      </div>`;
+
+    document.getElementById('secao-locatario-pj').style.display = 'block';
+    document.getElementById('secao-confirmar-locatario-pj').style.display = 'block';
+    contadorLocatarios = 0;
+    document.getElementById('secao-locatario-pj').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function confirmarLocatarioPJ() {
+    document.getElementById('secao-confirmar-locatario-pj').style.display = 'none';
     document.getElementById('secao-vencimento-boleto').style.display  = 'block';
     document.getElementById('secao-assinatura').style.display         = 'block';
     document.getElementById('secao-declaracao').style.display         = 'block';

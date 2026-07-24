@@ -40,7 +40,8 @@ var COLUNAS_BASE = [
   'emerg_nome', 'emerg_cel', 'emerg_parentesco',
   'tem_conjuge', 'conj_nome', 'conj_cpf', 'conj_nascimento',
   'conj_nacionalidade', 'conj_profissao', 'conj_email', 'conj_celular',
-  'qtd_locatarios', 'qtd_socios'
+  'qtd_locatarios', 'qtd_socios',
+  'destinacao_pj_tipo', 'destinacao_pj_ref'
 ];
 
 var COLUNAS_LOC_SUFIXOS = [
