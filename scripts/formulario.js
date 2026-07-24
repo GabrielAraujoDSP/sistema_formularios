@@ -191,10 +191,6 @@
           <input type="text" name="loc${n}_cpf" placeholder="000.000.000-00" maxlength="14" data-mask="cpf" required />
         </div>
         <div>
-          <label>Nascimento <span class="obrig">*</span></label>
-          <input type="date" name="loc${n}_nascimento" required />
-        </div>
-        <div>
           <label>Estado civil <span class="obrig">*</span></label>
           <select name="loc${n}_estado_civil" required>
             <option value="">Selecione</option>
@@ -255,7 +251,7 @@
           <select name="loc${n}_uf" required><option value="">UF</option>${ufOpts}</select>
         </div>
         <hr class="separador span3" />
-        <div class="span3"><strong style="font-size:.85rem;color:var(--primary)">📞 Contato de Emergência</strong></div>
+        <div class="span3"><strong style="font-size:.85rem;color:var(--primary)">📞 Contato Secundário <span style="font-weight:400;color:var(--muted)">(não pode ser quem está em contrato)</span></strong></div>
         <div>
           <label>Nome completo <span class="obrig">*</span></label>
           <input type="text" name="loc${n}_emerg_nome" required />
@@ -372,10 +368,6 @@
           <input type="text" name="soc${n}_cpf" placeholder="000.000.000-00" maxlength="14" data-mask="cpf" required />
         </div>
         <div>
-          <label>Nascimento <span class="obrig">*</span></label>
-          <input type="date" name="soc${n}_nascimento" required />
-        </div>
-        <div>
           <label>Estado civil <span class="obrig">*</span></label>
           <select name="soc${n}_estado_civil" required>
             <option value="">Selecione</option>
@@ -436,7 +428,7 @@
           <select name="soc${n}_uf" required><option value="">UF</option>${ufOpts}</select>
         </div>
         <hr class="separador span3" />
-        <div class="span3"><strong style="font-size:.85rem;color:var(--primary)">📞 Contato de Emergência</strong></div>
+        <div class="span3"><strong style="font-size:.85rem;color:var(--primary)">📞 Contato Secundário <span style="font-weight:400;color:var(--muted)">(não pode ser quem está em contrato)</span></strong></div>
         <div>
           <label>Nome completo <span class="obrig">*</span></label>
           <input type="text" name="soc${n}_emerg_nome" required />

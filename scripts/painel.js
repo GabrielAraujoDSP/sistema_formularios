@@ -539,7 +539,6 @@
     set('e-tipo_garantia', f.tipo_garantia);
     set('e-nome', f.nome);
     set('e-cpf', f.cpf);
-    set('e-nascimento', f.nascimento);
     set('e-estado_civil', f.estado_civil);
     set('e-profissao', f.profissao);
     set('e-email', f.email);
@@ -574,7 +573,7 @@
     Object.assign(fichaEditando, {
       corretor: get('e-corretor'), codigo_imovel: get('e-codigo_imovel'),
       tipo_garantia: get('e-tipo_garantia'), nome: get('e-nome'),
-      cpf: get('e-cpf'), nascimento: get('e-nascimento'),
+      cpf: get('e-cpf'),
       estado_civil: get('e-estado_civil'), profissao: get('e-profissao'),
       email: get('e-email'), celular: get('e-celular'),
       endereco_logradouro: get('e-endereco_logradouro'), endereco_numero: get('e-endereco_numero'),
@@ -858,7 +857,7 @@
     var _tituloLocatario = String(f.tipo_pessoa || '').toLowerCase() === 'pj'
       ? '👤 Representante Legal' : '👤 Locatário Principal';
     html += secaoDetalhe(_tituloLocatario, [
-      campo('Nome', f.nome), campo('CPF', f.cpf), campo('Nascimento', f.nascimento),
+      campo('Nome', f.nome), campo('CPF', f.cpf),
       campo('Estado civil', f.estado_civil), campo('Nacionalidade', f.nacionalidade),
       campo('Profissão', f.profissao), campo('E-mail', f.email), campo('Celular', f.celular),
       campo('Logradouro', f.endereco_logradouro), campo('Número', f.endereco_numero),
@@ -869,14 +868,14 @@
       campo('CEP', f.cep_atual), campo('Cidade', f.cidade_atual), campo('Estado', f.estado_atual),
     ]);
 
-    html += secaoDetalhe('📞 Contato de Emergência', [
+    html += secaoDetalhe('📞 Contato Secundário', [
       campo('Nome', f.emerg_nome), campo('Celular', f.emerg_cel), campo('Parentesco', f.emerg_parentesco),
     ]);
 
     if (f.tem_conjuge === 'sim') {
       html += secaoDetalhe('💑 Cônjuge', [
         campo('Nome', f.conj_nome), campo('CPF', f.conj_cpf),
-        campo('Nascimento', f.conj_nascimento), campo('Nacionalidade', f.conj_nacionalidade),
+        campo('Nacionalidade', f.conj_nacionalidade),
         campo('Profissão', f.conj_profissao),
         campo('E-mail', f.conj_email), campo('Celular', f.conj_celular),
       ]);
@@ -887,7 +886,7 @@
       for (let i = 1; i <= qtdSoc; i++) {
         html += secaoDetalhe(`🤝 Sócio #${i}`, [
           campo('Nome', f[`soc${i}_nome`]), campo('CPF', f[`soc${i}_cpf`]),
-          campo('Nascimento', f[`soc${i}_nascimento`]), campo('Estado civil', f[`soc${i}_estado_civil`]),
+          campo('Estado civil', f[`soc${i}_estado_civil`]),
           campo('Nacionalidade', f[`soc${i}_nacionalidade`]),
           campo('Profissão', f[`soc${i}_profissao`]), campo('E-mail', f[`soc${i}_email`]),
           campo('Celular', f[`soc${i}_celular`]),
@@ -908,7 +907,7 @@
     for (let i = 1; i <= qtd; i++) {
       html += secaoDetalhe(`👥 Locatário Adicional #${i}`, [
         campo('Nome', f[`loc${i}_nome`]), campo('CPF', f[`loc${i}_cpf`]),
-        campo('Nascimento', f[`loc${i}_nascimento`]), campo('Estado civil', f[`loc${i}_estado_civil`]),
+        campo('Estado civil', f[`loc${i}_estado_civil`]),
         campo('Nacionalidade', f[`loc${i}_nacionalidade`]),
         campo('Profissão', f[`loc${i}_profissao`]), campo('E-mail', f[`loc${i}_email`]),
         campo('Celular', f[`loc${i}_celular`]),
@@ -1052,7 +1051,7 @@
 
     titulo(_ePJ ? 'REPRESENTANTE LEGAL' : 'LOCATÁRIO PRINCIPAL');
     linha('Nome', fichaAtual.nome); linha('CPF', fichaAtual.cpf);
-    linha('Nascimento', fichaAtual.nascimento); linha('Estado civil', fichaAtual.estado_civil);
+    linha('Estado civil', fichaAtual.estado_civil);
     linha('Nacionalidade', fichaAtual.nacionalidade); linha('Profissão', fichaAtual.profissao);
     linha('E-mail', fichaAtual.email); linha('Celular', fichaAtual.celular);
     linha('Logradouro', fichaAtual.endereco_logradouro); linha('Número', fichaAtual.endereco_numero);
@@ -1064,14 +1063,14 @@
     linha('Cidade / Estado', `${fichaAtual.cidade_atual || '—'} / ${fichaAtual.estado_atual || '—'}`);
     sep();
 
-    titulo('CONTATO DE EMERGÊNCIA');
+    titulo('CONTATO SECUNDÁRIO');
     linha('Nome', fichaAtual.emerg_nome); linha('Celular', fichaAtual.emerg_cel); linha('Parentesco', fichaAtual.emerg_parentesco);
     sep();
 
     if (fichaAtual.tem_conjuge === 'sim') {
       titulo('CÔNJUGE / COMPANHEIRO(A)');
       linha('Nome', fichaAtual.conj_nome); linha('CPF', fichaAtual.conj_cpf);
-      linha('Nascimento', fichaAtual.conj_nascimento); linha('Nacionalidade', fichaAtual.conj_nacionalidade);
+      linha('Nacionalidade', fichaAtual.conj_nacionalidade);
       linha('Profissão', fichaAtual.conj_profissao);
       linha('E-mail', fichaAtual.conj_email); linha('Celular', fichaAtual.conj_celular);
       sep();
@@ -1082,7 +1081,7 @@
       for (let i = 1; i <= qtdSocPDF; i++) {
         titulo(`SÓCIO #${i}`);
         linha('Nome', fichaAtual[`soc${i}_nome`]); linha('CPF', fichaAtual[`soc${i}_cpf`]);
-        linha('Nascimento', fichaAtual[`soc${i}_nascimento`]); linha('Estado civil', fichaAtual[`soc${i}_estado_civil`]);
+        linha('Estado civil', fichaAtual[`soc${i}_estado_civil`]);
         linha('Nacionalidade', fichaAtual[`soc${i}_nacionalidade`]);
         linha('Profissão', fichaAtual[`soc${i}_profissao`]); linha('E-mail', fichaAtual[`soc${i}_email`]);
         linha('Celular', fichaAtual[`soc${i}_celular`]);
@@ -1104,7 +1103,7 @@
     for (let i = 1; i <= qtd; i++) {
       titulo(`LOCATÁRIO ADICIONAL #${i}`);
       linha('Nome', fichaAtual[`loc${i}_nome`]); linha('CPF', fichaAtual[`loc${i}_cpf`]);
-      linha('Nascimento', fichaAtual[`loc${i}_nascimento`]); linha('Estado civil', fichaAtual[`loc${i}_estado_civil`]);
+      linha('Estado civil', fichaAtual[`loc${i}_estado_civil`]);
       linha('Nacionalidade', fichaAtual[`loc${i}_nacionalidade`]);
       linha('Profissão', fichaAtual[`loc${i}_profissao`]); linha('E-mail', fichaAtual[`loc${i}_email`]);
       linha('Celular', fichaAtual[`loc${i}_celular`]);
@@ -1148,28 +1147,59 @@
     const f = fichasTodas.find(x => x.id === id);
     if (!f) return;
 
+    const tipoIm = String(f.tipo_imovel || '').toLowerCase();
+    const xRes = tipoIm !== 'comercial' ? 'X' : ' ';
+    const xCom = tipoIm === 'comercial' ? 'X' : ' ';
+
     const vaga = f.tem_vaga === 'sim'
       ? `Sim (${f.qtd_vagas} vaga${parseInt(f.qtd_vagas) > 1 ? 's' : ''})`
       : 'Não';
 
-    let texto =
-      `Imóvel: ${f.codigo_imovel || '—'}\n` +
-      `Corretor: ${f.corretor || '—'}\n` +
-      `Vaga: ${vaga}\n` +
-      `Vencimento: ${f.vencimento_boleto || '—'}\n` +
-      `Nome: ${f.nome || '—'}\n` +
-      `CPF: ${f.cpf || '—'}\n` +
-      `E-mail: ${f.email || '—'}\n` +
-      `Celular: ${f.celular || '—'}`;
+    const vigNum = String(f.vigencia_contrato || '').replace(/[^0-9]/g, '');
+    const x24 = vigNum === '24' ? 'X' : ' ';
+    const x36 = vigNum === '36' ? 'X' : ' ';
+    const x60 = vigNum === '60' ? 'X' : ' ';
 
-    if (f.tem_conjuge === 'sim' && (f.conj_nome || f.conj_cpf)) {
-      texto +=
-        `\n\n— Cônjuge —\n` +
-        `Nome: ${f.conj_nome || '—'}\n` +
-        `CPF: ${f.conj_cpf || '—'}\n` +
-        `E-mail: ${f.conj_email || '—'}\n` +
-        `Celular: ${f.conj_celular || '—'}`;
+    const isDigital = f.tipo_assinatura === 'digital';
+    const xSim = isDigital ? 'X' : ' ';
+    const xNao = !isDigital ? 'X' : ' ';
+
+    const bolNum = String(f.vencimento_boleto || '').replace(/[^0-9]/g, '');
+    const xB5  = bolNum === '5'  ? 'X' : ' ';
+    const xB15 = bolNum === '15' ? 'X' : ' ';
+    const xB20 = bolNum === '20' ? 'X' : ' ';
+
+    const qtdAdicionais = parseInt(f.qtd_locatarios) || 0;
+    const temMultiplos  = qtdAdicionais > 0;
+
+    let blocoLocatarios =
+      `* NOME: ${f.nome || '—'}${temMultiplos ? ' (principal)' : ''}\n\n` +
+      `* Cpf: ${f.cpf || '—'}\n\n` +
+      `* Celular: ${f.celular || '—'}\n\n` +
+      `* E-maill: ${f.email || '—'}`;
+
+    for (let i = 1; i <= qtdAdicionais; i++) {
+      blocoLocatarios +=
+        `\n\n* NOME: ${f[`loc${i}_nome`] || '—'}\n\n` +
+        `* Cpf: ${f[`loc${i}_cpf`] || '—'}\n\n` +
+        `* Celular: ${f[`loc${i}_celular`] || '—'}\n\n` +
+        `* E-maill: ${f[`loc${i}_email`] || '—'}`;
     }
+
+    const texto =
+      `Rotina Para Entrada de Ficha \n` +
+      `Código: ${f.codigo_imovel || ''}\n\n` +
+      `Tem vaga de garagem? ${vaga}\n` +
+      `Residencial (${xRes}) \n` +
+      `Comercial (${xCom})\n` +
+      `Ramo de atividade? ${tipoIm === 'comercial' ? (f.ramo_atividade || '') : ''}\n\n` +
+      `Colocar vigência (${x24}) 24 36 (${x36}) ou 60(${x60}) meses\n\n` +
+      `Garantia utilizada: ${f.tipo_garantia || ''}\n\n` +
+      blocoLocatarios + `\n\n` +
+      `* Docusign (Assinatura digital): Sim (${xSim}) Não(${xNao})\n\n` +
+      `* Qual data para vencimento de boleto: (${xB5})5 (${xB15})15 (${xB20})20 \n\n` +
+      `Valores:\n\n` +
+      `ALUGUEL: R$    -  CONDOMÍNIO: R$   -    IPTU: R$ `;
 
     document.getElementById('rotina-texto').textContent = texto;
     document.getElementById('btn-copiar-rotina').textContent = '📋 Copiar texto';

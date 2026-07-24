@@ -183,10 +183,6 @@
           <input type="text" id="e-cpf" maxlength="14" />
         </div>
         <div class="edit-grupo">
-          <label>Nascimento</label>
-          <input type="date" id="e-nascimento" />
-        </div>
-        <div class="edit-grupo">
           <label>Estado civil</label>
           <select id="e-estado_civil">
             <option value="">Selecione</option>
@@ -252,7 +248,7 @@
           </select>
         </div>
 
-        <div class="edit-sec">📞 Contato de Emergência</div>
+        <div class="edit-sec">📞 Contato Secundário</div>
         <div class="edit-grupo">
           <label>Nome</label>
           <input type="text" id="e-emerg_nome" />
@@ -341,7 +337,7 @@
       <button class="btn-fechar" onclick="fecharRotina()">✕</button>
     </div>
     <div class="modal-corpo">
-      <pre id="rotina-texto" style="font-family:inherit;font-size:.88rem;line-height:1.8;white-space:pre-wrap;background:#f8fafc;padding:14px 16px;border-radius:8px;border:1.5px solid var(--border);margin:0;color:var(--text)"></pre>
+      <pre id="rotina-texto" style="font-family:inherit;font-size:.88rem;line-height:1.8;white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;max-width:100%;box-sizing:border-box;background:#f8fafc;padding:14px 16px;border-radius:8px;border:1.5px solid var(--border);margin:0;color:var(--text)"></pre>
     </div>
     <div class="modal-footer">
       <button class="btn-pdf" id="btn-copiar-rotina" onclick="copiarRotina(this)">📋 Copiar texto</button>
