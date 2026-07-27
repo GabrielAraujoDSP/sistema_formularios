@@ -153,6 +153,7 @@ function selecionarTipoEspecifico(tipoEsp) {
 
   // Seção de campos exclusivamente comerciais
   document.getElementById('secao-campos-comercial').style.display = comercial ? 'block' : 'none';
+  document.querySelector('#secao-campos-comercial [name="corretor"]').required = comercial;
 
   // Regras condicionais por tipo de imóvel
   aplicarRegrasTipo(tipoEsp);
