@@ -261,17 +261,20 @@
   }
 
   function atualizarFiltroCorretores() {
-    const sel   = document.getElementById('filtro-corretor');
-    const atual = sel.value;
-    const grupos = {};
-    listaCorretores.forEach(c => {
-      if (!grupos[c.equipe]) grupos[c.equipe] = [];
-      grupos[c.equipe].push(c.nome);
-    });
+    const sel       = document.getElementById('filtro-corretor');
+    const atual     = sel.value;
+    const comFichas = new Set(fichasTodas.map(f => f.corretor).filter(Boolean));
+    const grupos    = {};
+    listaCorretores
+      .filter(c => comFichas.has(c.nome))
+      .forEach(c => {
+        if (!grupos[c.equipe]) grupos[c.equipe] = [];
+        grupos[c.equipe].push(c.nome);
+      });
     const equipes = Object.keys(grupos).sort();
     let html = '<option value="">Todos os corretores</option>';
     if (equipes.length === 0) {
-      const fallback = [...new Set(fichasTodas.map(f => f.corretor).filter(Boolean))].sort();
+      const fallback = [...comFichas].sort();
       html += fallback.map(c => `<option${c === atual ? ' selected' : ''}>${esc(c)}</option>`).join('');
     } else {
       equipes.forEach(eq => {
