@@ -1,6 +1,6 @@
 /**
  * ═══════════════════════════════════════════════════════════════════
- *  FICHA CADASTRAL DE LOCATÁRIO RESIDENCIAL — Google Apps Script
+ *  FICHA CADASTRAL DE LOCATÁRIO — Google Apps Script
  * ═══════════════════════════════════════════════════════════════════
  *
  *  COMO PUBLICAR COMO APP DA WEB:
@@ -573,10 +573,21 @@ function doPost(e) {
       return resposta({ usuarios: lista2 });
     }
 
-    /* ── Nova ficha (público — formulario.html) ──────────────────── */
-    if (dados.form_key !== 'LOCACAO_RES_2025') {
+    /* ── Nova ficha (público — formulario.html ou locador.html) ──────── */
+    var eLocador = dados.form_key === 'CADASTRO_LOCADOR_2025';
+    if (dados.form_key !== 'LOCACAO_RES_2025' && !eLocador) {
       return resposta({ status: 'erro', message: 'Requisição inválida.' });
     }
+
+    // Mapeia tipo_locador → tipo_pessoa e normaliza nome/cpf para locador PJ
+    if (eLocador && String(dados.tipo_locador || '') === 'pj') {
+      dados.tipo_pessoa = 'pj';
+      if (!dados.nome) dados.nome = String(dados.pj_razao_social || '');
+      if (!dados.cpf)  dados.cpf  = String(dados.pj_cnpj || '');
+    } else if (eLocador) {
+      dados.tipo_pessoa = 'pf';
+    }
+
     var nomeEnviado = String(dados.nome || '').trim();
     var cpfEnviado  = String(dados.cpf  || '').trim();
     if (!nomeEnviado || nomeEnviado.length < 3 || !cpfEnviado || cpfEnviado.length < 11) {
@@ -604,6 +615,20 @@ function doPost(e) {
     for (var i = 1; i <= qtdSoc; i++) {
       camposArquivo.push('soc' + i + '_doc_id');
       camposArquivo.push('soc' + i + '_comp_res');
+    }
+    if (eLocador) {
+      camposArquivo.push(
+        'imovel_doc', 'imovel_boleto_iptu', 'imovel_conta_luz',
+        'imovel_boleto_condo', 'imovel_conta_gas', 'imovel_conta_agua',
+        'imovel_foto_chaves', 'imovel_foto_controles',
+        'pj_doc_representante', 'pj_rep_comp_residencia',
+        'terc_doc', 'terc_pj_contrato_social', 'terc_pj_doc_rep'
+      );
+      var qtdLocAd = parseInt(dados.qtd_locadores_adicionais) || 0;
+      for (var iad = 1; iad <= qtdLocAd; iad++) {
+        camposArquivo.push('loc' + iad + '_doc_identificacao');
+        camposArquivo.push('loc' + iad + '_comprovante_residencia');
+      }
     }
 
     for (var a = 0; a < camposArquivo.length; a++) {
@@ -664,6 +689,65 @@ function doPost(e) {
 
         fichaSheet.getRange(lastRow, colDest + 1).setValue(dados.destinacao_pj_tipo || '');
         fichaSheet.getRange(lastRow, colRef  + 1).setValue(dados.destinacao_pj_ref  || '');
+      }
+
+      // Salva campos específicos do locador como colunas dinâmicas
+      if (eLocador) {
+        var locadorExtras = [
+          'tipo_cadastro', 'tipo_especifico', 'tipo_locador',
+          'imovel_quartos', 'imovel_salas', 'imovel_banheiros', 'imovel_vagas', 'imovel_metragem', 'imovel_pe_direito',
+          'imovel_logradouro', 'imovel_numero', 'imovel_bairro', 'imovel_complemento', 'imovel_lote', 'imovel_quadra',
+          'imovel_cep', 'imovel_cidade', 'imovel_estado',
+          'imovel_aluguel', 'imovel_iptu', 'imovel_valor_condo',
+          'imovel_qtd_chaves', 'imovel_foto_chaves_url',
+          'imovel_tem_controle', 'imovel_qtd_controles', 'imovel_foto_controles_url',
+          'imovel_tem_condo', 'imovel_nome_condo', 'imovel_agua_inclusa', 'imovel_gas_incluso', 'imovel_tipo_gas',
+          'imovel_doc_url', 'imovel_boleto_iptu_url', 'imovel_conta_luz_url',
+          'imovel_boleto_condo_url', 'imovel_conta_gas_url', 'imovel_conta_agua_url',
+          'repasse_destinatario',
+          'terc_nome', 'terc_cpf', 'terc_email', 'terc_cel',
+          'terc_logradouro', 'terc_numero', 'terc_bairro', 'terc_complemento', 'terc_lote', 'terc_quadra',
+          'terc_cep', 'terc_cidade', 'terc_estado', 'terc_doc_url',
+          'terc_pj_razao_social', 'terc_pj_cnpj', 'terc_pj_email', 'terc_pj_cel',
+          'terc_pj_logradouro', 'terc_pj_numero', 'terc_pj_bairro', 'terc_pj_complemento',
+          'terc_pj_cep', 'terc_pj_cidade', 'terc_pj_estado',
+          'terc_pj_contrato_social_url', 'terc_pj_doc_rep_url',
+          'terc_pj_rep_nome', 'terc_pj_rep_cpf', 'terc_pj_rep_email', 'terc_pj_rep_cel',
+          'terc_pj_rep_logradouro', 'terc_pj_rep_numero', 'terc_pj_rep_bairro', 'terc_pj_rep_complemento',
+          'terc_pj_rep_cep', 'terc_pj_rep_cidade', 'terc_pj_rep_estado',
+          'banco_tipo_conta', 'banco_instituicao', 'banco_agencia', 'banco_conta',
+          'mobiliado', 'descricao_mobilia', 'qtd_locadores_adicionais',
+          'pj_email', 'pj_celular', 'pj_logradouro', 'pj_numero', 'pj_bairro', 'pj_complemento',
+          'pj_cep', 'pj_cidade', 'pj_estado',
+          'pj_rep_nome', 'pj_rep_cpf', 'pj_rep_nascimento', 'pj_rep_estado_civil',
+          'pj_rep_nacionalidade', 'pj_rep_profissao', 'pj_rep_email', 'pj_rep_celular',
+          'pj_rep_logradouro', 'pj_rep_numero', 'pj_rep_bairro', 'pj_rep_complemento',
+          'pj_rep_lote', 'pj_rep_quadra', 'pj_rep_cep', 'pj_rep_cidade', 'pj_rep_estado',
+          'pj_rep_emerg_nome', 'pj_rep_emerg_cel', 'pj_rep_emerg_parentesco',
+          'pj_doc_representante_url', 'pj_rep_comp_residencia_url'
+        ];
+        var qtdLocAdX = parseInt(dados.qtd_locadores_adicionais) || 0;
+        for (var ilx = 1; ilx <= qtdLocAdX; ilx++) {
+          locadorExtras.push('loc' + ilx + '_tipo');
+          locadorExtras.push('loc' + ilx + '_doc_identificacao_url');
+          locadorExtras.push('loc' + ilx + '_comprovante_residencia_url');
+        }
+
+        var lastRowLE = fichaSheet.getLastRow();
+        var hdrsLE    = fichaSheet.getRange(1, 1, 1, fichaSheet.getLastColumn()).getValues()[0];
+
+        for (var lei = 0; lei < locadorExtras.length; lei++) {
+          var campoLE = locadorExtras[lei];
+          var valorLE = dados[campoLE];
+          if (valorLE === undefined || valorLE === null || valorLE === '') continue;
+          var colLE = hdrsLE.indexOf(campoLE);
+          if (colLE === -1) {
+            colLE = hdrsLE.length;
+            fichaSheet.getRange(1, colLE + 1).setValue(campoLE);
+            hdrsLE.push(campoLE);
+          }
+          fichaSheet.getRange(lastRowLE, colLE + 1).setValue(valorLE);
+        }
       }
     } finally {
       lock.releaseLock();

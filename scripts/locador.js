@@ -673,6 +673,13 @@ document.getElementById('form-ficha').addEventListener('submit', async function 
   statusDiv.innerHTML = '<div class="spinner"></div><span>Enviando ficha, aguarde… (isso pode levar alguns segundos)</span>';
 
   try {
+    const comercialEnviando = document.getElementById('campo-tipo-imovel').value === 'comercial';
+
+    // Desabilita o bloco oculto para evitar que campos com nome duplicado
+    // (imovel_salas, imovel_banheiros, etc.) sobrescrevam os valores preenchidos
+    const blocoOculto = document.getElementById(comercialEnviando ? 'dados-imovel-res' : 'dados-imovel-com');
+    blocoOculto.querySelectorAll('input, select').forEach(el => { el.disabled = true; });
+
     const dados    = {};
     const formData = new FormData(this);
     const multiKeys = new Set(['tipo_garantia', 'vigencia_contrato']);
@@ -686,14 +693,15 @@ document.getElementById('form-ficha').addEventListener('submit', async function 
       }
     }
 
-    // Valida checkboxes obrigatórios
-    if (!dados.tipo_garantia) {
+    blocoOculto.querySelectorAll('input, select').forEach(el => { el.disabled = false; });
+
+    // Valida checkboxes obrigatórios (apenas ficha comercial)
+    if (comercialEnviando && !dados.tipo_garantia) {
       alert('Selecione ao menos uma garantia aceita.');
       btn.disabled = false;
       statusDiv.className = '';
       return;
     }
-    const comercialEnviando = document.getElementById('campo-tipo-imovel').value === 'comercial';
     if (comercialEnviando && !dados.vigencia_contrato) {
       alert('Selecione ao menos uma vigência aceita.');
       btn.disabled = false;

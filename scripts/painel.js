@@ -49,7 +49,8 @@
     const BASE = 'https://formulario-residencial-locatarios.vercel.app/';
     document.getElementById('url-locatario').value = BASE + 'formulario.html';
     document.getElementById('href-locatario').href = BASE + 'formulario.html';
-    // url-locador mantém placeholder até o formulário ser liberado
+    document.getElementById('url-locador').value   = BASE + 'locador.html';
+    document.getElementById('href-locador').href   = BASE + 'locador.html';
   }
 
   function toggleLinks() {
@@ -269,7 +270,7 @@
     const busca    = (document.getElementById('busca').value || '').toLowerCase();
     const corretor = document.getElementById('filtro-corretor').value;
     return fichasTodas.filter(f => {
-      const okBusca    = !busca    || (f.nome||'').toLowerCase().includes(busca) || (f.cpf||'').includes(busca) || (f.id||'').toLowerCase().includes(busca);
+      const okBusca    = !busca    || (f.nome||'').toLowerCase().includes(busca) || (f.cpf||'').includes(busca) || (f.id||'').toLowerCase().includes(busca) || (f.pj_razao_social||'').toLowerCase().includes(busca);
       const okCorretor = !corretor || f.corretor === corretor;
       return okBusca && okCorretor;
     });
@@ -342,7 +343,8 @@
   function cardGrande(f) {
     const col     = COLUNAS.find(c => c.id === (f.status || 'nova')) || COLUNAS[0];
     const tipoAs  = f.tipo_assinatura === 'digital' ? '💻 Digital' : f.tipo_assinatura === 'fisica' ? '🖨️ Física' : '—';
-    const tipoIm  = f.destinacao_pj_tipo === 'membro' ? '⚖️ Não Residencial' :
+    const tipoIm  = f.tipo_cadastro === 'locador' ? '🏠 Proprietário/Imóvel' :
+                    f.destinacao_pj_tipo === 'membro' ? '⚖️ Não Residencial' :
                     String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
     const isAdmin = getPapel() === 'admin';
     const btnsMover = isAdmin ? COLUNAS
@@ -376,8 +378,8 @@
       <div class="card-g">
         <div class="card-g-body" onclick="abrirModal('${esc(f.id)}')">
           <span class="card-g-badge" style="${statusStyle(f.status || 'nova')}">${col.emoji} ${col.label}</span>
-          <div class="card-g-nome">${esc(f.nome || '—')}</div>
-          <div class="card-g-cpf">CPF: ${esc(f.cpf || '—')}</div>
+          <div class="card-g-nome">${esc(f.nome || f.pj_razao_social || '—')}</div>
+          <div class="card-g-cpf">${f.tipo_cadastro === 'locador' && !f.cpf ? 'CNPJ: ' + esc(f.pj_cnpj || '—') : 'CPF: ' + esc(f.cpf || '—')}</div>
           <div class="card-g-info">
             ${tipoIm} &nbsp;|&nbsp; 🏢 Imóvel: <strong>${esc(f.codigo_imovel || '—')}</strong><br>
             👔 Corretor: ${esc(f.corretor || '—')}<br>
@@ -390,7 +392,7 @@
           ${isAdmin ? `<div class="mover-label">Mover para</div><div class="mover-btns">${btnsMover}</div>` : ''}
           <div class="card-k-acoes">
             <button class="btn-ac btn-ver" onclick="abrirModal('${esc(f.id)}')">🔍 Ver</button>
-            <button class="btn-ac btn-ver" onclick="abrirRotina('${esc(f.id)}')">📋 Rotina</button>
+            ${f.tipo_cadastro !== 'locador' ? `<button class="btn-ac btn-ver" onclick="abrirRotina('${esc(f.id)}')">📋 Rotina</button>` : ''}
             ${isAdmin ? `
             <button class="btn-ac btn-editar"  onclick="abrirEditar('${esc(f.id)}')">✏️ Editar</button>
             <button class="btn-ac btn-excluir" onclick="excluirFichaAba('${esc(f.id)}')">🗑️ Excluir</button>` : ''}
@@ -412,7 +414,7 @@
   function excluirFichaAba(id) {
     const f = fichasTodas.find(x => x.id === id);
     if (!f) return;
-    if (!confirm(`Excluir a ficha de "${f.nome || id}"?\nEsta ação não pode ser desfeita.`)) return;
+    if (!confirm(`Excluir a ficha de "${f.nome || f.pj_razao_social || id}"?\nEsta ação não pode ser desfeita.`)) return;
     fichasTodas = fichasTodas.filter(x => x.id !== id);
     atualizarStats(); renderAbas();
     fetch(endpoint(), { method: 'POST', headers: { 'Content-Type': 'text/plain' },
@@ -421,7 +423,8 @@
 
   function cardKanban(f, statusAtual) {
     const tipoAs    = f.tipo_assinatura === 'digital' ? '💻 Digital' : f.tipo_assinatura === 'fisica' ? '🖨️ Física' : '—';
-    const tipoIm    = f.destinacao_pj_tipo === 'membro' ? '⚖️ Não Residencial' :
+    const tipoIm    = f.tipo_cadastro === 'locador' ? '🏠 Proprietário/Imóvel' :
+                      f.destinacao_pj_tipo === 'membro' ? '⚖️ Não Residencial' :
                       String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
     const isAdmin   = getPapel() === 'admin';
     const btnsMover = isAdmin ? COLUNAS
@@ -454,8 +457,8 @@
     return `
       <div class="card-k">
         <div class="card-k-body" onclick="abrirModal('${esc(f.id)}')">
-          <div class="card-k-nome">${esc(f.nome || '—')}</div>
-          <div class="card-k-cpf">CPF: ${esc(f.cpf || '—')}</div>
+          <div class="card-k-nome">${esc(f.nome || f.pj_razao_social || '—')}</div>
+          <div class="card-k-cpf">${f.tipo_cadastro === 'locador' && !f.cpf ? 'CNPJ: ' + esc(f.pj_cnpj || '—') : 'CPF: ' + esc(f.cpf || '—')}</div>
           <div class="card-k-info">
             ${tipoIm} · 🏢 <strong>${esc(f.codigo_imovel || '—')}</strong><br>
             👔 ${esc(f.corretor || '—')}<br>
@@ -468,7 +471,7 @@
           ${isAdmin ? `<div class="mover-label">Mover para</div><div class="mover-btns">${btnsMover}</div>` : ''}
           <div class="card-k-acoes">
             <button class="btn-ac btn-ver" onclick="abrirModal('${esc(f.id)}')">🔍 Ver</button>
-            <button class="btn-ac btn-ver" onclick="abrirRotina('${esc(f.id)}')">📋 Rotina</button>
+            ${f.tipo_cadastro !== 'locador' ? `<button class="btn-ac btn-ver" onclick="abrirRotina('${esc(f.id)}')">📋 Rotina</button>` : ''}
             ${isAdmin ? `
             <button class="btn-ac btn-editar"  onclick="abrirEditar('${esc(f.id)}')">✏️ Editar</button>
             <button class="btn-ac btn-excluir" onclick="excluirFicha('${esc(f.id)}')">🗑️ Excluir</button>` : ''}
@@ -491,7 +494,7 @@
   function excluirFicha(id) {
     const f = fichasTodas.find(x => x.id === id);
     if (!f) return;
-    if (!confirm(`Excluir a ficha de "${f.nome || id}"?\nEsta ação não pode ser desfeita.`)) return;
+    if (!confirm(`Excluir a ficha de "${f.nome || f.pj_razao_social || id}"?\nEsta ação não pode ser desfeita.`)) return;
     fichasTodas = fichasTodas.filter(x => x.id !== id);
     renderKanban();
     fetch(endpoint(), { method: 'POST', headers: { 'Content-Type': 'text/plain' },
@@ -516,7 +519,7 @@
   function abrirModal(id) {
     fichaAtual = fichasTodas.find(f => f.id === id);
     if (!fichaAtual) return;
-    document.getElementById('modal-titulo').textContent = `Ficha: ${fichaAtual.nome || '—'}`;
+    document.getElementById('modal-titulo').textContent = `Ficha: ${fichaAtual.nome || fichaAtual.pj_razao_social || '—'}`;
     document.getElementById('modal-corpo').innerHTML = renderDetalhe(fichaAtual);
     document.getElementById('overlay-modal').classList.add('ativo');
   }
@@ -808,10 +811,11 @@
     `<div class="campo-det"><label>${label}</label><span>${esc(valor)}</span></div>`;
 
   function secaoDetalhe(titulo, campos) {
-    return `<div class="secao-detalhe"><h4>${titulo}</h4><div class="detalhe-grid">${campos.join('')}</div></div>`;
+    return `<div class="secao-detalhe"><h4>${titulo}</h4><div class="detalhe-grid">${campos.filter(Boolean).join('')}</div></div>`;
   }
 
   function renderDetalhe(f) {
+    if (String(f.tipo_cadastro || '').toLowerCase() === 'locador') return renderDetalheLocador(f);
     const isAdminModal = getPapel() === 'admin';
     let html = `<div style="margin-bottom:14px;">
       <span style="font-size:.8rem;padding:4px 12px;border-radius:20px;font-weight:700;${statusStyle(f.status)}">${labelStatus(f.status)}</span>
@@ -1011,6 +1015,227 @@
     return html;
   }
 
+  /* ── Detalhe de ficha de Locador / Proprietário ─────────────────── */
+  function renderDetalheLocador(f) {
+    const isAdminModal = getPapel() === 'admin';
+    let html = `<div style="margin-bottom:14px;">
+      <span style="font-size:.8rem;padding:4px 12px;border-radius:20px;font-weight:700;${statusStyle(f.status)}">${labelStatus(f.status)}</span>
+      <span style="margin-left:12px;font-size:.8rem;color:var(--muted)">
+        Enviado em: <strong>${esc(f.data_envio)}</strong> &nbsp;|&nbsp; Protocolo: <strong>${esc(f.id)}</strong>
+      </span>
+    </div>`;
+
+    if (isAdminModal) {
+      html += `<div class="secao-detalhe obs-container" data-id="${esc(f.id)}">
+        <h4>💬 Observações</h4>
+        <textarea class="obs-textarea" rows="3" placeholder="Adicione observações, pendências ou anotações sobre esta ficha…">${esc(f.observacao || '')}</textarea>
+        <button class="btn-obs-salvar" onclick="salvarObservacao('${esc(f.id)}', this)">💾 Salvar</button>
+      </div>`;
+    } else if (f.observacao) {
+      html += `<div class="secao-detalhe"><h4>💬 Observações</h4><div class="obs-texto-modal">${esc(f.observacao)}</div></div>`;
+    }
+
+    const tipoImLabel = String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
+    const eCom = String(f.tipo_imovel || '').toLowerCase() === 'comercial';
+    const camposImovel = [campo('Tipo', tipoImLabel + (f.tipo_especifico ? ` — ${f.tipo_especifico}` : ''))];
+    if (!eCom) {
+      if (f.imovel_quartos)   camposImovel.push(campo('Quartos', f.imovel_quartos));
+      if (f.imovel_salas)     camposImovel.push(campo('Salas', f.imovel_salas));
+      if (f.imovel_banheiros) camposImovel.push(campo('Banheiros', f.imovel_banheiros));
+      if (f.imovel_vagas)     camposImovel.push(campo('Vagas', f.imovel_vagas));
+      if (f.imovel_metragem)  camposImovel.push(campo('Área útil (m²)', f.imovel_metragem));
+    } else {
+      if (f.imovel_salas)      camposImovel.push(campo('Salas / ambientes', f.imovel_salas));
+      if (f.imovel_banheiros)  camposImovel.push(campo('Banheiros', f.imovel_banheiros));
+      if (f.imovel_vagas)      camposImovel.push(campo('Vagas', f.imovel_vagas));
+      if (f.imovel_metragem)   camposImovel.push(campo('Área total (m²)', f.imovel_metragem));
+      if (f.imovel_pe_direito) camposImovel.push(campo('Pé direito (m)', f.imovel_pe_direito));
+    }
+    html += secaoDetalhe('🏠 Características do Imóvel', camposImovel);
+
+    html += secaoDetalhe('📍 Endereço do Imóvel', [
+      campo('Logradouro', f.imovel_logradouro), campo('Número', f.imovel_numero),
+      campo('Bairro', f.imovel_bairro),
+      f.imovel_complemento ? campo('Complemento', f.imovel_complemento) : '',
+      f.imovel_lote ? campo('Lote', f.imovel_lote) : '',
+      f.imovel_quadra ? campo('Quadra', f.imovel_quadra) : '',
+      campo('CEP', f.imovel_cep), campo('Cidade', f.imovel_cidade), campo('Estado', f.imovel_estado),
+    ]);
+
+    const camposFin = [
+      campo('Valor do aluguel', f.imovel_aluguel ? `R$ ${f.imovel_aluguel}` : '—'),
+      campo('IPTU (anual)', f.imovel_iptu ? `R$ ${f.imovel_iptu}` : '—'),
+    ];
+    if (f.imovel_tem_condo === 'sim' || f.imovel_nome_condo) {
+      if (f.imovel_nome_condo)    camposFin.push(campo('Condomínio', f.imovel_nome_condo));
+      if (f.imovel_valor_condo)   camposFin.push(campo('Valor cond. (mensal)', `R$ ${f.imovel_valor_condo}`));
+      if (f.imovel_agua_inclusa)  camposFin.push(campo('Água inclusa', f.imovel_agua_inclusa));
+      if (f.imovel_gas_incluso)   camposFin.push(campo('Gás incluso', f.imovel_gas_incluso));
+      if (f.imovel_tipo_gas)      camposFin.push(campo('Tipo de gás', f.imovel_tipo_gas));
+    }
+    camposFin.push(campo('Qtd. chaves', f.imovel_qtd_chaves || '—'));
+    if (f.imovel_tem_controle === 'sim') camposFin.push(campo('Controle remoto', `Sim (${f.imovel_qtd_controles || '—'})`));
+    html += secaoDetalhe('💰 Informações Financeiras e Chaves', camposFin);
+
+    if (eCom) {
+      html += secaoDetalhe('📋 Locação Comercial', [
+        f.vigencia_contrato ? campo('Vigências aceitas', f.vigencia_contrato) : '',
+        f.corretor ? campo('Corretor', f.corretor) : '',
+        campo('Tem vaga', f.tem_vaga === 'sim' ? `Sim (${f.qtd_vagas})` : 'Não'),
+        f.tipo_garantia ? campo('Garantias aceitas', f.tipo_garantia) : '',
+      ]);
+    }
+
+    const ePJLoc = String(f.tipo_locador || f.tipo_pessoa || '').toLowerCase() === 'pj';
+    if (ePJLoc) {
+      html += secaoDetalhe('🏢 Dados da Empresa', [
+        campo('Razão Social', f.pj_razao_social), campo('CNPJ', f.pj_cnpj),
+        f.pj_inscricao ? campo('Inscrição Estadual', f.pj_inscricao) : '',
+        campo('E-mail', f.pj_email), campo('Celular', f.pj_celular),
+        campo('Logradouro', f.pj_logradouro), campo('Número', f.pj_numero),
+        campo('Bairro', f.pj_bairro),
+        f.pj_complemento ? campo('Complemento', f.pj_complemento) : '',
+        campo('CEP', f.pj_cep), campo('Cidade', f.pj_cidade), campo('Estado', f.pj_estado),
+      ]);
+      html += secaoDetalhe('👤 Representante Legal', [
+        campo('Nome', f.pj_rep_nome || f.nome), campo('CPF', f.pj_rep_cpf || f.cpf),
+        f.pj_rep_nascimento ? campo('Nascimento', f.pj_rep_nascimento) : '',
+        campo('Estado civil', f.pj_rep_estado_civil), campo('Profissão', f.pj_rep_profissao),
+        campo('E-mail', f.pj_rep_email), campo('Celular', f.pj_rep_celular),
+        campo('Logradouro', f.pj_rep_logradouro), campo('Número', f.pj_rep_numero),
+        campo('Bairro', f.pj_rep_bairro),
+        f.pj_rep_complemento ? campo('Complemento', f.pj_rep_complemento) : '',
+        campo('CEP', f.pj_rep_cep), campo('Cidade', f.pj_rep_cidade), campo('Estado', f.pj_rep_estado),
+      ]);
+      html += secaoDetalhe('📞 Contato de Emergência do Representante', [
+        campo('Nome', f.pj_rep_emerg_nome), campo('Celular', f.pj_rep_emerg_cel),
+        campo('Parentesco', f.pj_rep_emerg_parentesco),
+      ]);
+    } else {
+      html += secaoDetalhe('👤 Dados do Proprietário', [
+        campo('Nome', f.nome), campo('CPF', f.cpf),
+        campo('Estado civil', f.estado_civil), campo('Profissão', f.profissao),
+        campo('E-mail', f.email), campo('Celular', f.celular),
+        campo('Logradouro', f.endereco_logradouro), campo('Número', f.endereco_numero),
+        campo('Bairro', f.endereco_bairro),
+        f.endereco_complemento ? campo('Complemento', f.endereco_complemento) : '',
+        campo('CEP', f.cep_atual), campo('Cidade', f.cidade_atual), campo('Estado', f.estado_atual),
+      ]);
+      html += secaoDetalhe('📞 Contato de Emergência', [
+        campo('Nome', f.emerg_nome), campo('Celular', f.emerg_cel), campo('Parentesco', f.emerg_parentesco),
+      ]);
+    }
+
+    const qtdLocAd = parseInt(f.qtd_locadores_adicionais) || 0;
+    for (let i = 1; i <= qtdLocAd; i++) {
+      const tipoAd = f[`loc${i}_tipo`] === 'conjuge' ? '💑 Cônjuge / Companheiro(a)' : `👤 Proprietário Adicional #${i}`;
+      html += secaoDetalhe(tipoAd, [
+        campo('Nome', f[`loc${i}_nome`]), campo('CPF', f[`loc${i}_cpf`]),
+        campo('Estado civil', f[`loc${i}_estado_civil`]),
+        campo('Profissão', f[`loc${i}_profissao`]),
+        campo('E-mail', f[`loc${i}_email`]), campo('Celular', f[`loc${i}_celular`]),
+        campo('Logradouro', f[`loc${i}_logradouro`]), campo('Cidade', f[`loc${i}_cidade`]),
+      ]);
+    }
+
+    const repasse = f.repasse_destinatario === 'terceiro' ? 'Terceiro' : 'Próprio proprietário';
+    const camposBanco = [
+      campo('Repasse para', repasse),
+      campo('Tipo de conta', f.banco_tipo_conta),
+      campo('Instituição', f.banco_instituicao),
+      campo('Agência', f.banco_agencia),
+      campo('Conta', f.banco_conta),
+    ];
+    if (f.repasse_destinatario === 'terceiro') {
+      if (f.terc_nome)           camposBanco.push(campo('Beneficiário (PF)', f.terc_nome), campo('CPF', f.terc_cpf));
+      if (f.terc_pj_razao_social) camposBanco.push(campo('Empresa', f.terc_pj_razao_social), campo('CNPJ', f.terc_pj_cnpj));
+    }
+    html += secaoDetalhe('🏦 Dados Bancários', camposBanco);
+
+    if (f.mobiliado === 'sim' && f.descricao_mobilia) {
+      html += secaoDetalhe('🛋️ Mobília', [campo('Mobiliado', 'Sim'), campo('Descrição', f.descricao_mobilia)]);
+    } else {
+      html += secaoDetalhe('🛋️ Mobília', [campo('Mobiliado', f.mobiliado === 'sim' ? 'Sim' : 'Não')]);
+    }
+
+    if (isAdminModal) {
+      const vigIniLoc = dataParaInput(f.vigencia_inicio);
+      html += `<div class="secao-detalhe vig-container" data-id="${esc(f.id)}">
+        <h4>📅 Vigência do Contrato</h4>
+        <div class="detalhe-grid">
+          <div class="campo-det">
+            <label>Início</label>
+            <input type="date" class="v-ini" value="${esc(vigIniLoc)}"
+              style="padding:5px 8px;border:1.5px solid var(--border);border-radius:5px;font-size:.85rem;width:100%;margin-top:3px">
+          </div>
+        </div>
+        ${vigIniLoc ? `<div class="vig-texto vig-texto--set" style="margin-top:8px">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>` : ''}
+        <button class="btn-vig-salvar" style="margin-top:10px" onclick="salvarVigencia('${esc(f.id)}', this)">💾 Salvar vigência</button>
+      </div>`;
+    }
+
+    html += secaoDetalhe('✍️ Assinatura', [
+      campo('Tipo', f.tipo_assinatura === 'digital' ? 'Digital (R$ 29,00/assinatura)' : 'Física (cartório)'),
+    ]);
+
+    const linksLoc = [];
+    if (f.doc_identificacao_url)       linksLoc.push(`<a href="${esc(f.doc_identificacao_url)}" target="_blank" style="color:var(--primary)">📎 Doc. identif.</a>`);
+    if (f.comprovante_residencia_url)   linksLoc.push(`<a href="${esc(f.comprovante_residencia_url)}" target="_blank" style="color:var(--primary)">🏠 Comp. res.</a>`);
+    if (f.pj_contrato_social_url)       linksLoc.push(`<a href="${esc(f.pj_contrato_social_url)}" target="_blank" style="color:var(--primary)">📋 Contrato social</a>`);
+    if (f.pj_doc_representante_url)     linksLoc.push(`<a href="${esc(f.pj_doc_representante_url)}" target="_blank" style="color:var(--primary)">📎 Doc. rep. legal</a>`);
+    if (f.pj_rep_comp_residencia_url)   linksLoc.push(`<a href="${esc(f.pj_rep_comp_residencia_url)}" target="_blank" style="color:var(--primary)">🏠 Comp. res. rep.</a>`);
+    if (f.imovel_doc_url)               linksLoc.push(`<a href="${esc(f.imovel_doc_url)}" target="_blank" style="color:var(--primary)">📜 Escritura/Matrícula</a>`);
+    if (f.imovel_boleto_iptu_url)       linksLoc.push(`<a href="${esc(f.imovel_boleto_iptu_url)}" target="_blank" style="color:var(--primary)">📄 Boleto IPTU</a>`);
+    if (f.imovel_conta_luz_url)         linksLoc.push(`<a href="${esc(f.imovel_conta_luz_url)}" target="_blank" style="color:var(--primary)">💡 Conta de luz</a>`);
+    if (f.imovel_boleto_condo_url)      linksLoc.push(`<a href="${esc(f.imovel_boleto_condo_url)}" target="_blank" style="color:var(--primary)">🏘️ Boleto cond.</a>`);
+    if (f.imovel_conta_gas_url)         linksLoc.push(`<a href="${esc(f.imovel_conta_gas_url)}" target="_blank" style="color:var(--primary)">🔥 Conta de gás</a>`);
+    if (f.imovel_conta_agua_url)        linksLoc.push(`<a href="${esc(f.imovel_conta_agua_url)}" target="_blank" style="color:var(--primary)">💧 Conta de água</a>`);
+    if (f.imovel_foto_chaves_url)       linksLoc.push(`<a href="${esc(f.imovel_foto_chaves_url)}" target="_blank" style="color:var(--primary)">🔑 Foto chaves</a>`);
+    if (f.imovel_foto_controles_url)    linksLoc.push(`<a href="${esc(f.imovel_foto_controles_url)}" target="_blank" style="color:var(--primary)">📡 Foto controles</a>`);
+    if (f.terc_doc_url)                 linksLoc.push(`<a href="${esc(f.terc_doc_url)}" target="_blank" style="color:var(--primary)">📎 Doc. terceiro</a>`);
+    if (f.terc_pj_contrato_social_url)  linksLoc.push(`<a href="${esc(f.terc_pj_contrato_social_url)}" target="_blank" style="color:var(--primary)">📋 Contrato terc.</a>`);
+    if (f.terc_pj_doc_rep_url)          linksLoc.push(`<a href="${esc(f.terc_pj_doc_rep_url)}" target="_blank" style="color:var(--primary)">📎 Doc. rep. terc.</a>`);
+    for (let i = 1; i <= qtdLocAd; i++) {
+      if (f[`loc${i}_doc_identificacao_url`])       linksLoc.push(`<a href="${esc(f[`loc${i}_doc_identificacao_url`])}" target="_blank" style="color:var(--primary)">📎 Doc. prop. ${i}</a>`);
+      if (f[`loc${i}_comprovante_residencia_url`])  linksLoc.push(`<a href="${esc(f[`loc${i}_comprovante_residencia_url`])}" target="_blank" style="color:var(--primary)">🏠 Res. prop. ${i}</a>`);
+    }
+    if (linksLoc.length) {
+      html += `<div class="secao-detalhe">
+        <h4 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          📂 Documentos no Drive
+          <button class="btn-ac btn-ver" style="font-size:.75rem;padding:5px 12px;font-weight:700"
+            onclick="baixarTodosDocumentosLocador(this)">⬇️ Baixar todos (${linksLoc.length})</button>
+        </h4>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:.86rem;margin-top:10px">${linksLoc.join('')}</div>
+      </div>`;
+    }
+    return html;
+  }
+
+  function baixarTodosDocumentosLocador(btn) {
+    const f = fichaAtual;
+    if (!f) return;
+    const qtdLocAdD = parseInt(f.qtd_locadores_adicionais) || 0;
+    const campos = [
+      'doc_identificacao_url', 'comprovante_residencia_url',
+      'pj_contrato_social_url', 'pj_doc_representante_url', 'pj_rep_comp_residencia_url',
+      'imovel_doc_url', 'imovel_boleto_iptu_url', 'imovel_conta_luz_url',
+      'imovel_boleto_condo_url', 'imovel_conta_gas_url', 'imovel_conta_agua_url',
+      'imovel_foto_chaves_url', 'imovel_foto_controles_url',
+      'terc_doc_url', 'terc_pj_contrato_social_url', 'terc_pj_doc_rep_url',
+    ];
+    for (let i = 1; i <= qtdLocAdD; i++) {
+      campos.push(`loc${i}_doc_identificacao_url`, `loc${i}_comprovante_residencia_url`);
+    }
+    const urls = campos.map(c => f[c]).filter(u => u && String(u).startsWith('http'));
+    if (!urls.length) { alert('Esta ficha não possui documentos anexados.'); return; }
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = `⏳ Abrindo ${urls.length}…`;
+    urls.forEach((url, i) => setTimeout(() => window.open(driveToDownload(url), '_blank'), i * 700));
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, urls.length * 700 + 500);
+  }
+
   /* ── PDF ─────────────────────────────────────────────────────────── */
   function baixarPDF() {
     if (!fichaAtual) return;
@@ -1046,9 +1271,11 @@
     doc.rect(0, 0, 210, 22, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(13); doc.setFont(undefined, 'bold');
+    var _isLocador = String(fichaAtual.tipo_cadastro || '').toLowerCase() === 'locador';
     var _tipoImovel = fichaAtual.destinacao_pj_tipo === 'membro' ? 'Não Residencial' :
                       String(fichaAtual.tipo_imovel || '').toLowerCase() === 'comercial' ? 'Comercial' : 'Residencial';
-    doc.text('Ficha Cadastral de Locatário ' + _tipoImovel, 105, 11, { align: 'center' });
+    var _tituloPDF = _isLocador ? 'Ficha Cadastral de Proprietário/Imóvel' : 'Ficha Cadastral de Locatário ' + _tipoImovel;
+    doc.text(_tituloPDF, 105, 11, { align: 'center' });
     doc.setFontSize(8); doc.setFont(undefined, 'normal');
     const stLabel = COLUNAS.find(c => c.id === fichaAtual.status);
     doc.text(`Protocolo: ${fichaAtual.id || '—'}   |   Data: ${fichaAtual.data_envio || '—'}   |   Status: ${stLabel ? stLabel.label : fichaAtual.status}`, 105, 18, { align: 'center' });
