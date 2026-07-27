@@ -115,6 +115,12 @@
     }
     .corretor-item:hover { background: #f0f4ff; }
     .corretor-item input[type=checkbox] { accent-color: var(--primary); width: auto; cursor: pointer; }
+    .corretor-grupo-label {
+      padding: 5px 13px 3px; font-size: .72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .5px; color: var(--primary);
+      border-top: 1px solid var(--border); margin-top: 4px;
+    }
+    .corretor-grupo-label:first-of-type { border-top: none; margin-top: 0; }
 
     .puxar-tudo-row {
       display: flex; align-items: center; gap: 10px; padding-top: 6px;

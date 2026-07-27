@@ -4,9 +4,13 @@
 
   // Mapeamento de equipe → corretores (ajuste conforme necessário)
   const EQUIPES = {
-    'São Gonçalo': ['Gabriel Araújo', 'Mariana', 'Edvaldo', 'Carlos', 'Marilea',],
+    'São Gonçalo': ['Gabriel Araújo', 'Mariana', 'Edvaldo', 'Carlos', 'Marilea'],
     'Niterói':     ['Gabriel Araújo', 'Gabriel Medeiros', 'Michel Alves', 'Lívia Cordeiro', 'Victor Sutter', 'Aline Alves', 'Fernando Macedo'],
   };
+
+  // Lookup inverso: corretor → equipe
+  const CORRETOR_EQUIPE = {};
+  Object.entries(EQUIPES).forEach(([eq, cors]) => cors.forEach(c => { CORRETOR_EQUIPE[c] = eq; }));
 
   const STATUS_LABELS = {
     nova: 'Novo', analise: 'Em análise', concluida: 'Concluído',
@@ -93,6 +97,7 @@
         return;
       }
       fichasTodas = json.fichas || [];
+      popularCorretores();
       aplicarFiltros();
     } catch (err) {
       document.getElementById('tabela-body').innerHTML =
@@ -100,6 +105,44 @@
           ⚠️ Erro ao carregar dados: ${esc(err.message)}
         </td></tr>`;
     }
+  }
+
+  // ── Popula o dropdown de corretores a partir das fichas ──
+  function popularCorretores() {
+    const menu = document.getElementById('corretor-menu');
+
+    // Remove itens anteriores (mantém apenas "Todos")
+    menu.querySelectorAll('.chk-cor, .corretor-grupo-label, .corretor-item:not(:first-child)')
+        .forEach(el => el.remove());
+
+    // Agrupa corretores presentes nas fichas por equipe
+    const porEquipe = {};
+    fichasTodas.forEach(f => {
+      const c = (f.corretor || '').trim();
+      if (!c) return;
+      const eq = CORRETOR_EQUIPE[c] || 'Outros';
+      if (!porEquipe[eq]) porEquipe[eq] = new Set();
+      porEquipe[eq].add(c);
+    });
+
+    // Renderiza agrupado: primeiro as equipes conhecidas na ordem do EQUIPES, depois "Outros"
+    const ordemEquipes = [...Object.keys(EQUIPES), 'Outros'].filter(eq => porEquipe[eq]);
+    ordemEquipes.forEach(eq => {
+      const header = document.createElement('div');
+      header.className = 'corretor-grupo-label';
+      header.textContent = eq;
+      menu.appendChild(header);
+
+      [...porEquipe[eq]].sort().forEach(cor => {
+        const uid = 'chk-' + cor.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
+        const div = document.createElement('div');
+        div.className = 'corretor-item';
+        div.innerHTML =
+          `<input type="checkbox" class="chk-cor" id="${uid}" value="${cor.replace(/"/g, '&quot;')}" onchange="onCorretorChange()" />` +
+          `<label for="${uid}" style="cursor:pointer">${cor}</label>`;
+        menu.appendChild(div);
+      });
+    });
   }
 
   // ── Filtros ───────────────────────────────────────────────

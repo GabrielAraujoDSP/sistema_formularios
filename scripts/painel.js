@@ -1218,7 +1218,7 @@
 
     const camposFin = [
       campo('Valor do aluguel', f.imovel_aluguel ? `R$ ${f.imovel_aluguel}` : '—'),
-      campo('IPTU (anual)', f.imovel_iptu ? `R$ ${f.imovel_iptu}` : '—'),
+      campo('IPTU (mensal)', f.imovel_iptu ? `R$ ${f.imovel_iptu}` : '—'),
     ];
     if (f.imovel_tem_condo === 'sim' || f.imovel_nome_condo) {
       if (f.imovel_nome_condo)    camposFin.push(campo('Condomínio', f.imovel_nome_condo));
