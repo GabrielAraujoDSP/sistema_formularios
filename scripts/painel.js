@@ -846,6 +846,7 @@
     const nome  = document.getElementById('nc-nome').value.trim();
     const okEl  = document.getElementById('nc-ok');
     const errEl = document.getElementById('nc-err');
+    const btn   = document.querySelector('#overlay-corretores .btn-salvar');
     okEl.style.display  = 'none';
     errEl.style.display = 'none';
     if (!nome) { errEl.textContent = 'Informe o nome do corretor.'; errEl.style.display = 'inline'; return; }
@@ -854,24 +855,30 @@
       .filter(el => el.checked)
       .map(el => el.value);
     if (equipes.length === 0) { errEl.textContent = 'Selecione ao menos uma equipe.'; errEl.style.display = 'inline'; return; }
-    // Envia uma requisição por equipe (o backend ignora duplicatas silenciosamente)
-    const resultados = await Promise.all(equipes.map(equipe =>
-      apiFetch(endpoint(), {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ acao: 'salvarCorretor', token: getToken(), nome, equipe })
-      })
-    ));
-    if (resultados.some(r => r && r.status === 'ok')) {
-      document.getElementById('nc-nome').value  = '';
-      document.getElementById('nc-eq-sg').checked = false;
-      document.getElementById('nc-eq-ni').checked = false;
-      okEl.style.display = 'inline';
-      setTimeout(() => { okEl.style.display = 'none'; }, 4000);
-      await carregarCorretoresAdmin();
-    } else {
-      errEl.textContent = (resultados[0] && resultados[0].message) || 'Erro ao salvar corretor.';
-      errEl.style.display = 'inline';
+    btn.disabled = true;
+    btn.textContent = '⏳ Salvando…';
+    try {
+      const resultados = await Promise.all(equipes.map(equipe =>
+        apiFetch(endpoint(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ acao: 'salvarCorretor', token: getToken(), nome, equipe })
+        })
+      ));
+      if (resultados.some(r => r && r.status === 'ok')) {
+        document.getElementById('nc-nome').value    = '';
+        document.getElementById('nc-eq-sg').checked = false;
+        document.getElementById('nc-eq-ni').checked = false;
+        okEl.style.display = 'inline';
+        setTimeout(() => { okEl.style.display = 'none'; }, 4000);
+        await carregarCorretoresAdmin();
+      } else {
+        errEl.textContent = (resultados[0] && resultados[0].message) || 'Erro ao salvar corretor.';
+        errEl.style.display = 'inline';
+      }
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Adicionar corretor';
     }
   }
 
