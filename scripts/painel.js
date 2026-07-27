@@ -1306,11 +1306,66 @@
       campo('Agência', f.banco_agencia),
       campo('Conta', f.banco_conta),
     ];
-    if (f.repasse_destinatario === 'terceiro') {
-      if (f.terc_nome)           camposBanco.push(campo('Beneficiário (PF)', f.terc_nome), campo('CPF', f.terc_cpf));
-      if (f.terc_pj_razao_social) camposBanco.push(campo('Empresa', f.terc_pj_razao_social), campo('CNPJ', f.terc_pj_cnpj));
-    }
     html += secaoDetalhe('🏦 Dados Bancários', camposBanco);
+
+    if (f.repasse_destinatario === 'terceiro') {
+      const camposTerceiro = [];
+
+      if (f.terc_nome) {
+        // Terceiro PF
+        camposTerceiro.push(
+          campo('Tipo',        'Pessoa Física'),
+          campo('Nome',        f.terc_nome),
+          campo('CPF',         f.terc_cpf),
+          campo('E-mail',      f.terc_email),
+          campo('Celular',     f.terc_cel),
+          campo('Logradouro',  f.terc_logradouro),
+          campo('Número',      f.terc_numero),
+          campo('Bairro',      f.terc_bairro),
+          campo('Complemento', f.terc_complemento),
+          campo('CEP',         f.terc_cep),
+          campo('Cidade',      f.terc_cidade),
+          campo('Estado',      f.terc_estado),
+        );
+      } else if (f.terc_pj_razao_social) {
+        // Terceiro PJ — dados da empresa
+        camposTerceiro.push(
+          campo('Tipo',         'Pessoa Jurídica'),
+          campo('Razão Social', f.terc_pj_razao_social),
+          campo('CNPJ',         f.terc_pj_cnpj),
+          campo('E-mail',       f.terc_pj_email),
+          campo('Telefone',     f.terc_pj_cel),
+          campo('Logradouro',   f.terc_pj_logradouro),
+          campo('Número',       f.terc_pj_numero),
+          campo('Bairro',       f.terc_pj_bairro),
+          campo('Complemento',  f.terc_pj_complemento),
+          campo('CEP',          f.terc_pj_cep),
+          campo('Cidade',       f.terc_pj_cidade),
+          campo('Estado',       f.terc_pj_estado),
+        );
+        // Representante legal da PJ
+        if (f.terc_pj_rep_nome) {
+          camposTerceiro.push(
+            campo('— Representante Legal —', ''),
+            campo('Nome',       f.terc_pj_rep_nome),
+            campo('CPF',        f.terc_pj_rep_cpf),
+            campo('E-mail',     f.terc_pj_rep_email),
+            campo('Celular',    f.terc_pj_rep_cel),
+            campo('Logradouro', f.terc_pj_rep_logradouro),
+            campo('Número',     f.terc_pj_rep_numero),
+            campo('Bairro',     f.terc_pj_rep_bairro),
+            campo('Complemento',f.terc_pj_rep_complemento),
+            campo('CEP',        f.terc_pj_rep_cep),
+            campo('Cidade',     f.terc_pj_rep_cidade),
+            campo('Estado',     f.terc_pj_rep_estado),
+          );
+        }
+      }
+
+      if (camposTerceiro.length) {
+        html += secaoDetalhe('👤 Beneficiário do Repasse (Terceiro)', camposTerceiro);
+      }
+    }
 
     if (f.mobiliado === 'sim' && f.descricao_mobilia) {
       html += secaoDetalhe('🛋️ Mobília', [campo('Mobiliado', 'Sim'), campo('Descrição', f.descricao_mobilia)]);
