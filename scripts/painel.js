@@ -1077,12 +1077,15 @@
     if (f.imovel_tem_controle === 'sim') camposFin.push(campo('Controle remoto', `Sim (${f.imovel_qtd_controles || '—'})`));
     html += secaoDetalhe('💰 Informações Financeiras e Chaves', camposFin);
 
+    html += secaoDetalhe('📋 Dados da Locação', [
+      campo('Corretor', f.corretor),
+      campo('Garantias aceitas', f.tipo_garantia),
+    ]);
+
     if (eCom) {
-      html += secaoDetalhe('📋 Locação Comercial', [
+      html += secaoDetalhe('🏢 Dados Comerciais', [
         f.vigencia_contrato ? campo('Vigências aceitas', f.vigencia_contrato) : '',
-        f.corretor ? campo('Corretor', f.corretor) : '',
         campo('Tem vaga', f.tem_vaga === 'sim' ? `Sim (${f.qtd_vagas})` : 'Não'),
-        f.tipo_garantia ? campo('Garantias aceitas', f.tipo_garantia) : '',
       ]);
     }
 

@@ -153,7 +153,6 @@ function selecionarTipoEspecifico(tipoEsp) {
 
   // Seção de campos exclusivamente comerciais
   document.getElementById('secao-campos-comercial').style.display = comercial ? 'block' : 'none';
-  document.querySelector('#secao-campos-comercial [name="corretor"]').required = comercial;
 
   // Regras condicionais por tipo de imóvel
   aplicarRegrasTipo(tipoEsp);
@@ -696,8 +695,8 @@ document.getElementById('form-ficha').addEventListener('submit', async function 
 
     blocoOculto.querySelectorAll('input, select').forEach(el => { el.disabled = false; });
 
-    // Valida checkboxes obrigatórios (apenas ficha comercial)
-    if (comercialEnviando && !dados.tipo_garantia) {
+    // Valida garantias (obrigatório para todos) e vigência (apenas comercial)
+    if (!dados.tipo_garantia) {
       alert('Selecione ao menos uma garantia aceita.');
       btn.disabled = false;
       statusDiv.className = '';

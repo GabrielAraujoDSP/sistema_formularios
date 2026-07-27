@@ -365,21 +365,11 @@
       </div>
     </div>
 
-    <!-- ── CAMPOS COMERCIAIS ──────────────────────────────── -->
-    <div class="secao" id="secao-campos-comercial" style="display:none;">
-      <div class="secao-titulo">🏢 Dados da Locação Comercial</div>
+    <!-- ── DADOS DA LOCAÇÃO (corretor e garantias — todos os tipos) ── -->
+    <div class="secao" id="secao-dados-locacao">
+      <div class="secao-titulo">📋 Dados da Locação</div>
       <div class="secao-corpo">
         <div class="grid g3">
-          <div class="span3">
-            <label>Quais vigências são aceitas? <span class="obrig">*</span></label>
-            <div class="radio-group" style="margin-top:8px;flex-wrap:wrap;">
-              <label><input type="checkbox" name="vigencia_contrato" value="24 meses" /> 24 meses</label>
-              <label><input type="checkbox" name="vigencia_contrato" value="30 meses" /> 30 meses</label>
-              <label><input type="checkbox" name="vigencia_contrato" value="36 meses" /> 36 meses</label>
-              <label><input type="checkbox" name="vigencia_contrato" value="48 meses" /> 48 meses</label>
-              <label><input type="checkbox" name="vigencia_contrato" value="60 meses" /> 60 meses</label>
-            </div>
-          </div>
           <div>
             <label>Corretor responsável <span class="obrig">*</span></label>
             <select name="corretor" required>
@@ -402,6 +392,34 @@
               </optgroup>
             </select>
           </div>
+          <div class="span2">
+            <label>Quais garantias são aceitas? <span class="obrig">*</span></label>
+            <div class="radio-group" style="margin-top:8px;flex-wrap:wrap;">
+              <label><input type="checkbox" name="tipo_garantia" value="Porto Seguro" /> Porto Seguro</label>
+              <label><input type="checkbox" name="tipo_garantia" value="LOFT" /> LOFT</label>
+              <label><input type="checkbox" name="tipo_garantia" value="Caução" /> Caução</label>
+              <label><input type="checkbox" name="tipo_garantia" value="Fiador" /> Fiador</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CAMPOS EXCLUSIVOS DO COMERCIAL ───────────────────── -->
+    <div class="secao" id="secao-campos-comercial" style="display:none;">
+      <div class="secao-titulo">🏢 Dados da Locação Comercial</div>
+      <div class="secao-corpo">
+        <div class="grid g3">
+          <div class="span3">
+            <label>Quais vigências são aceitas? <span class="obrig">*</span></label>
+            <div class="radio-group" style="margin-top:8px;flex-wrap:wrap;">
+              <label><input type="checkbox" name="vigencia_contrato" value="24 meses" /> 24 meses</label>
+              <label><input type="checkbox" name="vigencia_contrato" value="30 meses" /> 30 meses</label>
+              <label><input type="checkbox" name="vigencia_contrato" value="36 meses" /> 36 meses</label>
+              <label><input type="checkbox" name="vigencia_contrato" value="48 meses" /> 48 meses</label>
+              <label><input type="checkbox" name="vigencia_contrato" value="60 meses" /> 60 meses</label>
+            </div>
+          </div>
           <div>
             <label>Tem vaga de garagem? <span class="obrig">*</span></label>
             <div class="radio-group">
@@ -412,15 +430,6 @@
           <div id="campo-qtd-vagas" style="display:none;">
             <label>Quantidade de vagas <span class="obrig">*</span></label>
             <input type="number" name="qtd_vagas" min="1" max="10" placeholder="Ex: 1" />
-          </div>
-          <div class="span3">
-            <label>Quais garantias são aceitas? <span class="obrig">*</span></label>
-            <div class="radio-group" style="margin-top:8px;flex-wrap:wrap;">
-              <label><input type="checkbox" name="tipo_garantia" value="Porto Seguro" /> Porto Seguro</label>
-              <label><input type="checkbox" name="tipo_garantia" value="LOFT" /> LOFT</label>
-              <label><input type="checkbox" name="tipo_garantia" value="Caução" /> Caução</label>
-              <label><input type="checkbox" name="tipo_garantia" value="Fiador" /> Fiador</label>
-            </div>
           </div>
         </div>
       </div>
