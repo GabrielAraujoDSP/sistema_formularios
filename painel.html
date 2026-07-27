@@ -46,6 +46,7 @@
     </div>
     <div class="header-right">
       <span class="header-email" id="header-email"></span>
+      <button class="btn-header admin-only" id="btn-corretores" onclick="abrirCorretores()">🧑‍💼 Corretores</button>
       <button class="btn-header admin-only" id="btn-usuarios" onclick="abrirUsuarios()">👥 Usuários</button>
       <button class="btn-header" onclick="sair()">Sair</button>
     </div>
@@ -155,9 +156,7 @@
         <div class="edit-grupo">
           <label>Corretor</label>
           <select id="e-corretor">
-            <option>Aline Alves</option><option>Fernando Macedo</option>
-            <option>Gabriel Araújo</option><option>Gabriel Medeiros</option>
-            <option>Michel Alves</option><option>Lívia Cordeiro</option><option>Victor Sutter</option>
+            <option value="">Selecione o corretor</option>
           </select>
         </div>
         <div class="edit-grupo">
@@ -265,6 +264,57 @@
     <div class="modal-footer">
       <button class="btn-cancelar" onclick="fecharEditar()">Cancelar</button>
       <button class="btn-salvar" onclick="salvarEdicao()">💾 Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Gerenciar Corretores (admin) ────────────────────────── -->
+<div class="overlay" id="overlay-corretores">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-header">
+      <h2>🧑‍💼 Gerenciar Corretores</h2>
+      <button class="btn-fechar" onclick="fecharCorretores()">✕</button>
+    </div>
+    <div class="modal-corpo">
+
+      <!-- Criar corretor -->
+      <div class="usuarios-form">
+        <h4>➕ Adicionar corretor</h4>
+        <div class="edit-grid">
+          <div class="edit-grupo">
+            <label>Nome completo</label>
+            <input type="text" id="nc-nome" placeholder="Ex: Guilherme Silva" />
+          </div>
+          <div class="edit-grupo">
+            <label>Equipe</label>
+            <select id="nc-equipe">
+              <option value="São Gonçalo">São Gonçalo</option>
+              <option value="Niterói">Niterói</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <button class="btn-salvar" onclick="salvarCorretor()">Adicionar corretor</button>
+          <span class="msg-feedback msg-ok"  id="nc-ok" style="display:none">✅ Corretor adicionado!</span>
+          <span class="msg-feedback msg-err" id="nc-err" style="display:none"></span>
+        </div>
+      </div>
+
+      <!-- Lista de corretores -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <h4 style="font-size:.9rem;font-weight:700;color:var(--primary)">Corretores cadastrados</h4>
+          <button class="btn-atualizar" onclick="carregarCorretoresAdmin()" style="font-size:.78rem;padding:5px 11px">🔄 Recarregar</button>
+        </div>
+        <div id="lista-corretores" style="overflow-x:auto">
+          <div style="display:flex;align-items:center;gap:10px;color:var(--muted);padding:10px 0">
+            <div class="spinner"></div> Carregando corretores…
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharCorretores()">Fechar</button>
     </div>
   </div>
 </div>

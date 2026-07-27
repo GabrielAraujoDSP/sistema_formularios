@@ -21,13 +21,14 @@
     { id: 'contrato_enviado', label: 'Contrato Enviado',      emoji: '📬', cls: 'col-contrato-enviado'},
   ];
 
-  let interfaceAtual = 'kanban';
-  let abaAtiva       = 'nova';
-  let fichasTodas    = [];
-  let revisaoLocal   = null;
-  let timerPolling   = null;
-  let fichaAtual     = null;
-  let fichaEditando  = null;
+  let interfaceAtual  = 'kanban';
+  let abaAtiva        = 'nova';
+  let fichasTodas     = [];
+  let revisaoLocal    = null;
+  let timerPolling    = null;
+  let fichaAtual      = null;
+  let fichaEditando   = null;
+  let listaCorretores = [];
 
   /* ── Inicialização ───────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', () => {
@@ -85,6 +86,7 @@
       el.style.display = isAdmin ? '' : 'none';
     });
     document.getElementById('header-email').textContent = getEmail();
+    carregarCorretores();
     carregarFichas();
     iniciarPolling();
   }
@@ -259,11 +261,60 @@
   }
 
   function atualizarFiltroCorretores() {
-    const sel = document.getElementById('filtro-corretor');
+    const sel   = document.getElementById('filtro-corretor');
     const atual = sel.value;
-    const corretores = [...new Set(fichasTodas.map(f => f.corretor).filter(Boolean))].sort();
-    sel.innerHTML = '<option value="">Todos os corretores</option>' +
-      corretores.map(c => `<option${c === atual ? ' selected' : ''}>${esc(c)}</option>`).join('');
+    const grupos = {};
+    listaCorretores.forEach(c => {
+      if (!grupos[c.equipe]) grupos[c.equipe] = [];
+      grupos[c.equipe].push(c.nome);
+    });
+    const equipes = Object.keys(grupos).sort();
+    let html = '<option value="">Todos os corretores</option>';
+    if (equipes.length === 0) {
+      const fallback = [...new Set(fichasTodas.map(f => f.corretor).filter(Boolean))].sort();
+      html += fallback.map(c => `<option${c === atual ? ' selected' : ''}>${esc(c)}</option>`).join('');
+    } else {
+      equipes.forEach(eq => {
+        html += `<optgroup label="${esc(eq)}">`;
+        grupos[eq].sort().forEach(nome => {
+          html += `<option${nome === atual ? ' selected' : ''}>${esc(nome)}</option>`;
+        });
+        html += '</optgroup>';
+      });
+    }
+    sel.innerHTML = html;
+  }
+
+  async function carregarCorretores() {
+    try {
+      const res  = await fetch(endpoint() + '?acao=listarCorretores');
+      const json = await res.json();
+      listaCorretores = (json.corretores || []);
+    } catch (_) {
+      listaCorretores = [];
+    }
+    atualizarFiltroCorretores();
+    popularSelectCorretores('e-corretor', '');
+  }
+
+  function popularSelectCorretores(selectId, valorAtual) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const grupos = {};
+    listaCorretores.forEach(c => {
+      if (!grupos[c.equipe]) grupos[c.equipe] = [];
+      grupos[c.equipe].push(c.nome);
+    });
+    const equipes = Object.keys(grupos).sort();
+    let html = '<option value="">Selecione o corretor</option>';
+    equipes.forEach(eq => {
+      html += `<optgroup label="${esc(eq)}">`;
+      grupos[eq].sort().forEach(nome => {
+        html += `<option${nome === valorAtual ? ' selected' : ''}>${esc(nome)}</option>`;
+      });
+      html += '</optgroup>';
+    });
+    sel.innerHTML = html;
   }
 
   function fichasFiltradas() {
@@ -539,6 +590,7 @@
     if (!fichaEditando) return;
     const f = fichaEditando;
     const set = (elId, val) => { const el = document.getElementById(elId); if (el) el.value = val || ''; };
+    popularSelectCorretores('e-corretor', f.corretor || '');
     set('e-corretor', f.corretor);
     set('e-codigo_imovel', f.codigo_imovel);
     set('e-tipo_garantia', f.tipo_garantia);
@@ -738,6 +790,89 @@
     if (!json) return;
     if (json.status === 'ok') await carregarUsuarios();
     else alert(json.message || 'Erro ao atualizar usuário.');
+  }
+
+  /* ── Gerenciar Corretores ────────────────────────────────────────── */
+  async function abrirCorretores() {
+    document.getElementById('overlay-corretores').classList.add('ativo');
+    await carregarCorretoresAdmin();
+  }
+
+  function fecharCorretores() {
+    document.getElementById('overlay-corretores').classList.remove('ativo');
+    document.getElementById('nc-nome').value = '';
+    document.getElementById('nc-ok').style.display  = 'none';
+    document.getElementById('nc-err').style.display = 'none';
+  }
+
+  document.getElementById('overlay-corretores').addEventListener('click', e => {
+    if (e.target === e.currentTarget) fecharCorretores();
+  });
+
+  async function carregarCorretoresAdmin() {
+    const listaEl = document.getElementById('lista-corretores');
+    listaEl.innerHTML = '<div style="display:flex;align-items:center;gap:10px;color:var(--muted);padding:10px 0"><div class="spinner"></div> Carregando…</div>';
+    await carregarCorretores();
+    if (listaCorretores.length === 0) {
+      listaEl.innerHTML = '<p style="color:var(--muted);padding:8px 0">Nenhum corretor cadastrado.</p>';
+      return;
+    }
+    const grupos = {};
+    listaCorretores.forEach(c => {
+      if (!grupos[c.equipe]) grupos[c.equipe] = [];
+      grupos[c.equipe].push(c.nome);
+    });
+    const equipes = Object.keys(grupos).sort();
+    let html = '<table style="width:100%;border-collapse:collapse;font-size:.85rem">';
+    html += '<thead><tr style="background:var(--sidebar-bg)"><th style="padding:8px 12px;text-align:left;color:var(--muted);font-weight:600;font-size:.78rem">Nome</th><th style="padding:8px 12px;text-align:left;color:var(--muted);font-weight:600;font-size:.78rem">Equipe</th><th></th></tr></thead><tbody>';
+    equipes.forEach(eq => {
+      grupos[eq].sort().forEach(nome => {
+        html += `<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px 12px">${esc(nome)}</td>
+          <td style="padding:8px 12px"><span style="font-size:.75rem;background:#e8f0fe;color:#1a3c6e;padding:2px 8px;border-radius:20px;font-weight:600">${esc(eq)}</span></td>
+          <td style="padding:8px 12px;text-align:right"><button class="btn-excluir-usuario" onclick="excluirCorretor('${esc(nome).replace(/'/g,"\\'")}')">Excluir</button></td>
+        </tr>`;
+      });
+    });
+    html += '</tbody></table>';
+    listaEl.innerHTML = html;
+  }
+
+  async function salvarCorretor() {
+    const nome   = document.getElementById('nc-nome').value.trim();
+    const equipe = document.getElementById('nc-equipe').value;
+    const okEl   = document.getElementById('nc-ok');
+    const errEl  = document.getElementById('nc-err');
+    okEl.style.display = 'none';
+    errEl.style.display = 'none';
+    if (!nome) { errEl.textContent = 'Informe o nome do corretor.'; errEl.style.display = 'inline'; return; }
+    const json = await apiFetch(endpoint(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ acao: 'salvarCorretor', token: getToken(), nome, equipe })
+    });
+    if (!json) return;
+    if (json.status === 'ok') {
+      document.getElementById('nc-nome').value = '';
+      okEl.style.display = 'inline';
+      setTimeout(() => { okEl.style.display = 'none'; }, 4000);
+      await carregarCorretoresAdmin();
+    } else {
+      errEl.textContent = json.message || 'Erro ao salvar corretor.';
+      errEl.style.display = 'inline';
+    }
+  }
+
+  async function excluirCorretor(nome) {
+    if (!confirm(`Excluir o corretor "${nome}"?\n\nEsta ação não pode ser desfeita.`)) return;
+    const json = await apiFetch(endpoint(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ acao: 'excluirCorretor', token: getToken(), nome })
+    });
+    if (!json) return;
+    if (json.status === 'ok') await carregarCorretoresAdmin();
+    else alert(json.message || 'Erro ao excluir corretor.');
   }
 
   /* ── Download em massa de documentos do Drive ───────────────────── */

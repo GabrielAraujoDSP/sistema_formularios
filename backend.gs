@@ -25,8 +25,9 @@
 // ── Configurações — altere aqui ───────────────────────────────────
 var SHEET_ID     = '1dy3gQq8bPE4C8ODpZSf2Hv9x4_Q2-g6SjPDXqrdgygw';
 var FOLDER_ID    = '1xHIZomIVqtFTx8OWRNC3ZpoJa9yLjfO-';
-var SHEET_NAME   = 'Fichas';
-var USUARIOS_ABA = 'Usuarios';
+var SHEET_NAME    = 'Fichas';
+var USUARIOS_ABA  = 'Usuarios';
+var CORRETORES_ABA = 'Corretores';
 
 // ── Colunas fixas ─────────────────────────────────────────────────
 var COLUNAS_BASE = [
@@ -147,6 +148,37 @@ function abaUsuarios() {
     sh.setColumnWidth(3, 90);
     sh.setColumnWidth(4, 140);
     sh.setColumnWidth(5, 70);
+  }
+  return sh;
+}
+
+function abaCorretores() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sh = ss.getSheetByName(CORRETORES_ABA);
+  if (!sh) {
+    sh = ss.insertSheet(CORRETORES_ABA);
+    sh.appendRow(['nome', 'equipe', 'criado_em']);
+    var hr = sh.getRange(1, 1, 1, 3);
+    hr.setBackground('#1a3c6e').setFontColor('#ffffff').setFontWeight('bold').setFontSize(9);
+    sh.setFrozenRows(1);
+    sh.setColumnWidth(1, 200);
+    sh.setColumnWidth(2, 150);
+    sh.setColumnWidth(3, 150);
+    // Seed com corretores atuais para não perder o histórico das fichas existentes
+    var agora = new Date().toLocaleString('pt-BR');
+    [
+      ['Carlos',          'São Gonçalo'],
+      ['Edvaldo',         'São Gonçalo'],
+      ['Gabriel Araújo',  'São Gonçalo'],
+      ['Mariana',         'São Gonçalo'],
+      ['Marilea',         'São Gonçalo'],
+      ['Aline Alves',     'Niterói'],
+      ['Fernando Macedo', 'Niterói'],
+      ['Gabriel Medeiros','Niterói'],
+      ['Lívia Cordeiro',  'Niterói'],
+      ['Michel Alves',    'Niterói'],
+      ['Victor Sutter',   'Niterói'],
+    ].forEach(function(r) { sh.appendRow([r[0], r[1], agora]); });
   }
   return sh;
 }
@@ -573,6 +605,47 @@ function doPost(e) {
       return resposta({ usuarios: lista2 });
     }
 
+    /* ── Salvar corretor (requer token admin) ───────────────────── */
+    if (acao === 'salvarCorretor') {
+      var sessCS = verificarToken(dados.token || '');
+      if (!sessCS || sessCS.papel !== 'admin') return erro401();
+      var nomeCS  = String(dados.nome  || '').trim();
+      var equipeCS = String(dados.equipe || '').trim();
+      if (!nomeCS || !equipeCS) return resposta({ status: 'erro', message: 'Nome e equipe são obrigatórios.' });
+      var lockCS = LockService.getScriptLock();
+      lockCS.waitLock(10000);
+      try {
+        var shCS = abaCorretores();
+        shCS.appendRow([nomeCS, equipeCS, new Date().toLocaleString('pt-BR')]);
+        return resposta({ status: 'ok' });
+      } finally {
+        lockCS.releaseLock();
+      }
+    }
+
+    /* ── Excluir corretor (requer token admin) ──────────────────── */
+    if (acao === 'excluirCorretor') {
+      var sessEC = verificarToken(dados.token || '');
+      if (!sessEC || sessEC.papel !== 'admin') return erro401();
+      var nomeEC = String(dados.nome || '').trim();
+      if (!nomeEC) return resposta({ status: 'erro', message: 'Nome é obrigatório.' });
+      var lockEC = LockService.getScriptLock();
+      lockEC.waitLock(10000);
+      try {
+        var shEC   = abaCorretores();
+        var rowsEC = shEC.getDataRange().getValues();
+        for (var iec = rowsEC.length - 1; iec >= 1; iec--) {
+          if (String(rowsEC[iec][0] || '').trim() === nomeEC) {
+            shEC.deleteRow(iec + 1);
+            return resposta({ status: 'ok' });
+          }
+        }
+        return resposta({ status: 'erro', message: 'Corretor não encontrado.' });
+      } finally {
+        lockEC.releaseLock();
+      }
+    }
+
     /* ── Nova ficha (público — formulario.html ou locador.html) ──────── */
     var eLocador = dados.form_key === 'CADASTRO_LOCADOR_2025';
     if (dados.form_key !== 'LOCACAO_RES_2025' && !eLocador) {
@@ -901,6 +974,18 @@ function doGet(e) {
       }
 
       return resposta({ fichas: fichasD, agregados: agg });
+    }
+
+    /* ── Listar corretores (público — sem autenticação) ─────────── */
+    if (acao === 'listarCorretores') {
+      var shCR  = abaCorretores();
+      var rowsCR = shCR.getDataRange().getValues();
+      var cabCR  = rowsCR[0];
+      var listaCR = [];
+      for (var icr = 1; icr < rowsCR.length; icr++) {
+        listaCR.push({ nome: String(rowsCR[icr][0] || ''), equipe: String(rowsCR[icr][1] || '') });
+      }
+      return resposta({ corretores: listaCR });
     }
 
     /* ── Listar usuários (requer token admin) ────────────────────── */

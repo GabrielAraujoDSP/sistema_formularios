@@ -1,6 +1,31 @@
 // ── Configuração ────────────────────────────────────────────
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxDm7JeQZqjXNd5ISaXfkt_zrkNFLlDs9bdLKJMlrY4JwA8KNpATfSaRm4mqVHqg70/exec';
 
+  // ── Carregar corretores dinamicamente ───────────────────────
+  async function carregarCorretores() {
+    try {
+      const res  = await fetch(APPS_SCRIPT_URL + '?acao=listarCorretores');
+      const json = await res.json();
+      const corretores = json.corretores || [];
+      const sel = document.getElementById('select-corretor');
+      if (!sel || corretores.length === 0) return;
+      const grupos = {};
+      corretores.forEach(c => {
+        if (!grupos[c.equipe]) grupos[c.equipe] = [];
+        grupos[c.equipe].push(c.nome);
+      });
+      let html = '<option value="">Selecione o corretor</option>';
+      Object.keys(grupos).sort().forEach(eq => {
+        html += `<optgroup label="${eq}">`;
+        grupos[eq].sort().forEach(nome => { html += `<option>${nome}</option>`; });
+        html += '</optgroup>';
+      });
+      sel.innerHTML = html;
+    } catch (_) {}
+  }
+
+  document.addEventListener('DOMContentLoaded', () => { carregarCorretores(); });
+
   // ── Seleção de tipo de imóvel ────────────────────────────────
   function selecionarTipo(tipo) {
     document.getElementById('campo-tipo-imovel').value = tipo;

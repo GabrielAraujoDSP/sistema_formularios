@@ -1,5 +1,30 @@
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxDm7JeQZqjXNd5ISaXfkt_zrkNFLlDs9bdLKJMlrY4JwA8KNpATfSaRm4mqVHqg70/exec';
 
+// ── Carregar corretores dinamicamente ─────────────────────────
+async function carregarCorretores() {
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL + '?acao=listarCorretores');
+    const json = await res.json();
+    const corretores = json.corretores || [];
+    const sel = document.getElementById('select-corretor');
+    if (!sel || corretores.length === 0) return;
+    const grupos = {};
+    corretores.forEach(c => {
+      if (!grupos[c.equipe]) grupos[c.equipe] = [];
+      grupos[c.equipe].push(c.nome);
+    });
+    let html = '<option value="">Selecione o corretor</option>';
+    Object.keys(grupos).sort().forEach(eq => {
+      html += `<optgroup label="${eq}">`;
+      grupos[eq].sort().forEach(nome => { html += `<option>${nome}</option>`; });
+      html += '</optgroup>';
+    });
+    sel.innerHTML = html;
+  } catch (_) {}
+}
+
+document.addEventListener('DOMContentLoaded', () => { carregarCorretores(); });
+
 // ── Ícones SVG por tipo de imóvel ─────────────────────────────
 const ICONES = {
   Apartamento:          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="1"/><rect x="7" y="5" width="3" height="3"/><rect x="14" y="5" width="3" height="3"/><rect x="7" y="10" width="3" height="3"/><rect x="14" y="10" width="3" height="3"/><rect x="7" y="15" width="3" height="3"/><rect x="14" y="15" width="3" height="3"/><path d="M10 22v-4h4v4"/></svg>`,
