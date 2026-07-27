@@ -286,11 +286,15 @@
             <input type="text" id="nc-nome" placeholder="Ex: Guilherme Silva" />
           </div>
           <div class="edit-grupo">
-            <label>Equipe</label>
-            <select id="nc-equipe">
-              <option value="São Gonçalo">São Gonçalo</option>
-              <option value="Niterói">Niterói</option>
-            </select>
+            <label>Equipe(s)</label>
+            <div style="display:flex;gap:16px;margin-top:6px">
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer">
+                <input type="checkbox" id="nc-eq-sg" value="São Gonçalo" /> São Gonçalo
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer">
+                <input type="checkbox" id="nc-eq-ni" value="Niterói" /> Niterói
+              </label>
+            </div>
           </div>
         </div>
         <div style="margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">

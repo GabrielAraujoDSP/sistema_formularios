@@ -800,7 +800,9 @@
 
   function fecharCorretores() {
     document.getElementById('overlay-corretores').classList.remove('ativo');
-    document.getElementById('nc-nome').value = '';
+    document.getElementById('nc-nome').value        = '';
+    document.getElementById('nc-eq-sg').checked     = false;
+    document.getElementById('nc-eq-ni').checked     = false;
     document.getElementById('nc-ok').style.display  = 'none';
     document.getElementById('nc-err').style.display = 'none';
   }
@@ -817,48 +819,58 @@
       listaEl.innerHTML = '<p style="color:var(--muted);padding:8px 0">Nenhum corretor cadastrado.</p>';
       return;
     }
-    const grupos = {};
+    // Agrupa por nome, coleta todas as equipes de cada corretor
+    const porNome = {};
     listaCorretores.forEach(c => {
-      if (!grupos[c.equipe]) grupos[c.equipe] = [];
-      grupos[c.equipe].push(c.nome);
+      if (!porNome[c.nome]) porNome[c.nome] = [];
+      porNome[c.nome].push(c.equipe);
     });
-    const equipes = Object.keys(grupos).sort();
+    const nomes = Object.keys(porNome).sort();
     let html = '<table style="width:100%;border-collapse:collapse;font-size:.85rem">';
-    html += '<thead><tr style="background:var(--sidebar-bg)"><th style="padding:8px 12px;text-align:left;color:var(--muted);font-weight:600;font-size:.78rem">Nome</th><th style="padding:8px 12px;text-align:left;color:var(--muted);font-weight:600;font-size:.78rem">Equipe</th><th></th></tr></thead><tbody>';
-    equipes.forEach(eq => {
-      grupos[eq].sort().forEach(nome => {
-        html += `<tr style="border-bottom:1px solid var(--border)">
-          <td style="padding:8px 12px">${esc(nome)}</td>
-          <td style="padding:8px 12px"><span style="font-size:.75rem;background:#e8f0fe;color:#1a3c6e;padding:2px 8px;border-radius:20px;font-weight:600">${esc(eq)}</span></td>
-          <td style="padding:8px 12px;text-align:right"><button class="btn-excluir-usuario" onclick="excluirCorretor('${esc(nome).replace(/'/g,"\\'")}')">Excluir</button></td>
-        </tr>`;
-      });
+    html += '<thead><tr style="background:var(--sidebar-bg)"><th style="padding:8px 12px;text-align:left;color:var(--muted);font-weight:600;font-size:.78rem">Nome</th><th style="padding:8px 12px;text-align:left;color:var(--muted);font-weight:600;font-size:.78rem">Equipe(s)</th><th></th></tr></thead><tbody>';
+    nomes.forEach(nome => {
+      const badges = porNome[nome].sort().map(eq =>
+        `<span style="font-size:.75rem;background:#e8f0fe;color:#1a3c6e;padding:2px 8px;border-radius:20px;font-weight:600;margin-right:4px">${esc(eq)}</span>`
+      ).join('');
+      html += `<tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:8px 12px">${esc(nome)}</td>
+        <td style="padding:8px 12px">${badges}</td>
+        <td style="padding:8px 12px;text-align:right"><button class="btn-excluir-usuario" onclick="excluirCorretor('${nome.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">Excluir</button></td>
+      </tr>`;
     });
     html += '</tbody></table>';
     listaEl.innerHTML = html;
   }
 
   async function salvarCorretor() {
-    const nome   = document.getElementById('nc-nome').value.trim();
-    const equipe = document.getElementById('nc-equipe').value;
-    const okEl   = document.getElementById('nc-ok');
-    const errEl  = document.getElementById('nc-err');
-    okEl.style.display = 'none';
+    const nome  = document.getElementById('nc-nome').value.trim();
+    const okEl  = document.getElementById('nc-ok');
+    const errEl = document.getElementById('nc-err');
+    okEl.style.display  = 'none';
     errEl.style.display = 'none';
     if (!nome) { errEl.textContent = 'Informe o nome do corretor.'; errEl.style.display = 'inline'; return; }
-    const json = await apiFetch(endpoint(), {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ acao: 'salvarCorretor', token: getToken(), nome, equipe })
-    });
-    if (!json) return;
-    if (json.status === 'ok') {
-      document.getElementById('nc-nome').value = '';
+    const equipes = ['nc-eq-sg', 'nc-eq-ni']
+      .map(id => document.getElementById(id))
+      .filter(el => el.checked)
+      .map(el => el.value);
+    if (equipes.length === 0) { errEl.textContent = 'Selecione ao menos uma equipe.'; errEl.style.display = 'inline'; return; }
+    // Envia uma requisição por equipe (o backend ignora duplicatas silenciosamente)
+    const resultados = await Promise.all(equipes.map(equipe =>
+      apiFetch(endpoint(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ acao: 'salvarCorretor', token: getToken(), nome, equipe })
+      })
+    ));
+    if (resultados.some(r => r && r.status === 'ok')) {
+      document.getElementById('nc-nome').value  = '';
+      document.getElementById('nc-eq-sg').checked = false;
+      document.getElementById('nc-eq-ni').checked = false;
       okEl.style.display = 'inline';
       setTimeout(() => { okEl.style.display = 'none'; }, 4000);
       await carregarCorretoresAdmin();
     } else {
-      errEl.textContent = json.message || 'Erro ao salvar corretor.';
+      errEl.textContent = (resultados[0] && resultados[0].message) || 'Erro ao salvar corretor.';
       errEl.style.display = 'inline';
     }
   }

@@ -609,13 +609,19 @@ function doPost(e) {
     if (acao === 'salvarCorretor') {
       var sessCS = verificarToken(dados.token || '');
       if (!sessCS || sessCS.papel !== 'admin') return erro401();
-      var nomeCS  = String(dados.nome  || '').trim();
+      var nomeCS   = String(dados.nome   || '').trim();
       var equipeCS = String(dados.equipe || '').trim();
       if (!nomeCS || !equipeCS) return resposta({ status: 'erro', message: 'Nome e equipe são obrigatórios.' });
       var lockCS = LockService.getScriptLock();
       lockCS.waitLock(10000);
       try {
-        var shCS = abaCorretores();
+        var shCS   = abaCorretores();
+        var rowsCS = shCS.getDataRange().getValues();
+        for (var ics = 1; ics < rowsCS.length; ics++) {
+          if (String(rowsCS[ics][0] || '').trim() === nomeCS && String(rowsCS[ics][1] || '').trim() === equipeCS) {
+            return resposta({ status: 'ok' }); // combinação já existe, ignora silenciosamente
+          }
+        }
         shCS.appendRow([nomeCS, equipeCS, new Date().toLocaleString('pt-BR')]);
         return resposta({ status: 'ok' });
       } finally {
@@ -632,15 +638,18 @@ function doPost(e) {
       var lockEC = LockService.getScriptLock();
       lockEC.waitLock(10000);
       try {
-        var shEC   = abaCorretores();
-        var rowsEC = shEC.getDataRange().getValues();
+        var shEC     = abaCorretores();
+        var rowsEC   = shEC.getDataRange().getValues();
+        var deletado = false;
         for (var iec = rowsEC.length - 1; iec >= 1; iec--) {
           if (String(rowsEC[iec][0] || '').trim() === nomeEC) {
             shEC.deleteRow(iec + 1);
-            return resposta({ status: 'ok' });
+            deletado = true;
           }
         }
-        return resposta({ status: 'erro', message: 'Corretor não encontrado.' });
+        return deletado
+          ? resposta({ status: 'ok' })
+          : resposta({ status: 'erro', message: 'Corretor não encontrado.' });
       } finally {
         lockEC.releaseLock();
       }
