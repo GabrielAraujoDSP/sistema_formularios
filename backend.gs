@@ -29,6 +29,49 @@ var SHEET_NAME    = 'Fichas';
 var USUARIOS_ABA  = 'Usuarios';
 var CORRETORES_ABA = 'Corretores';
 
+// ── Nomes descritivos para arquivos salvos no Drive ───────────────
+var NOMES_DESCRITIVOS = {
+  'doc_identificacao':      'Identificacao',
+  'comprovante_residencia': 'Comprovante_Residencia',
+  'aprovacao_seguro':       'Aprovacao_Seguro',
+  'pj_balancete':           'PJ_Balancete',
+  'pj_contrato_social':     'PJ_Contrato_Social',
+  'pj_cartao_cnpj':         'PJ_Cartao_CNPJ',
+  'pj_extrato_simples':     'PJ_Extrato_Simples',
+  'conj_doc':               'Conjuge_Identificacao',
+  'imovel_doc':             'Imovel_Documento',
+  'imovel_boleto_iptu':     'Imovel_Boleto_IPTU',
+  'imovel_conta_luz':       'Imovel_Conta_Luz',
+  'imovel_boleto_condo':    'Imovel_Boleto_Condominio',
+  'imovel_conta_gas':       'Imovel_Conta_Gas',
+  'imovel_conta_agua':      'Imovel_Conta_Agua',
+  'imovel_foto_chaves':     'Imovel_Foto_Chaves',
+  'imovel_foto_controles':  'Imovel_Foto_Controles',
+  'pj_doc_representante':   'PJ_Documento_Representante',
+  'pj_rep_comp_residencia': 'PJ_Rep_Comprovante_Residencia',
+  'terc_doc':               'Terceiro_Identificacao',
+  'terc_pj_contrato_social':'Terceiro_PJ_Contrato_Social',
+  'terc_pj_doc_rep':        'Terceiro_PJ_Doc_Representante'
+};
+
+function nomePadronizado(campo, nomeOriginal) {
+  var m;
+  m = campo.match(/^loc(\d+)_doc_id$/);
+  if (m) return 'Loc' + m[1] + '_Identificacao';
+  m = campo.match(/^loc(\d+)_comp_res$/);
+  if (m) return 'Loc' + m[1] + '_Comprovante_Residencia';
+  m = campo.match(/^soc(\d+)_doc_id$/);
+  if (m) return 'Soc' + m[1] + '_Identificacao';
+  m = campo.match(/^soc(\d+)_comp_res$/);
+  if (m) return 'Soc' + m[1] + '_Comprovante_Residencia';
+  m = campo.match(/^loc(\d+)_doc_identificacao$/);
+  if (m) return 'LocAd' + m[1] + '_Identificacao';
+  m = campo.match(/^loc(\d+)_comprovante_residencia$/);
+  if (m) return 'LocAd' + m[1] + '_Comprovante_Residencia';
+  if (NOMES_DESCRITIVOS[campo]) return NOMES_DESCRITIVOS[campo];
+  return campo;
+}
+
 // ── Colunas fixas ─────────────────────────────────────────────────
 var COLUNAS_BASE = [
   'id', 'data_envio', 'status',
@@ -718,10 +761,13 @@ function doPost(e) {
       var b64 = dados[campoArq + '_b64'];
       if (b64) {
         try {
-          var nomeArq = dados[campoArq + '_nome'] || campoArq + '.bin';
-          var tipoArq = dados[campoArq + '_tipo'] || 'application/octet-stream';
-          var bytes   = Utilities.base64Decode(b64);
-          var blob    = Utilities.newBlob(bytes, tipoArq, nomeArq);
+          var nomeOriginal = dados[campoArq + '_nome'] || '';
+          var extMatch = nomeOriginal.match(/\.[^.]+$/);
+          var ext      = extMatch ? extMatch[0] : '.bin';
+          var nomeArq  = nomePadronizado(campoArq, nomeOriginal) + ext;
+          var tipoArq  = dados[campoArq + '_tipo'] || 'application/octet-stream';
+          var bytes    = Utilities.base64Decode(b64);
+          var blob     = Utilities.newBlob(bytes, tipoArq, nomeArq);
           var arq     = subpasta.createFile(blob);
           arq.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
           dados[campoArq + '_url'] = arq.getUrl();

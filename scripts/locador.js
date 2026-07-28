@@ -840,3 +840,12 @@ document.getElementById('form-ficha').addEventListener('submit', async function 
     btn.disabled = false;
   }
 });
+
+function copiarProtocolo() {
+  const texto = document.getElementById('num-protocolo').textContent.trim();
+  const btn   = document.getElementById('btn-copiar-protocolo');
+  navigator.clipboard.writeText(texto).then(() => {
+    btn.textContent = '✔ Copiado!';
+    setTimeout(() => { btn.innerHTML = '📋 Copiar protocolo'; }, 2000);
+  });
+}
