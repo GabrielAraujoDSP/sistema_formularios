@@ -3,12 +3,19 @@
 
   // ── Carregar corretores dinamicamente ───────────────────────
   async function carregarCorretores() {
+    const sel = document.getElementById('select-corretor');
+    if (!sel) return;
+    sel.disabled = true;
+    sel.innerHTML = '<option value="">⏳ Carregando corretores...</option>';
     try {
       const res  = await fetch(APPS_SCRIPT_URL + '?acao=listarCorretores');
       const json = await res.json();
       const corretores = json.corretores || [];
-      const sel = document.getElementById('select-corretor');
-      if (!sel || corretores.length === 0) return;
+      if (corretores.length === 0) {
+        sel.innerHTML = '<option value="">Selecione o corretor</option>';
+        sel.disabled = false;
+        return;
+      }
       const grupos = {};
       corretores.forEach(c => {
         if (!grupos[c.equipe]) grupos[c.equipe] = [];
@@ -21,7 +28,11 @@
         html += '</optgroup>';
       });
       sel.innerHTML = html;
-    } catch (_) {}
+    } catch (_) {
+      sel.innerHTML = '<option value="">Selecione o corretor</option>';
+    } finally {
+      sel.disabled = false;
+    }
   }
 
   document.addEventListener('DOMContentLoaded', () => { carregarCorretores(); });
