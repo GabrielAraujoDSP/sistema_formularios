@@ -1,14 +1,14 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --primary: #1a3c6e;
-      --primary-light: #2a5298;
-      --accent: #e8a020;
+      --primary: #8C1C1C;
+      --primary-light: #6B1212;
+      --accent: #c9a227;
       --danger: #c0392b;
       --success: #27ae60;
-      --bg: #f0f3f9;
+      --bg: #faf8f8;
       --card: #ffffff;
-      --border: #d0d7e3;
+      --border: #ddd0d0;
       --text: #2c3e50;
       --muted: #6b7a99;
       --radius: 10px;
@@ -20,7 +20,7 @@
     #tela-login {
       display: flex; min-height: 100vh;
       align-items: center; justify-content: center;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      background: linear-gradient(145deg, #1e0505 0%, #8C1C1C 55%, #b52525 100%);
     }
     .login-card {
       background: #fff; border-radius: 16px; padding: 44px 40px;
@@ -155,11 +155,11 @@
     }
     .stat-card .num { font-size: 1.7rem; font-weight: 800; color: var(--primary); }
     .stat-card .lbl { font-size: .7rem; color: var(--muted); margin-top: 2px; }
-    .stat-card.st-nova      .num { color: #b45309; }
-    .stat-card.st-analise   .num { color: #1d4ed8; }
-    .stat-card.st-concluida .num { color: #047857; }
-    .stat-card.st-reprovada .num { color: #b91c1c; }
-    .stat-card.st-arquivada .num { color: #475569; }
+    .stat-card.st-nova             .num { color: #b45309; }
+    .stat-card.st-reprovada        .num { color: #b91c1c; }
+    .stat-card.st-concluida        .num { color: #047857; }
+    .stat-card.st-confeccao        .num { color: #1d4ed8; }
+    .stat-card.st-contrato-enviado .num { color: #6d28d9; }
 
     /* ── Gráficos ── */
     .charts-grid {
@@ -206,11 +206,11 @@
       display: inline-block; font-size: .68rem; font-weight: 700;
       padding: 2px 8px; border-radius: 20px;
     }
-    .st-nova      { background: #fef3c7; color: #78350f; }
-    .st-analise   { background: #dbeafe; color: #1e3a8a; }
-    .st-concluida { background: #d1fae5; color: #064e3b; }
-    .st-reprovada { background: #fee2e2; color: #7f1d1d; }
-    .st-arquivada { background: #e2e8f0; color: #334155; }
+    .st-nova             { background: #fef3c7; color: #78350f; }
+    .st-reprovada        { background: #fee2e2; color: #7f1d1d; }
+    .st-concluida        { background: #d1fae5; color: #064e3b; }
+    .st-confeccao        { background: #dbeafe; color: #1e3a8a; }
+    .st-contrato-enviado { background: #ede9fe; color: #4c1d95; }
 
     /* ── Botão Relatório ── */
     .relatorio-wrap {
@@ -219,7 +219,7 @@
     .btn-relatorio {
       background: var(--accent); color: #fff; border: none;
       padding: 14px 24px; border-radius: 10px; font-size: 1rem; font-weight: 700;
-      cursor: pointer; box-shadow: 0 4px 16px rgba(232,160,32,.4);
+      cursor: pointer; box-shadow: 0 4px 16px rgba(201,162,39,.4);
       display: flex; align-items: center; gap: 8px;
       transition: opacity .2s, transform .15s;
     }

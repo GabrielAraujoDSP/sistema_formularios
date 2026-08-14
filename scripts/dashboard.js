@@ -13,13 +13,13 @@
   Object.entries(EQUIPES).forEach(([eq, cors]) => cors.forEach(c => { CORRETOR_EQUIPE[c] = eq; }));
 
   const STATUS_LABELS = {
-    nova: 'Novo', analise: 'Em análise', concluida: 'Concluído',
-    reprovada: 'Reprovado', arquivada: 'Arquivado',
+    nova: 'Novo', reprovada: 'Pendência', concluida: 'Aprovado',
+    confeccao: 'Confecção de Contrato', contrato_enviado: 'Contrato Enviado',
   };
 
   const COR_STATUS = {
-    nova: '#d97706', analise: '#2563eb', concluida: '#059669',
-    reprovada: '#dc2626', arquivada: '#64748b',
+    nova: '#d97706', reprovada: '#dc2626', concluida: '#059669',
+    confeccao: '#2563eb', contrato_enviado: '#7c3aed',
   };
 
   // ── Autenticação ─────────────────────────────────────────
@@ -246,12 +246,12 @@
   function atualizarStats() {
     const st = {};
     fichasFiltro.forEach(f => { const s = f.status || 'nova'; st[s] = (st[s] || 0) + 1; });
-    document.getElementById('s-total').textContent    = fichasFiltro.length;
-    document.getElementById('s-nova').textContent     = st.nova      || 0;
-    document.getElementById('s-analise').textContent  = st.analise   || 0;
-    document.getElementById('s-concluida').textContent= st.concluida || 0;
-    document.getElementById('s-reprovada').textContent= st.reprovada || 0;
-    document.getElementById('s-arquivada').textContent= st.arquivada || 0;
+    document.getElementById('s-total').textContent             = fichasFiltro.length;
+    document.getElementById('s-nova').textContent              = st.nova             || 0;
+    document.getElementById('s-reprovada').textContent         = st.reprovada        || 0;
+    document.getElementById('s-concluida').textContent         = st.concluida        || 0;
+    document.getElementById('s-confeccao').textContent         = st.confeccao        || 0;
+    document.getElementById('s-contrato-enviado').textContent  = st.contrato_enviado || 0;
   }
 
   // ── Gráficos ──────────────────────────────────────────────
@@ -282,7 +282,7 @@
   }
 
   function graficoStatus(agg) {
-    const ordem = ['nova','analise','concluida','reprovada','arquivada'];
+    const ordem = ['nova','reprovada','concluida','confeccao','contrato_enviado'];
     const labels = ordem.map(k => STATUS_LABELS[k]);
     const data   = ordem.map(k => agg.porStatus[k] || 0);
     const cores  = ordem.map(k => COR_STATUS[k]);
@@ -301,7 +301,7 @@
       data: {
         labels: entries.map(e => e[0]),
         datasets: [{ label: 'Fichas', data: entries.map(e => e[1]),
-          backgroundColor: '#2563eb99', borderColor: '#2563eb', borderWidth: 1.5, borderRadius: 5 }]
+          backgroundColor: '#8C1C1C99', borderColor: '#8C1C1C', borderWidth: 1.5, borderRadius: 5 }]
       },
       options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y',
         plugins: { legend: { display: false } },
@@ -443,7 +443,7 @@
     const W = 277, L = 10;
 
     // Cabeçalho
-    doc.setFillColor(26,60,110);
+    doc.setFillColor(140,28,28);
     doc.rect(0,0,297,20,'F');
     doc.setTextColor(255,255,255);
     doc.setFontSize(12); doc.setFont(undefined,'bold');
@@ -477,8 +477,8 @@
     doc.autoTable({
       head, body, startY: 34, margin: { left: L, right: L },
       styles: { fontSize: 7.5, cellPadding: 2.5 },
-      headStyles: { fillColor: [26,60,110], textColor: 255, fontStyle: 'bold', fontSize: 7.5 },
-      alternateRowStyles: { fillColor: [245,248,255] },
+      headStyles: { fillColor: [140,28,28], textColor: 255, fontStyle: 'bold', fontSize: 7.5 },
+      alternateRowStyles: { fillColor: [250,248,248] },
       didDrawPage: (d) => {
         doc.setFontSize(7); doc.setTextColor(140,140,140);
         doc.text(`Pág. ${d.pageNumber}`, 287, 205, { align:'right' });

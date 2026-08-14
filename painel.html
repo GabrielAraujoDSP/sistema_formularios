@@ -46,22 +46,22 @@
     </div>
     <div class="header-right">
       <span class="header-email" id="header-email"></span>
-      <button class="btn-header admin-only" id="btn-corretores" onclick="abrirCorretores()">🧑‍💼 Corretores</button>
-      <button class="btn-header admin-only" id="btn-usuarios" onclick="abrirUsuarios()">👥 Usuários</button>
+      <button class="btn-header admin-only" id="btn-corretores" onclick="abrirCorretores()">Corretores</button>
+      <button class="btn-header admin-only" id="btn-usuarios" onclick="abrirUsuarios()">Usuários</button>
       <button class="btn-header" onclick="sair()">Sair</button>
     </div>
   </header>
 
   <div class="toolbar">
-    <input type="search" id="busca" placeholder="🔍  Buscar por nome, CPF ou protocolo…" oninput="renderKanban()" />
+    <input type="search" id="busca" placeholder="Buscar por nome, CPF ou protocolo…" oninput="renderKanban()" />
     <select id="filtro-corretor" onchange="renderKanban()">
       <option value="">Todos os corretores</option>
     </select>
-    <button class="btn-marcar admin-only" onclick="marcarTodasLidas()">✅ Novas → Confecção de Contrato</button>
-    <button class="btn-atualizar" onclick="carregarFichas()">🔄 Atualizar</button>
-    <button class="btn-trocar" id="btn-trocar" onclick="trocarInterface()">⊞ Trocar interface</button>
-    <button class="btn-trocar btn-links-toggle" id="btn-links" onclick="toggleLinks()">🔗 Links dos formulários</button>
-    <a class="btn-dashboard" href="dashboard.html">📊 Dashboard</a>
+    <button class="btn-marcar admin-only" onclick="marcarTodasLidas()">Novas → Confecção</button>
+    <button class="btn-atualizar" onclick="carregarFichas()">Atualizar</button>
+    <button class="btn-trocar" id="btn-trocar" onclick="trocarInterface()">Trocar interface</button>
+    <button class="btn-trocar btn-links-toggle" id="btn-links" onclick="toggleLinks()">Links dos formulários</button>
+    <a class="btn-dashboard" href="dashboard.html">Dashboard</a>
   </div>
 
   <!-- ── Painel de links ──────────────────────────────────────────── -->
@@ -72,7 +72,6 @@
 
         <div class="link-card">
           <div class="link-card-top">
-            <div class="link-card-icon">📋</div>
             <div class="link-card-info">
               <div class="link-card-nome">Ficha de Locatário</div>
               <div class="link-card-desc">Preenchida pelo inquilino antes da locação</div>
@@ -87,7 +86,6 @@
 
         <div class="link-card">
           <div class="link-card-top">
-            <div class="link-card-icon">🏠</div>
             <div class="link-card-info">
               <div class="link-card-nome">Ficha de Proprietário/Imóvel</div>
               <div class="link-card-desc">Preenchida pelo proprietário do imóvel</div>
@@ -138,7 +136,7 @@
     </div>
     <div class="modal-corpo" id="modal-corpo"></div>
     <div class="modal-footer">
-      <button class="btn-pdf" onclick="baixarPDF()">📥 Baixar PDF</button>
+      <button class="btn-pdf" onclick="baixarPDF()">Baixar PDF</button>
     </div>
   </div>
 </div>
@@ -147,12 +145,12 @@
 <div class="overlay" id="overlay-editar">
   <div class="modal" style="max-width:660px">
     <div class="modal-header">
-      <h2>✏️ Editar Ficha</h2>
+      <h2>Editar Ficha</h2>
       <button class="btn-fechar" onclick="fecharEditar()">✕</button>
     </div>
     <div class="modal-corpo">
       <div class="edit-grid">
-        <div class="edit-sec">🏢 Imóvel</div>
+        <div class="edit-sec">Imóvel</div>
         <div class="edit-grupo">
           <label>Corretor</label>
           <select id="e-corretor">
@@ -171,7 +169,7 @@
           </select>
         </div>
 
-        <div class="edit-sec">👤 Locatário Principal</div>
+        <div class="edit-sec">Locatário Principal</div>
         <div class="edit-grupo eg-span2">
           <label>Nome completo</label>
           <input type="text" id="e-nome" />
@@ -246,7 +244,7 @@
           </select>
         </div>
 
-        <div class="edit-sec">📞 Contato Secundário</div>
+        <div class="edit-sec">Contato Secundário</div>
         <div class="edit-grupo">
           <label>Nome</label>
           <input type="text" id="e-emerg_nome" />
@@ -263,7 +261,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn-cancelar" onclick="fecharEditar()">Cancelar</button>
-      <button class="btn-salvar" onclick="salvarEdicao()">💾 Salvar alterações</button>
+      <button class="btn-salvar" onclick="salvarEdicao()">Salvar alterações</button>
     </div>
   </div>
 </div>
@@ -272,14 +270,14 @@
 <div class="overlay" id="overlay-corretores">
   <div class="modal" style="max-width:680px">
     <div class="modal-header">
-      <h2>🧑‍💼 Gerenciar Corretores</h2>
+      <h2>Gerenciar Corretores</h2>
       <button class="btn-fechar" onclick="fecharCorretores()">✕</button>
     </div>
     <div class="modal-corpo">
 
       <!-- Criar corretor -->
       <div class="usuarios-form">
-        <h4>➕ Adicionar corretor</h4>
+        <h4>Adicionar corretor</h4>
         <div class="edit-grid">
           <div class="edit-grupo">
             <label>Nome completo</label>
@@ -299,7 +297,7 @@
         </div>
         <div style="margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
           <button class="btn-salvar" onclick="salvarCorretor()">Adicionar corretor</button>
-          <span class="msg-feedback msg-ok"  id="nc-ok" style="display:none">✅ Corretor adicionado!</span>
+          <span class="msg-feedback msg-ok"  id="nc-ok" style="display:none">Corretor adicionado!</span>
           <span class="msg-feedback msg-err" id="nc-err" style="display:none"></span>
         </div>
       </div>
@@ -308,7 +306,7 @@
       <div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <h4 style="font-size:.9rem;font-weight:700;color:var(--primary)">Corretores cadastrados</h4>
-          <button class="btn-atualizar" onclick="carregarCorretoresAdmin()" style="font-size:.78rem;padding:5px 11px">🔄 Recarregar</button>
+          <button class="btn-atualizar" onclick="carregarCorretoresAdmin()" style="font-size:.78rem;padding:5px 11px">Recarregar</button>
         </div>
         <div id="lista-corretores" style="overflow-x:auto">
           <div style="display:flex;align-items:center;gap:10px;color:var(--muted);padding:10px 0">
@@ -327,14 +325,14 @@
 <div class="overlay" id="overlay-usuarios">
   <div class="modal" style="max-width:720px">
     <div class="modal-header">
-      <h2>👥 Gerenciar Usuários</h2>
+      <h2>Gerenciar Usuários</h2>
       <button class="btn-fechar" onclick="fecharUsuarios()">✕</button>
     </div>
     <div class="modal-corpo">
 
       <!-- Criar usuário -->
       <div class="usuarios-form">
-        <h4>➕ Criar novo usuário</h4>
+        <h4>Criar novo usuário</h4>
         <div class="edit-grid">
           <div class="edit-grupo">
             <label>E-mail</label>
@@ -358,7 +356,7 @@
         </div>
         <div style="margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
           <button class="btn-salvar" onclick="criarUsuario()">Criar usuário</button>
-          <span class="msg-feedback msg-ok"  id="nu-ok">✅ Usuário criado com sucesso!</span>
+          <span class="msg-feedback msg-ok"  id="nu-ok">Usuário criado com sucesso!</span>
           <span class="msg-feedback msg-err" id="nu-err"></span>
         </div>
       </div>
@@ -367,7 +365,7 @@
       <div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <h4 style="font-size:.9rem;font-weight:700;color:var(--primary)">Usuários cadastrados</h4>
-          <button class="btn-atualizar" onclick="carregarUsuarios()" style="font-size:.78rem;padding:5px 11px">🔄 Recarregar</button>
+          <button class="btn-atualizar" onclick="carregarUsuarios()" style="font-size:.78rem;padding:5px 11px">Recarregar</button>
         </div>
         <div id="lista-usuarios" style="overflow-x:auto">
           <div style="display:flex;align-items:center;gap:10px;color:var(--muted);padding:10px 0">
@@ -386,14 +384,14 @@
 <div class="overlay" id="overlay-rotina">
   <div class="modal" style="max-width:440px">
     <div class="modal-header">
-      <h2>📋 Rotina</h2>
+      <h2>Rotina</h2>
       <button class="btn-fechar" onclick="fecharRotina()">✕</button>
     </div>
     <div class="modal-corpo">
       <pre id="rotina-texto" style="font-family:inherit;font-size:.88rem;line-height:1.8;white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;max-width:100%;box-sizing:border-box;background:#f8fafc;padding:14px 16px;border-radius:8px;border:1.5px solid var(--border);margin:0;color:var(--text)"></pre>
     </div>
     <div class="modal-footer">
-      <button class="btn-pdf" id="btn-copiar-rotina" onclick="copiarRotina(this)">📋 Copiar texto</button>
+      <button class="btn-pdf" id="btn-copiar-rotina" onclick="copiarRotina(this)">Copiar texto</button>
     </div>
   </div>
 </div>

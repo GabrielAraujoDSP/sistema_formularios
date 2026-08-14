@@ -335,7 +335,7 @@
     interfaceAtual = interfaceAtual === 'kanban' ? 'abas' : 'kanban';
     document.getElementById('view-kanban').style.display = interfaceAtual === 'kanban' ? 'block' : 'none';
     document.getElementById('view-abas').style.display   = interfaceAtual === 'abas'   ? 'block' : 'none';
-    document.getElementById('btn-trocar').textContent    = interfaceAtual === 'kanban' ? '⊞ Trocar interface' : '⊟ Trocar interface';
+    document.getElementById('btn-trocar').textContent    = interfaceAtual === 'kanban' ? 'Trocar interface' : 'Trocar interface';
     renderKanban();
   }
 
@@ -348,11 +348,11 @@
       const fichasCol = lista.filter(f => (f.status || 'nova') === col.id);
       const cardsHtml = fichasCol.length
         ? fichasCol.map(f => cardKanban(f, col.id)).join('')
-        : '<div class="col-vazia"><div class="vi">📭</div>Nenhuma ficha</div>';
+        : '<div class="col-vazia">Nenhuma ficha</div>';
       return `
         <div class="kanban-col ${col.cls}">
           <div class="col-header">
-            <span>${col.emoji} ${col.label}</span>
+            <span>${col.label}</span>
             <span class="col-count">${fichasCol.length}</span>
           </div>
           <div class="col-cards">${cardsHtml}</div>
@@ -381,14 +381,14 @@
       const total = fichasTodas.filter(f => (f.status || 'nova') === c.id).length;
       const ativa = abaAtiva === c.id ? ' ativa' : '';
       return `<button class="aba-btn aba-${c.id}${ativa}" onclick="setAba('${c.id}')">
-        ${c.emoji} ${c.label} <span class="ab-count">${total}</span>
+        ${c.label} <span class="ab-count">${total}</span>
       </button>`;
     }).join('');
 
     const fichasAba = lista.filter(f => (f.status || 'nova') === abaAtiva);
     const grid = document.getElementById('grid-abas');
     if (!fichasAba.length) {
-      grid.innerHTML = `<div class="sem-fichas-aba"><div class="icon">📭</div><p>Nenhuma ficha nesta coluna.</p></div>`;
+      grid.innerHTML = `<div class="sem-fichas-aba"><p>Nenhuma ficha nesta coluna.</p></div>`;
       return;
     }
     grid.innerHTML = fichasAba.map(f => cardGrande(f)).join('');
@@ -396,60 +396,59 @@
 
   function cardGrande(f) {
     const col     = COLUNAS.find(c => c.id === (f.status || 'nova')) || COLUNAS[0];
-    const tipoAs  = f.tipo_assinatura === 'digital' ? '💻 Digital' : f.tipo_assinatura === 'fisica' ? '🖨️ Física' : '—';
-    const tipoIm  = f.tipo_cadastro === 'locador' ? '🏠 Proprietário/Imóvel' :
-                    f.destinacao_pj_tipo === 'membro' ? '⚖️ Não Residencial' :
-                    String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
+    const tipoAs  = f.tipo_assinatura === 'digital' ? 'Digital' : f.tipo_assinatura === 'fisica' ? 'Física' : '—';
+    const tipoIm  = f.tipo_cadastro === 'locador' ? 'Proprietário/Imóvel' :
+                    f.destinacao_pj_tipo === 'membro' ? 'Não Residencial' :
+                    String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? 'Comercial' : 'Residencial';
     const isAdmin = getPapel() === 'admin';
     const btnsMover = isAdmin ? COLUNAS
       .filter(c => c.id !== (f.status || 'nova'))
-      .map(c => `<button class="btn-mv bm-${c.id}" onclick="moverFichaAba('${esc(f.id)}','${c.id}')">${c.emoji} ${c.label}</button>`)
+      .map(c => `<button class="btn-mv bm-${c.id}" onclick="moverFichaAba('${esc(f.id)}','${c.id}')">${c.label}</button>`)
       .join('') : '';
     const vigIniG = dataParaInput(f.vigencia_inicio);
     const vigHtml = isAdmin
       ? `<div class="card-g-vigencia vig-container" data-id="${esc(f.id)}">
-          <div class="vig-titulo">📅 Vigência do Contrato</div>
+          <div class="vig-titulo">Vigência do Contrato</div>
           <div class="vig-row">
             <div class="vig-campo"><label>Início</label><input type="date" class="v-ini" value="${esc(vigIniG)}"></div>
-            <button class="btn-vig-salvar" onclick="salvarVigencia('${esc(f.id)}', this)">💾</button>
+            <button class="btn-vig-salvar" onclick="salvarVigencia('${esc(f.id)}', this)">Salvar</button>
           </div>
-          ${vigIniG ? `<div class="vig-texto vig-texto--set">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>` : ''}
+          ${vigIniG ? `<div class="vig-texto vig-texto--set">Início: ${formatarDataVig(f.vigencia_inicio)}</div>` : ''}
         </div>`
       : (f.vigencia_inicio
           ? `<div class="card-g-vigencia">
-              <div class="vig-titulo">📅 Vigência do Contrato</div>
-              <div class="vig-texto vig-texto--set">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>
+              <div class="vig-titulo">Vigência do Contrato</div>
+              <div class="vig-texto vig-texto--set">Início: ${formatarDataVig(f.vigencia_inicio)}</div>
             </div>`
           : '');
     const obsPendenteG = f.observacao && (f.status || 'nova') === 'reprovada';
     const obsHtmlG = f.observacao
       ? `<div class="card-g-obs${obsPendenteG ? ' obs-pendente' : ''}">
-          <span class="obs-card-icon">💬</span>
           <span class="obs-card-texto">${esc(f.observacao.length > 100 ? f.observacao.substring(0, 100) + '…' : f.observacao)}</span>
         </div>`
       : '';
     return `
       <div class="card-g">
         <div class="card-g-body" onclick="abrirModal('${esc(f.id)}')">
-          <span class="card-g-badge" style="${statusStyle(f.status || 'nova')}">${col.emoji} ${col.label}</span>
+          <span class="card-g-badge" style="${statusStyle(f.status || 'nova')}">${col.label}</span>
           <div class="card-g-nome">${esc(f.nome || f.pj_razao_social || '—')}</div>
           <div class="card-g-cpf">${f.tipo_cadastro === 'locador' && !f.cpf ? 'CNPJ: ' + esc(f.pj_cnpj || '—') : 'CPF: ' + esc(f.cpf || '—')}</div>
           <div class="card-g-info">
-            ${tipoIm} &nbsp;|&nbsp; 🏢 Imóvel: <strong>${esc(f.codigo_imovel || '—')}</strong><br>
-            👔 Corretor: ${esc(f.corretor || '—')}<br>
-            🔒 Garantia: ${esc(f.tipo_garantia || '—')} &nbsp;|&nbsp; Assinatura: ${tipoAs}
+            ${tipoIm} &nbsp;|&nbsp; Imóvel: <strong>${esc(f.codigo_imovel || '—')}</strong><br>
+            Corretor: ${esc(f.corretor || '—')}<br>
+            Garantia: ${esc(f.tipo_garantia || '—')} &nbsp;|&nbsp; Assinatura: ${tipoAs}
           </div>
-          <div class="card-g-data">📅 ${esc(f.data_envio || '—')} &nbsp;·&nbsp; Prot: <strong>${esc(f.id || '—')}</strong></div>
+          <div class="card-g-data">${esc(f.data_envio || '—')} &nbsp;·&nbsp; Prot: <strong>${esc(f.id || '—')}</strong></div>
         </div>
         ${obsHtmlG}${vigHtml}
         <div class="card-g-footer">
           ${isAdmin ? `<div class="mover-label">Mover para</div><div class="mover-btns">${btnsMover}</div>` : ''}
           <div class="card-k-acoes">
-            <button class="btn-ac btn-ver" onclick="abrirModal('${esc(f.id)}')">🔍 Ver</button>
-            ${f.tipo_cadastro !== 'locador' ? `<button class="btn-ac btn-ver" onclick="abrirRotina('${esc(f.id)}')">📋 Rotina</button>` : ''}
+            <button class="btn-ac btn-ver" onclick="abrirModal('${esc(f.id)}')">Ver</button>
+            ${f.tipo_cadastro !== 'locador' ? `<button class="btn-ac btn-ver" onclick="abrirRotina('${esc(f.id)}')">Rotina</button>` : ''}
             ${isAdmin ? `
-            <button class="btn-ac btn-editar"  onclick="abrirEditar('${esc(f.id)}')">✏️ Editar</button>
-            <button class="btn-ac btn-excluir" onclick="excluirFichaAba('${esc(f.id)}')">🗑️ Excluir</button>` : ''}
+            <button class="btn-ac btn-editar"  onclick="abrirEditar('${esc(f.id)}')">Editar</button>
+            <button class="btn-ac btn-excluir" onclick="excluirFichaAba('${esc(f.id)}')">Excluir</button>` : ''}
           </div>
         </div>
       </div>`;
@@ -476,35 +475,34 @@
   }
 
   function cardKanban(f, statusAtual) {
-    const tipoAs    = f.tipo_assinatura === 'digital' ? '💻 Digital' : f.tipo_assinatura === 'fisica' ? '🖨️ Física' : '—';
-    const tipoIm    = f.tipo_cadastro === 'locador' ? '🏠 Proprietário/Imóvel' :
-                      f.destinacao_pj_tipo === 'membro' ? '⚖️ Não Residencial' :
-                      String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
+    const tipoAs    = f.tipo_assinatura === 'digital' ? 'Digital' : f.tipo_assinatura === 'fisica' ? 'Física' : '—';
+    const tipoIm    = f.tipo_cadastro === 'locador' ? 'Proprietário/Imóvel' :
+                      f.destinacao_pj_tipo === 'membro' ? 'Não Residencial' :
+                      String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? 'Comercial' : 'Residencial';
     const isAdmin   = getPapel() === 'admin';
     const btnsMover = isAdmin ? COLUNAS
       .filter(c => c.id !== statusAtual)
-      .map(c => `<button class="btn-mv bm-${c.id}" onclick="moverFicha('${esc(f.id)}','${c.id}')">${c.emoji} ${c.label}</button>`)
+      .map(c => `<button class="btn-mv bm-${c.id}" onclick="moverFicha('${esc(f.id)}','${c.id}')">${c.label}</button>`)
       .join('') : '';
     const vigIni = dataParaInput(f.vigencia_inicio);
     const vigHtml = isAdmin
       ? `<div class="card-k-vigencia vig-container" data-id="${esc(f.id)}">
-          <div class="vig-titulo">📅 Vigência do Contrato</div>
+          <div class="vig-titulo">Vigência do Contrato</div>
           <div class="vig-row">
             <div class="vig-campo"><label>Início</label><input type="date" class="v-ini" value="${esc(vigIni)}"></div>
-            <button class="btn-vig-salvar" onclick="salvarVigencia('${esc(f.id)}', this)">💾</button>
+            <button class="btn-vig-salvar" onclick="salvarVigencia('${esc(f.id)}', this)">Salvar</button>
           </div>
-          ${vigIni ? `<div class="vig-texto vig-texto--set">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>` : ''}
+          ${vigIni ? `<div class="vig-texto vig-texto--set">Início: ${formatarDataVig(f.vigencia_inicio)}</div>` : ''}
         </div>`
       : (f.vigencia_inicio
           ? `<div class="card-k-vigencia">
-              <div class="vig-titulo">📅 Vigência do Contrato</div>
-              <div class="vig-texto vig-texto--set">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>
+              <div class="vig-titulo">Vigência do Contrato</div>
+              <div class="vig-texto vig-texto--set">Início: ${formatarDataVig(f.vigencia_inicio)}</div>
             </div>`
           : '');
     const obsPendenteK = f.observacao && statusAtual === 'reprovada';
     const obsHtml = f.observacao
       ? `<div class="card-k-obs${obsPendenteK ? ' obs-pendente' : ''}">
-          <span class="obs-card-icon">💬</span>
           <span class="obs-card-texto">${esc(f.observacao.length > 80 ? f.observacao.substring(0, 80) + '…' : f.observacao)}</span>
         </div>`
       : '';
@@ -514,21 +512,21 @@
           <div class="card-k-nome">${esc(f.nome || f.pj_razao_social || '—')}</div>
           <div class="card-k-cpf">${f.tipo_cadastro === 'locador' && !f.cpf ? 'CNPJ: ' + esc(f.pj_cnpj || '—') : 'CPF: ' + esc(f.cpf || '—')}</div>
           <div class="card-k-info">
-            ${tipoIm} · 🏢 <strong>${esc(f.codigo_imovel || '—')}</strong><br>
-            👔 ${esc(f.corretor || '—')}<br>
-            🔒 ${esc(f.tipo_garantia || '—')} · ${tipoAs}
+            ${tipoIm} · <strong>${esc(f.codigo_imovel || '—')}</strong><br>
+            ${esc(f.corretor || '—')}<br>
+            ${esc(f.tipo_garantia || '—')} · ${tipoAs}
           </div>
-          <div class="card-k-data">📅 ${esc(f.data_envio || '—')} · Prot: ${esc(f.id || '—')}</div>
+          <div class="card-k-data">${esc(f.data_envio || '—')} · Prot: ${esc(f.id || '—')}</div>
         </div>
         ${obsHtml}${vigHtml}
         <div class="card-k-footer">
           ${isAdmin ? `<div class="mover-label">Mover para</div><div class="mover-btns">${btnsMover}</div>` : ''}
           <div class="card-k-acoes">
-            <button class="btn-ac btn-ver" onclick="abrirModal('${esc(f.id)}')">🔍 Ver</button>
-            ${f.tipo_cadastro !== 'locador' ? `<button class="btn-ac btn-ver" onclick="abrirRotina('${esc(f.id)}')">📋 Rotina</button>` : ''}
+            <button class="btn-ac btn-ver" onclick="abrirModal('${esc(f.id)}')">Ver</button>
+            ${f.tipo_cadastro !== 'locador' ? `<button class="btn-ac btn-ver" onclick="abrirRotina('${esc(f.id)}')">Rotina</button>` : ''}
             ${isAdmin ? `
-            <button class="btn-ac btn-editar"  onclick="abrirEditar('${esc(f.id)}')">✏️ Editar</button>
-            <button class="btn-ac btn-excluir" onclick="excluirFicha('${esc(f.id)}')">🗑️ Excluir</button>` : ''}
+            <button class="btn-ac btn-editar"  onclick="abrirEditar('${esc(f.id)}')">Editar</button>
+            <button class="btn-ac btn-excluir" onclick="excluirFicha('${esc(f.id)}')">Excluir</button>` : ''}
           </div>
         </div>
       </div>`;
@@ -708,9 +706,9 @@
             const sou   = u.email === getEmail();
             return `<tr>
               <td style="font-weight:600">${esc(u.email)}</td>
-              <td><span class="badge-papel badge-${esc(u.papel)}">${u.papel === 'admin' ? '⭐ Admin' : 'Usuário'}</span></td>
+              <td><span class="badge-papel badge-${esc(u.papel)}">${u.papel === 'admin' ? 'Admin' : 'Usuário'}</span></td>
               <td style="color:var(--muted);font-size:.78rem">${esc(String(u.criado_em||''))}</td>
-              <td><span class="badge-papel ${ativo ? 'badge-ativo' : 'badge-inativo'}">${ativo ? '✅ Ativo' : '❌ Inativo'}</span></td>
+              <td><span class="badge-papel ${ativo ? 'badge-ativo' : 'badge-inativo'}">${ativo ? 'Ativo' : 'Inativo'}</span></td>
               <td style="text-align:right">
                 ${sou
                   ? '<span style="font-size:.75rem;color:var(--muted)">(sua conta)</span>'
@@ -721,7 +719,7 @@
                       </button>
                       <button class="btn-ac btn-excluir" style="opacity:.75"
                           onclick="excluirUsuario('${esc(u.email)}')">
-                          🗑️
+                          Excluir
                       </button>
                     </div>`
                 }
@@ -859,7 +857,7 @@
       .map(el => el.value);
     if (equipes.length === 0) { errEl.textContent = 'Selecione ao menos uma equipe.'; errEl.style.display = 'inline'; return; }
     btn.disabled = true;
-    btn.textContent = '⏳ Salvando…';
+    btn.textContent = 'Salvando…';
     try {
       const resultados = await Promise.all(equipes.map(equipe =>
         apiFetch(endpoint(), {
@@ -919,7 +917,7 @@
     if (!urls.length) { alert('Esta ficha não possui documentos anexados.'); return; }
     const orig = btn.textContent;
     btn.disabled = true;
-    btn.textContent = `⏳ Abrindo ${urls.length}…`;
+    btn.textContent = `Abrindo ${urls.length}…`;
     urls.forEach((url, i) => setTimeout(() => window.open(driveToDownload(url), '_blank'), i * 700));
     setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, urls.length * 700 + 500);
   }
@@ -950,7 +948,7 @@
 
   function labelStatus(s) {
     const c = COLUNAS.find(x => x.id === s);
-    return c ? `${c.emoji} ${c.label}` : (s || '—');
+    return c ? c.label : (s || '—');
   }
 
   function statusStyle(s) {
@@ -983,21 +981,21 @@
 
     if (isAdminModal) {
       html += `<div class="secao-detalhe obs-container" data-id="${esc(f.id)}">
-        <h4>💬 Observações</h4>
+        <h4>Observações</h4>
         <textarea class="obs-textarea" rows="3" placeholder="Adicione observações, pendências ou anotações sobre esta ficha…">${esc(f.observacao || '')}</textarea>
-        <button class="btn-obs-salvar" onclick="salvarObservacao('${esc(f.id)}', this)">💾 Salvar</button>
+        <button class="btn-obs-salvar" onclick="salvarObservacao('${esc(f.id)}', this)">Salvar</button>
       </div>`;
     } else if (f.observacao) {
       html += `<div class="secao-detalhe">
-        <h4>💬 Observações</h4>
+        <h4>Observações</h4>
         <div class="obs-texto-modal">${esc(f.observacao)}</div>
       </div>`;
     }
 
     var _tipoImModal = String(f.tipo_imovel || '').toLowerCase();
-    var _classificacaoModal = f.destinacao_pj_tipo === 'membro' ? '⚖️ Não Residencial' :
-                              _tipoImModal === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
-    html += secaoDetalhe('🏢 Dados do Imóvel', [
+    var _classificacaoModal = f.destinacao_pj_tipo === 'membro' ? 'Não Residencial' :
+                              _tipoImModal === 'comercial' ? 'Comercial' : 'Residencial';
+    html += secaoDetalhe('Dados do Imóvel', [
       campo('Tipo de imóvel', _classificacaoModal),
       campo('Corretor', f.corretor), campo('Código do imóvel', f.codigo_imovel),
       campo('Vaga', f.tem_vaga === 'sim' ? `Sim (${f.qtd_vagas} vaga${f.qtd_vagas > 1 ? 's' : ''})` : 'Não'),
@@ -1005,14 +1003,14 @@
     ]);
 
     if (_tipoImModal === 'comercial') {
-      html += secaoDetalhe('📋 Dados do Contrato Comercial', [
+      html += secaoDetalhe('Dados do Contrato Comercial', [
         campo('Vigência do contrato', f.vigencia_contrato),
         campo('Ramo da atividade', f.ramo_atividade),
       ]);
     }
 
     if (String(f.tipo_pessoa || '').toLowerCase() === 'pj') {
-      html += secaoDetalhe('🏢 Dados da Pessoa Jurídica', [
+      html += secaoDetalhe('Dados da Pessoa Jurídica', [
         campo('Razão Social', f.pj_razao_social),
         campo('CNPJ', f.pj_cnpj),
         f.pj_inscricao ? campo('Inscrição Est./Mun.', f.pj_inscricao) : '',
@@ -1020,7 +1018,7 @@
     }
 
     var _tituloLocatario = String(f.tipo_pessoa || '').toLowerCase() === 'pj'
-      ? '👤 Representante Legal' : '👤 Locatário Principal';
+      ? 'Representante Legal' : 'Locatário Principal';
     html += secaoDetalhe(_tituloLocatario, [
       campo('Nome', f.nome), campo('CPF', f.cpf),
       campo('Estado civil', f.estado_civil), campo('Nacionalidade', f.nacionalidade),
@@ -1033,12 +1031,12 @@
       campo('CEP', f.cep_atual), campo('Cidade', f.cidade_atual), campo('Estado', f.estado_atual),
     ]);
 
-    html += secaoDetalhe('📞 Contato Secundário', [
+    html += secaoDetalhe('Contato Secundário', [
       campo('Nome', f.emerg_nome), campo('Celular', f.emerg_cel), campo('Parentesco', f.emerg_parentesco),
     ]);
 
     if (f.tem_conjuge === 'sim') {
-      html += secaoDetalhe('💑 Cônjuge', [
+      html += secaoDetalhe('Cônjuge', [
         campo('Nome', f.conj_nome), campo('CPF', f.conj_cpf),
         campo('Nacionalidade', f.conj_nacionalidade),
         campo('Profissão', f.conj_profissao),
@@ -1049,7 +1047,7 @@
     const qtdSoc = parseInt(f.qtd_socios) || 0;
     if (String(f.tipo_pessoa || '').toLowerCase() === 'pj' && qtdSoc > 0) {
       for (let i = 1; i <= qtdSoc; i++) {
-        html += secaoDetalhe(`🤝 Sócio #${i}`, [
+        html += secaoDetalhe(`Sócio #${i}`, [
           campo('Nome', f[`soc${i}_nome`]), campo('CPF', f[`soc${i}_cpf`]),
           campo('Estado civil', f[`soc${i}_estado_civil`]),
           campo('Nacionalidade', f[`soc${i}_nacionalidade`]),
@@ -1088,13 +1086,13 @@
       } else if (f.destinacao_pj_tipo === 'membro' && !f.destinacao_pj_ref) {
         _destCampos.push(campo('Ocupante do imóvel', 'Outro membro da empresa (dados abaixo)'));
       }
-      html += secaoDetalhe('🏡 Destinação da Locação', _destCampos);
+      html += secaoDetalhe('Destinação da Locação', _destCampos);
     }
 
     const qtd = parseInt(f.qtd_locatarios) || 0;
     const _isPJOcup = String(f.tipo_pessoa || '').toLowerCase() === 'pj' && !!f.destinacao_pj_tipo;
     for (let i = 1; i <= qtd; i++) {
-      const _locLabel = (_isPJOcup && i === 1) ? '👤 Locatário (Ocupante do Imóvel)' : `👥 Locatário Adicional #${i}`;
+      const _locLabel = (_isPJOcup && i === 1) ? 'Locatário (Ocupante do Imóvel)' : `Locatário Adicional #${i}`;
       html += secaoDetalhe(_locLabel, [
         campo('Nome', f[`loc${i}_nome`]), campo('CPF', f[`loc${i}_cpf`]),
         campo('Estado civil', f[`loc${i}_estado_civil`]),
@@ -1116,7 +1114,7 @@
     if (isAdminModal) {
       const vigIniModal = dataParaInput(f.vigencia_inicio);
       html += `<div class="secao-detalhe vig-container" data-id="${esc(f.id)}">
-        <h4>📅 Vigência do Contrato</h4>
+        <h4>Vigência do Contrato</h4>
         <div class="detalhe-grid">
           <div class="campo-det">
             <label>Início</label>
@@ -1124,47 +1122,47 @@
               style="padding:5px 8px;border:1.5px solid var(--border);border-radius:5px;font-size:.85rem;width:100%;margin-top:3px">
           </div>
         </div>
-        ${vigIniModal ? `<div class="vig-texto vig-texto--set" style="margin-top:8px">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>` : ''}
+        ${vigIniModal ? `<div class="vig-texto vig-texto--set" style="margin-top:8px">Início: ${formatarDataVig(f.vigencia_inicio)}</div>` : ''}
         <button class="btn-vig-salvar" style="margin-top:10px"
-          onclick="salvarVigencia('${esc(f.id)}', this)">💾 Salvar vigência</button>
+          onclick="salvarVigencia('${esc(f.id)}', this)">Salvar vigência</button>
       </div>`;
     } else {
-      html += secaoDetalhe('📅 Vigência do Contrato', [
+      html += secaoDetalhe('Vigência do Contrato', [
         campo('Início', formatarDataVig(f.vigencia_inicio)),
       ]);
     }
 
-    html += secaoDetalhe('📅 Vencimento do Boleto', [
+    html += secaoDetalhe('Vencimento do Boleto', [
       campo('Data de vencimento', f.vencimento_boleto),
     ]);
 
-    html += secaoDetalhe('✍️ Assinatura', [
+    html += secaoDetalhe('Assinatura', [
       campo('Tipo', f.tipo_assinatura === 'digital' ? 'Digital (R$ 29,00/assinatura)' : 'Física (cartório)'),
     ]);
 
     const links = [];
-    if (f.doc_identificacao_url)      links.push(`<a href="${esc(f.doc_identificacao_url)}" target="_blank" style="color:var(--primary)">📎 Doc. identif.</a>`);
-    if (f.comprovante_residencia_url)  links.push(`<a href="${esc(f.comprovante_residencia_url)}" target="_blank" style="color:var(--primary)">🏠 Comp. res.</a>`);
-    if (f.aprovacao_seguro_url)        links.push(`<a href="${esc(f.aprovacao_seguro_url)}" target="_blank" style="color:var(--primary)">🛡️ Aprov. seguro</a>`);
-    if (f.pj_balancete_url)            links.push(`<a href="${esc(f.pj_balancete_url)}" target="_blank" style="color:var(--primary)">📊 Balancete</a>`);
-    if (f.pj_contrato_social_url)      links.push(`<a href="${esc(f.pj_contrato_social_url)}" target="_blank" style="color:var(--primary)">📋 Contrato social</a>`);
-    if (f.pj_cartao_cnpj_url)          links.push(`<a href="${esc(f.pj_cartao_cnpj_url)}" target="_blank" style="color:var(--primary)">🪪 Cartão CNPJ</a>`);
-    if (f.pj_extrato_simples_url)      links.push(`<a href="${esc(f.pj_extrato_simples_url)}" target="_blank" style="color:var(--primary)">📑 Extrato Simples</a>`);
-    if (f.conj_doc_url)                links.push(`<a href="${esc(f.conj_doc_url)}" target="_blank" style="color:var(--primary)">👫 Doc. cônjuge</a>`);
+    if (f.doc_identificacao_url)      links.push(`<a href="${esc(f.doc_identificacao_url)}" target="_blank" style="color:var(--primary)">Doc. identif.</a>`);
+    if (f.comprovante_residencia_url)  links.push(`<a href="${esc(f.comprovante_residencia_url)}" target="_blank" style="color:var(--primary)">Comp. res.</a>`);
+    if (f.aprovacao_seguro_url)        links.push(`<a href="${esc(f.aprovacao_seguro_url)}" target="_blank" style="color:var(--primary)">Aprov. seguro</a>`);
+    if (f.pj_balancete_url)            links.push(`<a href="${esc(f.pj_balancete_url)}" target="_blank" style="color:var(--primary)">Balancete</a>`);
+    if (f.pj_contrato_social_url)      links.push(`<a href="${esc(f.pj_contrato_social_url)}" target="_blank" style="color:var(--primary)">Contrato social</a>`);
+    if (f.pj_cartao_cnpj_url)          links.push(`<a href="${esc(f.pj_cartao_cnpj_url)}" target="_blank" style="color:var(--primary)">Cartão CNPJ</a>`);
+    if (f.pj_extrato_simples_url)      links.push(`<a href="${esc(f.pj_extrato_simples_url)}" target="_blank" style="color:var(--primary)">Extrato Simples</a>`);
+    if (f.conj_doc_url)                links.push(`<a href="${esc(f.conj_doc_url)}" target="_blank" style="color:var(--primary)">Doc. cônjuge</a>`);
     for (let i = 1; i <= qtdSoc; i++) {
-      if (f[`soc${i}_doc_id_url`])   links.push(`<a href="${esc(f[`soc${i}_doc_id_url`])}" target="_blank" style="color:var(--primary)">📎 Doc. sócio ${i}</a>`);
-      if (f[`soc${i}_comp_res_url`]) links.push(`<a href="${esc(f[`soc${i}_comp_res_url`])}" target="_blank" style="color:var(--primary)">🏠 Res. sócio ${i}</a>`);
+      if (f[`soc${i}_doc_id_url`])   links.push(`<a href="${esc(f[`soc${i}_doc_id_url`])}" target="_blank" style="color:var(--primary)">Doc. sócio ${i}</a>`);
+      if (f[`soc${i}_comp_res_url`]) links.push(`<a href="${esc(f[`soc${i}_comp_res_url`])}" target="_blank" style="color:var(--primary)">Res. sócio ${i}</a>`);
     }
     for (let i = 1; i <= qtd; i++) {
-      if (f[`loc${i}_doc_id_url`])    links.push(`<a href="${esc(f[`loc${i}_doc_id_url`])}" target="_blank" style="color:var(--primary)">📎 Doc. loc.${i}</a>`);
-      if (f[`loc${i}_comp_res_url`])  links.push(`<a href="${esc(f[`loc${i}_comp_res_url`])}" target="_blank" style="color:var(--primary)">🏠 Res. loc.${i}</a>`);
+      if (f[`loc${i}_doc_id_url`])    links.push(`<a href="${esc(f[`loc${i}_doc_id_url`])}" target="_blank" style="color:var(--primary)">Doc. loc.${i}</a>`);
+      if (f[`loc${i}_comp_res_url`])  links.push(`<a href="${esc(f[`loc${i}_comp_res_url`])}" target="_blank" style="color:var(--primary)">Res. loc.${i}</a>`);
     }
     if (links.length) {
       html += `<div class="secao-detalhe">
         <h4 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-          📂 Documentos no Drive
+          Documentos no Drive
           <button class="btn-ac btn-ver" style="font-size:.75rem;padding:5px 12px;font-weight:700"
-            onclick="baixarTodosDocumentos(this)">⬇️ Baixar todos (${links.length})</button>
+            onclick="baixarTodosDocumentos(this)">Baixar todos (${links.length})</button>
         </h4>
         <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:.86rem;margin-top:10px">${links.join('')}</div>
       </div>`;
@@ -1184,15 +1182,15 @@
 
     if (isAdminModal) {
       html += `<div class="secao-detalhe obs-container" data-id="${esc(f.id)}">
-        <h4>💬 Observações</h4>
+        <h4>Observações</h4>
         <textarea class="obs-textarea" rows="3" placeholder="Adicione observações, pendências ou anotações sobre esta ficha…">${esc(f.observacao || '')}</textarea>
-        <button class="btn-obs-salvar" onclick="salvarObservacao('${esc(f.id)}', this)">💾 Salvar</button>
+        <button class="btn-obs-salvar" onclick="salvarObservacao('${esc(f.id)}', this)">Salvar</button>
       </div>`;
     } else if (f.observacao) {
-      html += `<div class="secao-detalhe"><h4>💬 Observações</h4><div class="obs-texto-modal">${esc(f.observacao)}</div></div>`;
+      html += `<div class="secao-detalhe"><h4>Observações</h4><div class="obs-texto-modal">${esc(f.observacao)}</div></div>`;
     }
 
-    const tipoImLabel = String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? '🏢 Comercial' : '🏠 Residencial';
+    const tipoImLabel = String(f.tipo_imovel || '').toLowerCase() === 'comercial' ? 'Comercial' : 'Residencial';
     const eCom = String(f.tipo_imovel || '').toLowerCase() === 'comercial';
     const camposImovel = [campo('Tipo', tipoImLabel + (f.tipo_especifico ? ` — ${f.tipo_especifico}` : ''))];
     if (!eCom) {
@@ -1208,9 +1206,9 @@
       if (f.imovel_metragem)   camposImovel.push(campo('Área total (m²)', f.imovel_metragem));
       if (f.imovel_pe_direito) camposImovel.push(campo('Pé direito (m)', f.imovel_pe_direito));
     }
-    html += secaoDetalhe('🏠 Características do Imóvel', camposImovel);
+    html += secaoDetalhe('Características do Imóvel', camposImovel);
 
-    html += secaoDetalhe('📍 Endereço do Imóvel', [
+    html += secaoDetalhe('Endereço do Imóvel', [
       campo('Logradouro', f.imovel_logradouro), campo('Número', f.imovel_numero),
       campo('Bairro', f.imovel_bairro),
       f.imovel_complemento ? campo('Complemento', f.imovel_complemento) : '',
@@ -1232,15 +1230,15 @@
     }
     camposFin.push(campo('Qtd. chaves', f.imovel_qtd_chaves || '—'));
     if (f.imovel_tem_controle === 'sim') camposFin.push(campo('Controle remoto', `Sim (${f.imovel_qtd_controles || '—'})`));
-    html += secaoDetalhe('💰 Informações Financeiras e Chaves', camposFin);
+    html += secaoDetalhe('Informações Financeiras e Chaves', camposFin);
 
-    html += secaoDetalhe('📋 Dados da Locação', [
+    html += secaoDetalhe('Dados da Locação', [
       campo('Corretor', f.corretor),
       campo('Garantias aceitas', f.tipo_garantia),
     ]);
 
     if (eCom) {
-      html += secaoDetalhe('🏢 Dados Comerciais', [
+      html += secaoDetalhe('Dados Comerciais', [
         f.vigencia_contrato ? campo('Vigências aceitas', f.vigencia_contrato) : '',
         campo('Tem vaga', f.tem_vaga === 'sim' ? `Sim (${f.qtd_vagas})` : 'Não'),
       ]);
@@ -1248,7 +1246,7 @@
 
     const ePJLoc = String(f.tipo_locador || f.tipo_pessoa || '').toLowerCase() === 'pj';
     if (ePJLoc) {
-      html += secaoDetalhe('🏢 Dados da Empresa', [
+      html += secaoDetalhe('Dados da Empresa', [
         campo('Razão Social', f.pj_razao_social), campo('CNPJ', f.pj_cnpj),
         f.pj_inscricao ? campo('Inscrição Estadual', f.pj_inscricao) : '',
         campo('E-mail', f.pj_email), campo('Celular', f.pj_celular),
@@ -1257,7 +1255,7 @@
         f.pj_complemento ? campo('Complemento', f.pj_complemento) : '',
         campo('CEP', f.pj_cep), campo('Cidade', f.pj_cidade), campo('Estado', f.pj_estado),
       ]);
-      html += secaoDetalhe('👤 Representante Legal', [
+      html += secaoDetalhe('Representante Legal', [
         campo('Nome', f.pj_rep_nome || f.nome), campo('CPF', f.pj_rep_cpf || f.cpf),
         f.pj_rep_nascimento ? campo('Nascimento', f.pj_rep_nascimento) : '',
         campo('Estado civil', f.pj_rep_estado_civil), campo('Profissão', f.pj_rep_profissao),
@@ -1267,12 +1265,12 @@
         f.pj_rep_complemento ? campo('Complemento', f.pj_rep_complemento) : '',
         campo('CEP', f.pj_rep_cep), campo('Cidade', f.pj_rep_cidade), campo('Estado', f.pj_rep_estado),
       ]);
-      html += secaoDetalhe('📞 Contato de Emergência do Representante', [
+      html += secaoDetalhe('Contato de Emergência do Representante', [
         campo('Nome', f.pj_rep_emerg_nome), campo('Celular', f.pj_rep_emerg_cel),
         campo('Parentesco', f.pj_rep_emerg_parentesco),
       ]);
     } else {
-      html += secaoDetalhe('👤 Dados do Proprietário', [
+      html += secaoDetalhe('Dados do Proprietário', [
         campo('Nome', f.nome), campo('CPF', f.cpf),
         campo('Estado civil', f.estado_civil), campo('Profissão', f.profissao),
         campo('E-mail', f.email), campo('Celular', f.celular),
@@ -1281,14 +1279,14 @@
         f.endereco_complemento ? campo('Complemento', f.endereco_complemento) : '',
         campo('CEP', f.cep_atual), campo('Cidade', f.cidade_atual), campo('Estado', f.estado_atual),
       ]);
-      html += secaoDetalhe('📞 Contato de Emergência', [
+      html += secaoDetalhe('Contato de Emergência', [
         campo('Nome', f.emerg_nome), campo('Celular', f.emerg_cel), campo('Parentesco', f.emerg_parentesco),
       ]);
     }
 
     const qtdLocAd = parseInt(f.qtd_locadores_adicionais) || 0;
     for (let i = 1; i <= qtdLocAd; i++) {
-      const tipoAd = f[`loc${i}_tipo`] === 'conjuge' ? '💑 Cônjuge / Companheiro(a)' : `👤 Proprietário Adicional #${i}`;
+      const tipoAd = f[`loc${i}_tipo`] === 'conjuge' ? 'Cônjuge / Companheiro(a)' : `Proprietário Adicional #${i}`;
       html += secaoDetalhe(tipoAd, [
         campo('Nome', f[`loc${i}_nome`]), campo('CPF', f[`loc${i}_cpf`]),
         campo('Estado civil', f[`loc${i}_estado_civil`]),
@@ -1306,7 +1304,7 @@
       campo('Agência', f.banco_agencia),
       campo('Conta', f.banco_conta),
     ];
-    html += secaoDetalhe('🏦 Dados Bancários', camposBanco);
+    html += secaoDetalhe('Dados Bancários', camposBanco);
 
     if (f.repasse_destinatario === 'terceiro') {
       const camposTerceiro = [];
@@ -1363,20 +1361,20 @@
       }
 
       if (camposTerceiro.length) {
-        html += secaoDetalhe('👤 Beneficiário do Repasse (Terceiro)', camposTerceiro);
+        html += secaoDetalhe('Beneficiário do Repasse (Terceiro)', camposTerceiro);
       }
     }
 
     if (f.mobiliado === 'sim' && f.descricao_mobilia) {
-      html += secaoDetalhe('🛋️ Mobília', [campo('Mobiliado', 'Sim'), campo('Descrição', f.descricao_mobilia)]);
+      html += secaoDetalhe('Mobília', [campo('Mobiliado', 'Sim'), campo('Descrição', f.descricao_mobilia)]);
     } else {
-      html += secaoDetalhe('🛋️ Mobília', [campo('Mobiliado', f.mobiliado === 'sim' ? 'Sim' : 'Não')]);
+      html += secaoDetalhe('Mobília', [campo('Mobiliado', f.mobiliado === 'sim' ? 'Sim' : 'Não')]);
     }
 
     if (isAdminModal) {
       const vigIniLoc = dataParaInput(f.vigencia_inicio);
       html += `<div class="secao-detalhe vig-container" data-id="${esc(f.id)}">
-        <h4>📅 Vigência do Contrato</h4>
+        <h4>Vigência do Contrato</h4>
         <div class="detalhe-grid">
           <div class="campo-det">
             <label>Início</label>
@@ -1384,42 +1382,42 @@
               style="padding:5px 8px;border:1.5px solid var(--border);border-radius:5px;font-size:.85rem;width:100%;margin-top:3px">
           </div>
         </div>
-        ${vigIniLoc ? `<div class="vig-texto vig-texto--set" style="margin-top:8px">📅 Início: ${formatarDataVig(f.vigencia_inicio)}</div>` : ''}
-        <button class="btn-vig-salvar" style="margin-top:10px" onclick="salvarVigencia('${esc(f.id)}', this)">💾 Salvar vigência</button>
+        ${vigIniLoc ? `<div class="vig-texto vig-texto--set" style="margin-top:8px">Início: ${formatarDataVig(f.vigencia_inicio)}</div>` : ''}
+        <button class="btn-vig-salvar" style="margin-top:10px" onclick="salvarVigencia('${esc(f.id)}', this)">Salvar vigência</button>
       </div>`;
     }
 
-    html += secaoDetalhe('✍️ Assinatura', [
+    html += secaoDetalhe('Assinatura', [
       campo('Tipo', f.tipo_assinatura === 'digital' ? 'Digital (R$ 29,00/assinatura)' : 'Física (cartório)'),
     ]);
 
     const linksLoc = [];
-    if (f.doc_identificacao_url)       linksLoc.push(`<a href="${esc(f.doc_identificacao_url)}" target="_blank" style="color:var(--primary)">📎 Doc. identif.</a>`);
-    if (f.comprovante_residencia_url)   linksLoc.push(`<a href="${esc(f.comprovante_residencia_url)}" target="_blank" style="color:var(--primary)">🏠 Comp. res.</a>`);
-    if (f.pj_contrato_social_url)       linksLoc.push(`<a href="${esc(f.pj_contrato_social_url)}" target="_blank" style="color:var(--primary)">📋 Contrato social</a>`);
-    if (f.pj_doc_representante_url)     linksLoc.push(`<a href="${esc(f.pj_doc_representante_url)}" target="_blank" style="color:var(--primary)">📎 Doc. rep. legal</a>`);
-    if (f.pj_rep_comp_residencia_url)   linksLoc.push(`<a href="${esc(f.pj_rep_comp_residencia_url)}" target="_blank" style="color:var(--primary)">🏠 Comp. res. rep.</a>`);
-    if (f.imovel_doc_url)               linksLoc.push(`<a href="${esc(f.imovel_doc_url)}" target="_blank" style="color:var(--primary)">📜 Escritura/Matrícula</a>`);
-    if (f.imovel_boleto_iptu_url)       linksLoc.push(`<a href="${esc(f.imovel_boleto_iptu_url)}" target="_blank" style="color:var(--primary)">📄 Boleto IPTU</a>`);
-    if (f.imovel_conta_luz_url)         linksLoc.push(`<a href="${esc(f.imovel_conta_luz_url)}" target="_blank" style="color:var(--primary)">💡 Conta de luz</a>`);
-    if (f.imovel_boleto_condo_url)      linksLoc.push(`<a href="${esc(f.imovel_boleto_condo_url)}" target="_blank" style="color:var(--primary)">🏘️ Boleto cond.</a>`);
-    if (f.imovel_conta_gas_url)         linksLoc.push(`<a href="${esc(f.imovel_conta_gas_url)}" target="_blank" style="color:var(--primary)">🔥 Conta de gás</a>`);
-    if (f.imovel_conta_agua_url)        linksLoc.push(`<a href="${esc(f.imovel_conta_agua_url)}" target="_blank" style="color:var(--primary)">💧 Conta de água</a>`);
-    if (f.imovel_foto_chaves_url)       linksLoc.push(`<a href="${esc(f.imovel_foto_chaves_url)}" target="_blank" style="color:var(--primary)">🔑 Foto chaves</a>`);
-    if (f.imovel_foto_controles_url)    linksLoc.push(`<a href="${esc(f.imovel_foto_controles_url)}" target="_blank" style="color:var(--primary)">📡 Foto controles</a>`);
-    if (f.terc_doc_url)                 linksLoc.push(`<a href="${esc(f.terc_doc_url)}" target="_blank" style="color:var(--primary)">📎 Doc. terceiro</a>`);
-    if (f.terc_pj_contrato_social_url)  linksLoc.push(`<a href="${esc(f.terc_pj_contrato_social_url)}" target="_blank" style="color:var(--primary)">📋 Contrato terc.</a>`);
-    if (f.terc_pj_doc_rep_url)          linksLoc.push(`<a href="${esc(f.terc_pj_doc_rep_url)}" target="_blank" style="color:var(--primary)">📎 Doc. rep. terc.</a>`);
+    if (f.doc_identificacao_url)       linksLoc.push(`<a href="${esc(f.doc_identificacao_url)}" target="_blank" style="color:var(--primary)">Doc. identif.</a>`);
+    if (f.comprovante_residencia_url)   linksLoc.push(`<a href="${esc(f.comprovante_residencia_url)}" target="_blank" style="color:var(--primary)">Comp. res.</a>`);
+    if (f.pj_contrato_social_url)       linksLoc.push(`<a href="${esc(f.pj_contrato_social_url)}" target="_blank" style="color:var(--primary)">Contrato social</a>`);
+    if (f.pj_doc_representante_url)     linksLoc.push(`<a href="${esc(f.pj_doc_representante_url)}" target="_blank" style="color:var(--primary)">Doc. rep. legal</a>`);
+    if (f.pj_rep_comp_residencia_url)   linksLoc.push(`<a href="${esc(f.pj_rep_comp_residencia_url)}" target="_blank" style="color:var(--primary)">Comp. res. rep.</a>`);
+    if (f.imovel_doc_url)               linksLoc.push(`<a href="${esc(f.imovel_doc_url)}" target="_blank" style="color:var(--primary)">Escritura/Matrícula</a>`);
+    if (f.imovel_boleto_iptu_url)       linksLoc.push(`<a href="${esc(f.imovel_boleto_iptu_url)}" target="_blank" style="color:var(--primary)">Boleto IPTU</a>`);
+    if (f.imovel_conta_luz_url)         linksLoc.push(`<a href="${esc(f.imovel_conta_luz_url)}" target="_blank" style="color:var(--primary)">Conta de luz</a>`);
+    if (f.imovel_boleto_condo_url)      linksLoc.push(`<a href="${esc(f.imovel_boleto_condo_url)}" target="_blank" style="color:var(--primary)">Boleto cond.</a>`);
+    if (f.imovel_conta_gas_url)         linksLoc.push(`<a href="${esc(f.imovel_conta_gas_url)}" target="_blank" style="color:var(--primary)">Conta de gás</a>`);
+    if (f.imovel_conta_agua_url)        linksLoc.push(`<a href="${esc(f.imovel_conta_agua_url)}" target="_blank" style="color:var(--primary)">Conta de água</a>`);
+    if (f.imovel_foto_chaves_url)       linksLoc.push(`<a href="${esc(f.imovel_foto_chaves_url)}" target="_blank" style="color:var(--primary)">Foto chaves</a>`);
+    if (f.imovel_foto_controles_url)    linksLoc.push(`<a href="${esc(f.imovel_foto_controles_url)}" target="_blank" style="color:var(--primary)">Foto controles</a>`);
+    if (f.terc_doc_url)                 linksLoc.push(`<a href="${esc(f.terc_doc_url)}" target="_blank" style="color:var(--primary)">Doc. terceiro</a>`);
+    if (f.terc_pj_contrato_social_url)  linksLoc.push(`<a href="${esc(f.terc_pj_contrato_social_url)}" target="_blank" style="color:var(--primary)">Contrato terc.</a>`);
+    if (f.terc_pj_doc_rep_url)          linksLoc.push(`<a href="${esc(f.terc_pj_doc_rep_url)}" target="_blank" style="color:var(--primary)">Doc. rep. terc.</a>`);
     for (let i = 1; i <= qtdLocAd; i++) {
-      if (f[`loc${i}_doc_identificacao_url`])       linksLoc.push(`<a href="${esc(f[`loc${i}_doc_identificacao_url`])}" target="_blank" style="color:var(--primary)">📎 Doc. prop. ${i}</a>`);
-      if (f[`loc${i}_comprovante_residencia_url`])  linksLoc.push(`<a href="${esc(f[`loc${i}_comprovante_residencia_url`])}" target="_blank" style="color:var(--primary)">🏠 Res. prop. ${i}</a>`);
+      if (f[`loc${i}_doc_identificacao_url`])       linksLoc.push(`<a href="${esc(f[`loc${i}_doc_identificacao_url`])}" target="_blank" style="color:var(--primary)">Doc. prop. ${i}</a>`);
+      if (f[`loc${i}_comprovante_residencia_url`])  linksLoc.push(`<a href="${esc(f[`loc${i}_comprovante_residencia_url`])}" target="_blank" style="color:var(--primary)">Res. prop. ${i}</a>`);
     }
     if (linksLoc.length) {
       html += `<div class="secao-detalhe">
         <h4 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-          📂 Documentos no Drive
+          Documentos no Drive
           <button class="btn-ac btn-ver" style="font-size:.75rem;padding:5px 12px;font-weight:700"
-            onclick="baixarTodosDocumentosLocador(this)">⬇️ Baixar todos (${linksLoc.length})</button>
+            onclick="baixarTodosDocumentosLocador(this)">Baixar todos (${linksLoc.length})</button>
         </h4>
         <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:.86rem;margin-top:10px">${linksLoc.join('')}</div>
       </div>`;
@@ -1446,7 +1444,7 @@
     if (!urls.length) { alert('Esta ficha não possui documentos anexados.'); return; }
     const orig = btn.textContent;
     btn.disabled = true;
-    btn.textContent = `⏳ Abrindo ${urls.length}…`;
+    btn.textContent = `Abrindo ${urls.length}…`;
     urls.forEach((url, i) => setTimeout(() => window.open(driveToDownload(url), '_blank'), i * 700));
     setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, urls.length * 700 + 500);
   }
@@ -1695,7 +1693,7 @@
       `ALUGUEL: R$    -  CONDOMÍNIO: R$   -    IPTU: R$ `;
 
     document.getElementById('rotina-texto').textContent = texto;
-    document.getElementById('btn-copiar-rotina').textContent = '📋 Copiar texto';
+    document.getElementById('btn-copiar-rotina').textContent = 'Copiar texto';
     document.getElementById('overlay-rotina').classList.add('ativo');
   }
 
@@ -1707,7 +1705,7 @@
     const texto = document.getElementById('rotina-texto').textContent;
     navigator.clipboard.writeText(texto).then(() => {
       const orig = btn.textContent;
-      btn.textContent = '✅ Copiado!';
+      btn.textContent = 'Copiado!';
       setTimeout(() => { btn.textContent = orig; }, 2000);
     });
   }
@@ -1719,7 +1717,7 @@
 
     const orig = btn.textContent;
     btn.disabled = true;
-    btn.textContent = '⏳';
+    btn.textContent = '…';
 
     try {
       const json = await apiPost({ acao: 'vigencia', id: fichaId, vigencia_inicio: ini });
@@ -1732,7 +1730,7 @@
           if (inputIni) inputIni.value = ini;
           let textoEl = ct.querySelector('.vig-texto');
           if (ini) {
-            const textoFormatado = `📅 Início: ${formatarDataVig(ini)}`;
+            const textoFormatado = `Início: ${formatarDataVig(ini)}`;
             if (textoEl) {
               textoEl.textContent = textoFormatado;
               textoEl.classList.add('vig-texto--set');
@@ -1749,13 +1747,13 @@
             textoEl.remove();
           }
         });
-        btn.textContent = '✅';
+        btn.textContent = 'OK';
       } else {
-        btn.textContent = '❌';
+        btn.textContent = 'Erro';
         alert(json.message || 'Erro ao salvar vigência.');
       }
     } catch (_) {
-      btn.textContent = '❌';
+      btn.textContent = 'Erro';
     }
     setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
   }
@@ -1767,7 +1765,7 @@
 
     const orig = btn.textContent;
     btn.disabled = true;
-    btn.textContent = '⏳';
+    btn.textContent = '…';
 
     try {
       const json = await apiPost({ acao: 'observacao', id: fichaId, observacao: texto });
@@ -1776,13 +1774,13 @@
         const f = fichasTodas.find(x => x.id === fichaId);
         if (f) f.observacao = texto;
         renderKanban();
-        btn.textContent = '✅';
+        btn.textContent = 'OK';
       } else {
-        btn.textContent = '❌';
+        btn.textContent = 'Erro';
         alert(json.message || 'Erro ao salvar observação.');
       }
     } catch (_) {
-      btn.textContent = '❌';
+      btn.textContent = 'Erro';
     }
     setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
   }
