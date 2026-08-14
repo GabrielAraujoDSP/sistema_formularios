@@ -162,7 +162,7 @@
     .secao-detalhe h4 { font-size: .76rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: .5px; border-bottom: 1.5px solid var(--border); padding-bottom: 5px; margin-bottom: 10px; }
     .detalhe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 9px; }
     .campo-det label { font-size: .7rem; color: var(--muted); font-weight: 600; }
-    .campo-det span  { display: block; font-size: .87rem; color: var(--text); }
+    .campo-det span  { display: block; font-size: .87rem; color: var(--text); word-break: break-all; overflow-wrap: break-word; }
     .btn-pdf { background: var(--danger); color: #fff; border: none; padding: 9px 18px; border-radius: 7px; font-size: .85rem; font-weight: 600; cursor: pointer; margin-left: auto; }
     .btn-pdf:hover { opacity: .87; }
 
