@@ -1882,7 +1882,7 @@
     sep();
 
     titulo('ASSINATURA');
-    linha('Tipo', f.tipo_assinatura === 'digital' ? 'Digital (R$ 29,00 por assinatura)' : 'Física (reconhecimento em cartório)');
+    linha('Tipo', f.tipo_assinatura === 'digital' ? 'Digital' : 'Física (reconhecimento em cartório)');
     sep();
 
     const npagesLoc = doc.getNumberOfPages();
