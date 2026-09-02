@@ -1452,6 +1452,10 @@
   /* ── PDF ─────────────────────────────────────────────────────────── */
   function baixarPDF() {
     if (!fichaAtual) return;
+    if (String(fichaAtual.tipo_cadastro || '').toLowerCase() === 'locador') {
+      baixarPDFLocador();
+      return;
+    }
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
     const L = 14, W = 182, lh = 7;
@@ -1610,6 +1614,254 @@
     }
 
     doc.save(`ficha_${(fichaAtual.nome || 'locatario').replace(/\s+/g, '_')}_${fichaAtual.id || Date.now()}.pdf`);
+  }
+
+  function baixarPDFLocador() {
+    if (!fichaAtual) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const L = 14, W = 182, lh = 7;
+    let y = 22;
+
+    function titulo(txt) {
+      if (y > 270) { doc.addPage(); y = 18; }
+      doc.setFillColor(26, 60, 110);
+      doc.rect(L, y - 5, W, 9, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(9); doc.setFont(undefined, 'bold');
+      doc.text(txt, L + 3, y + 1);
+      doc.setTextColor(0, 0, 0);
+      y += 12;
+    }
+
+    function linha(label, valor) {
+      if (y > 278) { doc.addPage(); y = 18; }
+      doc.setFontSize(8); doc.setFont(undefined, 'bold');
+      doc.text(String(label) + ':', L, y);
+      doc.setFont(undefined, 'normal');
+      const linhas = doc.splitTextToSize(String(valor || '—'), 120);
+      doc.text(linhas, L + 52, y);
+      y += lh * linhas.length;
+    }
+
+    function sep() { doc.setDrawColor(200, 210, 225); doc.line(L, y, L + W, y); y += 4; }
+
+    doc.setFillColor(26, 60, 110);
+    doc.rect(0, 0, 210, 22, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(13); doc.setFont(undefined, 'bold');
+    doc.text('Ficha Cadastral de Proprietário/Imóvel', 105, 11, { align: 'center' });
+    doc.setFontSize(8); doc.setFont(undefined, 'normal');
+    const stLabelLoc = COLUNAS.find(c => c.id === fichaAtual.status);
+    doc.text(`Protocolo: ${fichaAtual.id || '—'}   |   Data: ${fichaAtual.data_envio || '—'}   |   Status: ${stLabelLoc ? stLabelLoc.label : fichaAtual.status}`, 105, 18, { align: 'center' });
+    doc.setTextColor(0, 0, 0);
+    y = 32;
+
+    const f = fichaAtual;
+    const eCom    = String(f.tipo_imovel || '').toLowerCase() === 'comercial';
+    const ePJLoc  = String(f.tipo_locador || f.tipo_pessoa || '').toLowerCase() === 'pj';
+
+    titulo('CARACTERÍSTICAS DO IMÓVEL');
+    linha('Tipo', (eCom ? 'Comercial' : 'Residencial') + (f.tipo_especifico ? ` — ${f.tipo_especifico}` : ''));
+    if (!eCom) {
+      if (f.imovel_quartos)    linha('Quartos', f.imovel_quartos);
+      if (f.imovel_salas)      linha('Salas', f.imovel_salas);
+      if (f.imovel_banheiros)  linha('Banheiros', f.imovel_banheiros);
+      if (f.imovel_vagas)      linha('Vagas', f.imovel_vagas);
+      if (f.imovel_metragem)   linha('Área útil (m²)', f.imovel_metragem);
+    } else {
+      if (f.imovel_salas)      linha('Salas / ambientes', f.imovel_salas);
+      if (f.imovel_banheiros)  linha('Banheiros', f.imovel_banheiros);
+      if (f.imovel_vagas)      linha('Vagas', f.imovel_vagas);
+      if (f.imovel_metragem)   linha('Área total (m²)', f.imovel_metragem);
+      if (f.imovel_pe_direito) linha('Pé direito (m)', f.imovel_pe_direito);
+    }
+    sep();
+
+    titulo('ENDEREÇO DO IMÓVEL');
+    linha('Logradouro', f.imovel_logradouro);
+    linha('Número', f.imovel_numero);
+    linha('Bairro', f.imovel_bairro);
+    if (f.imovel_complemento) linha('Complemento', f.imovel_complemento);
+    if (f.imovel_lote)        linha('Lote', f.imovel_lote);
+    if (f.imovel_quadra)      linha('Quadra', f.imovel_quadra);
+    linha('CEP', f.imovel_cep);
+    linha('Cidade / Estado', `${f.imovel_cidade || '—'} / ${f.imovel_estado || '—'}`);
+    sep();
+
+    titulo('INFORMAÇÕES FINANCEIRAS E CHAVES');
+    linha('Valor do aluguel', f.imovel_aluguel ? `R$ ${f.imovel_aluguel}` : '—');
+    linha('IPTU (mensal)', f.imovel_iptu ? `R$ ${f.imovel_iptu}` : '—');
+    if (f.imovel_tem_condo === 'sim' || f.imovel_nome_condo) {
+      if (f.imovel_nome_condo)   linha('Condomínio', f.imovel_nome_condo);
+      if (f.imovel_valor_condo)  linha('Valor cond. (mensal)', `R$ ${f.imovel_valor_condo}`);
+      if (f.imovel_agua_inclusa) linha('Água inclusa', f.imovel_agua_inclusa);
+      if (f.imovel_gas_incluso)  linha('Gás incluso', f.imovel_gas_incluso);
+      if (f.imovel_tipo_gas)     linha('Tipo de gás', f.imovel_tipo_gas);
+    }
+    linha('Qtd. chaves', f.imovel_qtd_chaves || '—');
+    if (f.imovel_tem_controle === 'sim') linha('Controle remoto', `Sim (${f.imovel_qtd_controles || '—'})`);
+    sep();
+
+    titulo('DADOS DA LOCAÇÃO');
+    linha('Corretor', f.corretor);
+    linha('Garantias aceitas', f.tipo_garantia);
+    sep();
+
+    if (eCom) {
+      titulo('DADOS COMERCIAIS');
+      if (f.vigencia_contrato) linha('Vigências aceitas', f.vigencia_contrato);
+      linha('Tem vaga', f.tem_vaga === 'sim' ? `Sim (${f.qtd_vagas})` : 'Não');
+      sep();
+    }
+
+    if (ePJLoc) {
+      titulo('DADOS DA EMPRESA');
+      linha('Razão Social', f.pj_razao_social);
+      linha('CNPJ', f.pj_cnpj);
+      if (f.pj_inscricao) linha('Inscrição Estadual', f.pj_inscricao);
+      linha('E-mail', f.pj_email);
+      linha('Celular', f.pj_celular);
+      linha('Logradouro', f.pj_logradouro);
+      linha('Número', f.pj_numero);
+      linha('Bairro', f.pj_bairro);
+      if (f.pj_complemento) linha('Complemento', f.pj_complemento);
+      linha('CEP', f.pj_cep);
+      linha('Cidade / Estado', `${f.pj_cidade || '—'} / ${f.pj_estado || '—'}`);
+      sep();
+
+      titulo('REPRESENTANTE LEGAL');
+      linha('Nome', f.pj_rep_nome || f.nome);
+      linha('CPF', f.pj_rep_cpf || f.cpf);
+      if (f.pj_rep_nascimento) linha('Nascimento', f.pj_rep_nascimento);
+      linha('Estado civil', f.pj_rep_estado_civil);
+      linha('Profissão', f.pj_rep_profissao);
+      linha('E-mail', f.pj_rep_email);
+      linha('Celular', f.pj_rep_celular);
+      linha('Logradouro', f.pj_rep_logradouro);
+      linha('Número', f.pj_rep_numero);
+      linha('Bairro', f.pj_rep_bairro);
+      if (f.pj_rep_complemento) linha('Complemento', f.pj_rep_complemento);
+      linha('CEP', f.pj_rep_cep);
+      linha('Cidade / Estado', `${f.pj_rep_cidade || '—'} / ${f.pj_rep_estado || '—'}`);
+      sep();
+
+      titulo('CONTATO DE EMERGÊNCIA DO REPRESENTANTE');
+      linha('Nome', f.pj_rep_emerg_nome);
+      linha('Celular', f.pj_rep_emerg_cel);
+      linha('Parentesco', f.pj_rep_emerg_parentesco);
+      sep();
+    } else {
+      titulo('DADOS DO PROPRIETÁRIO');
+      linha('Nome', f.nome);
+      linha('CPF', f.cpf);
+      linha('Estado civil', f.estado_civil);
+      linha('Profissão', f.profissao);
+      linha('E-mail', f.email);
+      linha('Celular', f.celular);
+      linha('Logradouro', f.endereco_logradouro);
+      linha('Número', f.endereco_numero);
+      linha('Bairro', f.endereco_bairro);
+      if (f.endereco_complemento) linha('Complemento', f.endereco_complemento);
+      linha('CEP', f.cep_atual);
+      linha('Cidade / Estado', `${f.cidade_atual || '—'} / ${f.estado_atual || '—'}`);
+      sep();
+
+      titulo('CONTATO DE EMERGÊNCIA');
+      linha('Nome', f.emerg_nome);
+      linha('Celular', f.emerg_cel);
+      linha('Parentesco', f.emerg_parentesco);
+      sep();
+    }
+
+    const qtdLocAd = parseInt(f.qtd_locadores_adicionais) || 0;
+    for (let i = 1; i <= qtdLocAd; i++) {
+      const tipoAd = f[`loc${i}_tipo`] === 'conjuge' ? 'CÔNJUGE / COMPANHEIRO(A)' : `PROPRIETÁRIO ADICIONAL #${i}`;
+      titulo(tipoAd);
+      linha('Nome', f[`loc${i}_nome`]);
+      linha('CPF', f[`loc${i}_cpf`]);
+      linha('Estado civil', f[`loc${i}_estado_civil`]);
+      linha('Profissão', f[`loc${i}_profissao`]);
+      linha('E-mail', f[`loc${i}_email`]);
+      linha('Celular', f[`loc${i}_celular`]);
+      linha('Logradouro', f[`loc${i}_logradouro`]);
+      linha('Cidade', f[`loc${i}_cidade`]);
+      sep();
+    }
+
+    titulo('DADOS BANCÁRIOS');
+    linha('Repasse para', f.repasse_destinatario === 'terceiro' ? 'Terceiro' : 'Próprio proprietário');
+    linha('Tipo de conta', f.banco_tipo_conta);
+    linha('Instituição', f.banco_instituicao);
+    linha('Agência', f.banco_agencia);
+    linha('Conta', f.banco_conta);
+    sep();
+
+    if (f.repasse_destinatario === 'terceiro') {
+      if (f.terc_nome) {
+        titulo('BENEFICIÁRIO DO REPASSE — PESSOA FÍSICA');
+        linha('Nome', f.terc_nome);
+        linha('CPF', f.terc_cpf);
+        linha('E-mail', f.terc_email);
+        linha('Celular', f.terc_cel);
+        linha('Logradouro', f.terc_logradouro);
+        linha('Número', f.terc_numero);
+        linha('Bairro', f.terc_bairro);
+        if (f.terc_complemento) linha('Complemento', f.terc_complemento);
+        linha('CEP', f.terc_cep);
+        linha('Cidade / Estado', `${f.terc_cidade || '—'} / ${f.terc_estado || '—'}`);
+        sep();
+      } else if (f.terc_pj_razao_social) {
+        titulo('BENEFICIÁRIO DO REPASSE — PESSOA JURÍDICA');
+        linha('Razão Social', f.terc_pj_razao_social);
+        linha('CNPJ', f.terc_pj_cnpj);
+        linha('E-mail', f.terc_pj_email);
+        linha('Telefone', f.terc_pj_cel);
+        linha('Logradouro', f.terc_pj_logradouro);
+        linha('Número', f.terc_pj_numero);
+        linha('Bairro', f.terc_pj_bairro);
+        if (f.terc_pj_complemento) linha('Complemento', f.terc_pj_complemento);
+        linha('CEP', f.terc_pj_cep);
+        linha('Cidade / Estado', `${f.terc_pj_cidade || '—'} / ${f.terc_pj_estado || '—'}`);
+        if (f.terc_pj_rep_nome) {
+          sep();
+          titulo('REPRESENTANTE LEGAL DO BENEFICIÁRIO');
+          linha('Nome', f.terc_pj_rep_nome);
+          linha('CPF', f.terc_pj_rep_cpf);
+          linha('E-mail', f.terc_pj_rep_email);
+          linha('Celular', f.terc_pj_rep_cel);
+          linha('Logradouro', f.terc_pj_rep_logradouro);
+          linha('Número', f.terc_pj_rep_numero);
+          linha('Bairro', f.terc_pj_rep_bairro);
+          if (f.terc_pj_rep_complemento) linha('Complemento', f.terc_pj_rep_complemento);
+          linha('CEP', f.terc_pj_rep_cep);
+          linha('Cidade / Estado', `${f.terc_pj_rep_cidade || '—'} / ${f.terc_pj_rep_estado || '—'}`);
+        }
+        sep();
+      }
+    }
+
+    titulo('MOBÍLIA');
+    linha('Mobiliado', f.mobiliado === 'sim' ? 'Sim' : 'Não');
+    if (f.mobiliado === 'sim' && f.descricao_mobilia) linha('Descrição', f.descricao_mobilia);
+    sep();
+
+    titulo('VIGÊNCIA DO CONTRATO');
+    linha('Início', formatarDataVig(f.vigencia_inicio));
+    sep();
+
+    titulo('ASSINATURA');
+    linha('Tipo', f.tipo_assinatura === 'digital' ? 'Digital (R$ 29,00 por assinatura)' : 'Física (reconhecimento em cartório)');
+    sep();
+
+    const npagesLoc = doc.getNumberOfPages();
+    for (let p = 1; p <= npagesLoc; p++) {
+      doc.setPage(p);
+      doc.setFontSize(7); doc.setTextColor(140, 140, 140);
+      doc.text(`Gerado em ${new Date().toLocaleString('pt-BR')} — Pág. ${p}/${npagesLoc}`, 105, 292, { align: 'center' });
+    }
+
+    doc.save(`ficha_locador_${(f.nome || f.pj_razao_social || 'proprietario').replace(/\s+/g, '_')}_${f.id || Date.now()}.pdf`);
   }
 
   /* ── Rotina — popup por ficha ───────────────────────────────────── */
