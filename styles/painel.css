@@ -91,10 +91,11 @@
 
     main { padding: 14px 16px; }
 
-    .stats { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-    .stat-card { flex: 1; min-width: 90px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; text-align: center; }
-    .stat-card .num { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
-    .stat-card .lbl { font-size: .7rem; color: var(--muted); margin-top: 2px; }
+    .stats-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+    .stats { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+    .stat-card { flex: 1; min-width: 62px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 7px 8px; text-align: center; }
+    .stat-card .num { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
+    .stat-card .lbl { font-size: .65rem; color: var(--muted); margin-top: 1px; }
 
     /* ── Kanban ── */
     .kanban-board {
@@ -195,6 +196,20 @@
     .msg-feedback { font-size: .82rem; display: none; }
     .msg-ok  { color: var(--success); }
     .msg-err { color: var(--danger); }
+
+    /* ── Barra de alternância de esteira ── */
+    .esteira-bar {
+      padding: 4px 0 10px; border-bottom: 2px solid var(--border); margin-bottom: 18px; text-align: center;
+    }
+    .esteira-titulo {
+      font-size: 1rem; font-weight: 700; color: var(--primary); letter-spacing: .2px;
+    }
+    .btn-esteira-principal {
+      position: relative; background: var(--primary); color: #fff; border: none;
+      padding: 11px 24px; border-radius: 8px; font-size: .92rem; font-weight: 700;
+      cursor: pointer; transition: background .15s; letter-spacing: .2px; white-space: nowrap;
+    }
+    .btn-esteira-principal:hover { background: var(--primary-light); }
 
     /* ── Botões toolbar extras ── */
     .btn-trocar {

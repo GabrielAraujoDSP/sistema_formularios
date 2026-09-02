@@ -103,13 +103,22 @@
   </div>
 
   <main>
-    <div class="stats">
-      <div class="stat-card"><div class="num" id="s-total">–</div><div class="lbl">Total</div></div>
-      <div class="stat-card"><div class="num" id="s-nova">–</div><div class="lbl">Novos</div></div>
-      <div class="stat-card"><div class="num" id="s-reprovada">–</div><div class="lbl">Reprovados</div></div>
-      <div class="stat-card"><div class="num" id="s-concluida">–</div><div class="lbl">Aprovados</div></div>
-      <div class="stat-card"><div class="num" id="s-confeccao">–</div><div class="lbl">Confecção</div></div>
-      <div class="stat-card"><div class="num" id="s-contrato_enviado">–</div><div class="lbl">Contrato Enviado</div></div>
+    <div class="stats-row">
+      <div class="stats">
+        <div class="stat-card"><div class="num" id="s-total">–</div><div class="lbl">Total</div></div>
+        <div class="stat-card"><div class="num" id="s-nova">–</div><div class="lbl">Novos</div></div>
+        <div class="stat-card"><div class="num" id="s-reprovada">–</div><div class="lbl">Reprovados</div></div>
+        <div class="stat-card"><div class="num" id="s-concluida">–</div><div class="lbl">Aprovados</div></div>
+        <div class="stat-card"><div class="num" id="s-confeccao">–</div><div class="lbl">Confecção</div></div>
+        <div class="stat-card"><div class="num" id="s-contrato_enviado">–</div><div class="lbl">Enviado</div></div>
+      </div>
+      <button class="btn-esteira-principal" id="btn-esteira" onclick="alternarEsteira()">
+        <span id="btn-esteira-label">Locadores</span><span id="badge-esteira" style="display:none;position:absolute;top:-8px;right:-8px;background:var(--accent);color:#fff;font-size:.6rem;font-weight:800;min-width:17px;height:17px;border-radius:9px;align-items:center;justify-content:center;padding:0 4px;line-height:1;border:2px solid #fff">0</span>
+      </button>
+    </div>
+
+    <div class="esteira-bar">
+      <span class="esteira-titulo" id="esteira-titulo">Esteira de Locatários</span>
     </div>
 
     <div id="view-kanban">

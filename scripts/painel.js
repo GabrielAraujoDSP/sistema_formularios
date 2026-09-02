@@ -21,14 +21,19 @@
     { id: 'contrato_enviado', label: 'Contrato Enviado',      emoji: '📬', cls: 'col-contrato-enviado'},
   ];
 
-  let interfaceAtual  = 'kanban';
-  let abaAtiva        = 'nova';
-  let fichasTodas     = [];
-  let revisaoLocal    = null;
-  let timerPolling    = null;
-  let fichaAtual      = null;
-  let fichaEditando   = null;
-  let listaCorretores = [];
+  let interfaceAtual       = 'kanban';
+  let abaAtiva             = 'nova';
+  let fichasTodas          = [];
+  let revisaoLocal         = null;
+  let timerPolling         = null;
+  let fichaAtual           = null;
+  let fichaEditando        = null;
+  let listaCorretores      = [];
+  let esteiraAtiva         = 'locatario';
+  let _badgeLocador        = 0;
+  let _badgeLocatario      = 0;
+  let _baseNovaLocador     = null;
+  let _baseNovaLocatario   = null;
 
   /* ── Inicialização ───────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', () => {
@@ -248,6 +253,7 @@
       if (!json) return;
       fichasTodas = json.fichas || [];
       atualizarFiltroCorretores();
+      _atualizarBadgeEsteira();
       renderKanban();
     } catch (err) {
       if (!silencioso) {
@@ -263,7 +269,7 @@
   function atualizarFiltroCorretores() {
     const sel       = document.getElementById('filtro-corretor');
     const atual     = sel.value;
-    const comFichas = new Set(fichasTodas.map(f => f.corretor).filter(Boolean));
+    const comFichas = new Set(_fichasEsteira(esteiraAtiva).map(f => f.corretor).filter(Boolean));
     const grupos    = {};
     listaCorretores
       .filter(c => comFichas.has(c.nome))
@@ -320,13 +326,17 @@
     sel.innerHTML = html;
   }
 
+  function _eLocador(f) { return String(f.tipo_cadastro || '').toLowerCase() === 'locador'; }
+  function _fichasEsteira(tipo) { return fichasTodas.filter(f => tipo === 'locador' ? _eLocador(f) : !_eLocador(f)); }
+
   function fichasFiltradas() {
     const busca    = (document.getElementById('busca').value || '').toLowerCase();
     const corretor = document.getElementById('filtro-corretor').value;
     return fichasTodas.filter(f => {
+      const okEsteira  = esteiraAtiva === 'locador' ? _eLocador(f) : !_eLocador(f);
       const okBusca    = !busca    || (f.nome||'').toLowerCase().includes(busca) || (f.cpf||'').includes(busca) || (f.id||'').toLowerCase().includes(busca) || (f.pj_razao_social||'').toLowerCase().includes(busca);
       const okCorretor = !corretor || f.corretor === corretor;
-      return okBusca && okCorretor;
+      return okEsteira && okBusca && okCorretor;
     });
   }
 
@@ -361,12 +371,13 @@
   }
 
   function atualizarStats() {
-    document.getElementById('s-total').textContent = fichasTodas.length;
+    const lista = _fichasEsteira(esteiraAtiva);
+    document.getElementById('s-total').textContent = lista.length;
     COLUNAS.forEach(c => {
       const el = document.getElementById('s-' + c.id);
-      if (el) el.textContent = fichasTodas.filter(f => (f.status || 'nova') === c.id).length;
+      if (el) el.textContent = lista.filter(f => (f.status || 'nova') === c.id).length;
     });
-    const novas = fichasTodas.filter(f => (f.status || 'nova') === 'nova').length;
+    const novas = lista.filter(f => (f.status || 'nova') === 'nova').length;
     const badge = document.getElementById('badge-novas');
     if (novas > 0) { badge.style.display = 'inline'; badge.textContent = `${novas} nova${novas > 1 ? 's' : ''}`; }
     else badge.style.display = 'none';
@@ -555,7 +566,7 @@
   }
 
   function marcarTodasLidas() {
-    const novas = fichasTodas.filter(f => (f.status || 'nova') === 'nova');
+    const novas = _fichasEsteira(esteiraAtiva).filter(f => (f.status || 'nova') === 'nova');
     if (!novas.length) { alert('Não há fichas novas.'); return; }
     if (!confirm(`Marcar ${novas.length} ficha(s) como "Confecção de Contrato"?`)) return;
     novas.forEach(f => { f.status = 'confeccao'; });
@@ -565,6 +576,57 @@
         body: JSON.stringify({ acao: 'status', token: getToken(), id: f.id, status: 'confeccao' }) })
         .catch(() => {})
     );
+  }
+
+  /* ── Alternância de esteira ─────────────────────────────────────── */
+  function alternarEsteira() {
+    if (esteiraAtiva === 'locatario') {
+      esteiraAtiva = 'locador';
+      _badgeLocador = 0;
+      _baseNovaLocador = fichasTodas.filter(f => _eLocador(f) && (f.status || 'nova') === 'nova').length;
+    } else {
+      esteiraAtiva = 'locatario';
+      _badgeLocatario = 0;
+      _baseNovaLocatario = fichasTodas.filter(f => !_eLocador(f) && (f.status || 'nova') === 'nova').length;
+    }
+    atualizarFiltroCorretores();
+    _renderBadgeEsteira();
+    renderKanban();
+  }
+
+  function _atualizarBadgeEsteira() {
+    if (getPapel() !== 'admin') return;
+    const novaLoc    = fichasTodas.filter(f =>  _eLocador(f) && (f.status || 'nova') === 'nova').length;
+    const novaLocTar = fichasTodas.filter(f => !_eLocador(f) && (f.status || 'nova') === 'nova').length;
+    if (_baseNovaLocador   === null) _baseNovaLocador   = novaLoc;
+    if (_baseNovaLocatario === null) _baseNovaLocatario = novaLocTar;
+    if (esteiraAtiva !== 'locador') {
+      const diff = novaLoc - _baseNovaLocador;
+      if (diff > 0) _badgeLocador += diff;
+      _baseNovaLocador = novaLoc;
+    }
+    if (esteiraAtiva !== 'locatario') {
+      const diff = novaLocTar - _baseNovaLocatario;
+      if (diff > 0) _badgeLocatario += diff;
+      _baseNovaLocatario = novaLocTar;
+    }
+    _renderBadgeEsteira();
+  }
+
+  function _renderBadgeEsteira() {
+    const label  = document.getElementById('btn-esteira-label');
+    const badge  = document.getElementById('badge-esteira');
+    const titulo = document.getElementById('esteira-titulo');
+    if (!label || !badge) return;
+    label.textContent = esteiraAtiva === 'locatario' ? 'Locadores' : 'Locatários';
+    if (titulo) titulo.textContent = esteiraAtiva === 'locatario' ? 'Esteira de Locatários' : 'Esteira de Locadores';
+    const count = esteiraAtiva === 'locatario' ? _badgeLocador : _badgeLocatario;
+    if (count > 0 && getPapel() === 'admin') {
+      badge.textContent    = count > 99 ? '99+' : count;
+      badge.style.display  = 'inline-flex';
+    } else {
+      badge.style.display  = 'none';
+    }
   }
 
   /* ── Modal Detalhe ───────────────────────────────────────────────── */
