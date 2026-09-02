@@ -1450,7 +1450,28 @@
   }
 
   /* ── PDF ─────────────────────────────────────────────────────────── */
-  function baixarPDF() {
+  let _logoDataUrl = null;
+  let _logoAspecto = 1;
+
+  async function _carregarLogo() {
+    if (_logoDataUrl !== null) return;
+    await new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        _logoDataUrl = canvas.toDataURL('image/png');
+        _logoAspecto = img.naturalWidth / img.naturalHeight;
+        resolve();
+      };
+      img.onerror = () => { _logoDataUrl = ''; resolve(); };
+      img.src = 'assets/logo-francisco-egito.png';
+    });
+  }
+
+  async function baixarPDF() {
     if (!fichaAtual) return;
     if (String(fichaAtual.tipo_cadastro || '').toLowerCase() === 'locador') {
       baixarPDFLocador();
@@ -1463,7 +1484,7 @@
 
     function titulo(txt) {
       if (y > 270) { doc.addPage(); y = 18; }
-      doc.setFillColor(26, 60, 110);
+      doc.setFillColor(140, 28, 28);
       doc.rect(L, y - 5, W, 9, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(9); doc.setFont(undefined, 'bold');
@@ -1482,22 +1503,27 @@
       y += lh * linhas.length;
     }
 
-    function sep() { doc.setDrawColor(200, 210, 225); doc.line(L, y, L + W, y); y += 4; }
+    function sep() { doc.setDrawColor(201, 162, 39); doc.line(L, y, L + W, y); y += 4; }
 
-    doc.setFillColor(26, 60, 110);
-    doc.rect(0, 0, 210, 22, 'F');
+    await _carregarLogo();
+    doc.setFillColor(140, 28, 28);
+    doc.rect(0, 0, 210, 28, 'F');
+    const _logoH = 17, _logoW = Math.min(50, _logoH * _logoAspecto);
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(4, 3.5, _logoW + 5, _logoH + 3, 2, 2, 'F');
+    if (_logoDataUrl) doc.addImage(_logoDataUrl, 'PNG', 6, 5, _logoW, _logoH);
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(13); doc.setFont(undefined, 'bold');
+    doc.setFontSize(12); doc.setFont(undefined, 'bold');
     var _isLocador = String(fichaAtual.tipo_cadastro || '').toLowerCase() === 'locador';
     var _tipoImovel = fichaAtual.destinacao_pj_tipo === 'membro' ? 'Não Residencial' :
                       String(fichaAtual.tipo_imovel || '').toLowerCase() === 'comercial' ? 'Comercial' : 'Residencial';
     var _tituloPDF = _isLocador ? 'Ficha Cadastral de Proprietário/Imóvel' : 'Ficha Cadastral de Locatário ' + _tipoImovel;
-    doc.text(_tituloPDF, 105, 11, { align: 'center' });
-    doc.setFontSize(8); doc.setFont(undefined, 'normal');
+    doc.text(_tituloPDF, 105, 13, { align: 'center' });
+    doc.setFontSize(7.5); doc.setFont(undefined, 'normal');
     const stLabel = COLUNAS.find(c => c.id === fichaAtual.status);
-    doc.text(`Protocolo: ${fichaAtual.id || '—'}   |   Data: ${fichaAtual.data_envio || '—'}   |   Status: ${stLabel ? stLabel.label : fichaAtual.status}`, 105, 18, { align: 'center' });
+    doc.text(`Protocolo: ${fichaAtual.id || '—'}   |   Data: ${fichaAtual.data_envio || '—'}   |   Status: ${stLabel ? stLabel.label : fichaAtual.status}`, 105, 21, { align: 'center' });
     doc.setTextColor(0, 0, 0);
-    y = 32;
+    y = 38;
 
     titulo('DADOS DO IMÓVEL');
     linha('Tipo de imóvel', _tipoImovel);
@@ -1616,7 +1642,7 @@
     doc.save(`ficha_${(fichaAtual.nome || 'locatario').replace(/\s+/g, '_')}_${fichaAtual.id || Date.now()}.pdf`);
   }
 
-  function baixarPDFLocador() {
+  async function baixarPDFLocador() {
     if (!fichaAtual) return;
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
@@ -1625,7 +1651,7 @@
 
     function titulo(txt) {
       if (y > 270) { doc.addPage(); y = 18; }
-      doc.setFillColor(26, 60, 110);
+      doc.setFillColor(140, 28, 28);
       doc.rect(L, y - 5, W, 9, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(9); doc.setFont(undefined, 'bold');
@@ -1644,18 +1670,23 @@
       y += lh * linhas.length;
     }
 
-    function sep() { doc.setDrawColor(200, 210, 225); doc.line(L, y, L + W, y); y += 4; }
+    function sep() { doc.setDrawColor(201, 162, 39); doc.line(L, y, L + W, y); y += 4; }
 
-    doc.setFillColor(26, 60, 110);
-    doc.rect(0, 0, 210, 22, 'F');
+    await _carregarLogo();
+    doc.setFillColor(140, 28, 28);
+    doc.rect(0, 0, 210, 28, 'F');
+    const _logoH = 17, _logoW = Math.min(50, _logoH * _logoAspecto);
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(4, 3.5, _logoW + 5, _logoH + 3, 2, 2, 'F');
+    if (_logoDataUrl) doc.addImage(_logoDataUrl, 'PNG', 6, 5, _logoW, _logoH);
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(13); doc.setFont(undefined, 'bold');
-    doc.text('Ficha Cadastral de Proprietário/Imóvel', 105, 11, { align: 'center' });
-    doc.setFontSize(8); doc.setFont(undefined, 'normal');
+    doc.setFontSize(12); doc.setFont(undefined, 'bold');
+    doc.text('Ficha Cadastral de Proprietário/Imóvel', 105, 13, { align: 'center' });
+    doc.setFontSize(7.5); doc.setFont(undefined, 'normal');
     const stLabelLoc = COLUNAS.find(c => c.id === fichaAtual.status);
-    doc.text(`Protocolo: ${fichaAtual.id || '—'}   |   Data: ${fichaAtual.data_envio || '—'}   |   Status: ${stLabelLoc ? stLabelLoc.label : fichaAtual.status}`, 105, 18, { align: 'center' });
+    doc.text(`Protocolo: ${fichaAtual.id || '—'}   |   Data: ${fichaAtual.data_envio || '—'}   |   Status: ${stLabelLoc ? stLabelLoc.label : fichaAtual.status}`, 105, 21, { align: 'center' });
     doc.setTextColor(0, 0, 0);
-    y = 32;
+    y = 38;
 
     const f = fichaAtual;
     const eCom    = String(f.tipo_imovel || '').toLowerCase() === 'comercial';
