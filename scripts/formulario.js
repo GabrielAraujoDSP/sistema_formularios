@@ -820,7 +820,6 @@
     } catch (err) {
       statusDiv.className = 'erro-msg';
       statusDiv.textContent = '❌ Erro ao enviar: ' + err.message;
-    } finally {
       btn.disabled = false;
     }
   });

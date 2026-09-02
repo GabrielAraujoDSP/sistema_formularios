@@ -794,6 +794,33 @@ function doPost(e) {
     lock.waitLock(30000); // aguarda até 30s na fila antes de desistir
     try {
       var fichaSheet = obterOuCriarAba();
+
+      // Proteção contra duplicatas: mesmo CPF nos últimos 5 minutos no mesmo tipo de ficha
+      if (fichaSheet.getLastRow() > 1) {
+        var hdrsChk  = fichaSheet.getRange(1, 1, 1, fichaSheet.getLastColumn()).getValues()[0];
+        var cCpf     = hdrsChk.indexOf('cpf');
+        var cId      = hdrsChk.indexOf('id');
+        var cData    = hdrsChk.indexOf('data_envio');
+        var cTipo    = hdrsChk.indexOf('tipo_cadastro');
+        if (cCpf !== -1 && cId !== -1 && cData !== -1) {
+          var limite  = new Date(new Date().getTime() - 5 * 60 * 1000);
+          var linhas  = fichaSheet.getRange(2, 1, fichaSheet.getLastRow() - 1, hdrsChk.length).getValues();
+          for (var rd = linhas.length - 1; rd >= 0; rd--) {
+            var rCpf  = String(linhas[rd][cCpf]  || '').trim();
+            var rId   = String(linhas[rd][cId]   || '').trim();
+            var rData = String(linhas[rd][cData] || '').trim();
+            var rTipo = cTipo !== -1 ? String(linhas[rd][cTipo] || '') : '';
+            if (rCpf !== cpfEnviado || !rId) continue;
+            var mDup = rData.match(/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})$/);
+            if (!mDup) continue;
+            var dataFicha = new Date(Number(mDup[3]), Number(mDup[2]) - 1, Number(mDup[1]), Number(mDup[4]), Number(mDup[5]));
+            if (dataFicha >= limite && (rTipo === 'locador') === eLocador) {
+              return resposta({ status: 'ok', protocolo: rId });
+            }
+          }
+        }
+      }
+
       fichaSheet.appendRow(linha);
 
       // Persiste destinacao_pj_tipo e destinacao_pj_ref como colunas dinâmicas,
