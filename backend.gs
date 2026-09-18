@@ -51,7 +51,13 @@ var NOMES_DESCRITIVOS = {
   'pj_rep_comp_residencia': 'PJ_Rep_Comprovante_Residencia',
   'terc_doc':               'Terceiro_Identificacao',
   'terc_pj_contrato_social':'Terceiro_PJ_Contrato_Social',
-  'terc_pj_doc_rep':        'Terceiro_PJ_Doc_Representante'
+  'terc_pj_doc_rep':        'Terceiro_PJ_Doc_Representante',
+  'caucao_comp_renda':      'Caucao_Comprovante_Renda',
+  'caucao_extrato_bancario':'Caucao_Extrato_Bancario',
+  'fiador_doc':             'Fiador_Identificacao',
+  'fiador_comp_residencia': 'Fiador_Comprovante_Residencia',
+  'fiador_comp_renda':      'Fiador_Comprovante_Renda',
+  'fiador_imovel_doc':      'Fiador_Documento_Imovel'
 };
 
 function nomePadronizado(campo, nomeOriginal) {
@@ -731,7 +737,9 @@ function doPost(e) {
     var camposArquivo = [
       'doc_identificacao', 'comprovante_residencia', 'aprovacao_seguro',
       'pj_balancete', 'pj_contrato_social', 'pj_cartao_cnpj', 'pj_extrato_simples',
-      'conj_doc'
+      'conj_doc',
+      'caucao_comp_renda', 'caucao_extrato_bancario',
+      'fiador_doc', 'fiador_comp_residencia', 'fiador_comp_renda', 'fiador_imovel_doc'
     ];
     for (var i = 1; i <= qtdLoc; i++) {
       camposArquivo.push('loc' + i + '_doc_id');
@@ -904,6 +912,30 @@ function doPost(e) {
           fichaSheet.getRange(lastRowLE, colLE + 1).setValue(valorLE);
         }
       }
+      // Salva campos de Caução e Fiador como colunas dinâmicas
+      var garantiaExtras = [
+        'caucao_comp_renda_url', 'caucao_extrato_bancario_url',
+        'fiador_nome', 'fiador_cpf', 'fiador_estado_civil', 'fiador_nacionalidade',
+        'fiador_profissao', 'fiador_email', 'fiador_celular',
+        'fiador_logradouro', 'fiador_numero', 'fiador_bairro', 'fiador_complemento',
+        'fiador_cep', 'fiador_cidade', 'fiador_uf',
+        'fiador_doc_url', 'fiador_comp_residencia_url', 'fiador_comp_renda_url', 'fiador_imovel_doc_url'
+      ];
+      var lastRowGar = fichaSheet.getLastRow();
+      var hdrsGar    = fichaSheet.getRange(1, 1, 1, fichaSheet.getLastColumn()).getValues()[0];
+      for (var gi = 0; gi < garantiaExtras.length; gi++) {
+        var campoGar = garantiaExtras[gi];
+        var valorGar = dados[campoGar];
+        if (valorGar === undefined || valorGar === null || valorGar === '') continue;
+        var colGar = hdrsGar.indexOf(campoGar);
+        if (colGar === -1) {
+          colGar = hdrsGar.length;
+          fichaSheet.getRange(1, colGar + 1).setValue(campoGar);
+          hdrsGar.push(campoGar);
+        }
+        fichaSheet.getRange(lastRowGar, colGar + 1).setValue(valorGar);
+      }
+
     } finally {
       lock.releaseLock();
     }

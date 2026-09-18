@@ -969,7 +969,9 @@
     const campos = [
       'doc_identificacao_url', 'comprovante_residencia_url', 'aprovacao_seguro_url',
       'pj_balancete_url', 'pj_contrato_social_url', 'pj_cartao_cnpj_url', 'pj_extrato_simples_url',
-      'conj_doc_url'
+      'conj_doc_url',
+      'caucao_comp_renda_url', 'caucao_extrato_bancario_url',
+      'fiador_doc_url', 'fiador_comp_residencia_url', 'fiador_comp_renda_url', 'fiador_imovel_doc_url'
     ];
     for (let i = 1; i <= 10; i++) {
       campos.push(`soc${i}_doc_id_url`, `soc${i}_comp_res_url`);
@@ -1173,6 +1175,24 @@
       ]);
     }
 
+    if (f.fiador_nome) {
+      html += secaoDetalhe('Fiador', [
+        campo('Nome', f.fiador_nome), campo('CPF', f.fiador_cpf),
+        f.fiador_estado_civil ? campo('Estado civil', f.fiador_estado_civil) : '',
+        f.fiador_nacionalidade ? campo('Nacionalidade', f.fiador_nacionalidade) : '',
+        f.fiador_profissao ? campo('Profissão', f.fiador_profissao) : '',
+        f.fiador_email ? campo('E-mail', f.fiador_email) : '',
+        f.fiador_celular ? campo('Celular', f.fiador_celular) : '',
+        f.fiador_logradouro ? campo('Logradouro', f.fiador_logradouro) : '',
+        f.fiador_numero ? campo('Número', f.fiador_numero) : '',
+        f.fiador_bairro ? campo('Bairro', f.fiador_bairro) : '',
+        f.fiador_complemento ? campo('Complemento', f.fiador_complemento) : '',
+        f.fiador_cep ? campo('CEP', f.fiador_cep) : '',
+        f.fiador_cidade ? campo('Cidade', f.fiador_cidade) : '',
+        f.fiador_uf ? campo('Estado', f.fiador_uf) : '',
+      ]);
+    }
+
     if (isAdminModal) {
       const vigIniModal = dataParaInput(f.vigencia_inicio);
       html += `<div class="secao-detalhe vig-container" data-id="${esc(f.id)}">
@@ -1211,6 +1231,12 @@
     if (f.pj_cartao_cnpj_url)          links.push(`<a href="${esc(f.pj_cartao_cnpj_url)}" target="_blank" style="color:var(--primary)">Cartão CNPJ</a>`);
     if (f.pj_extrato_simples_url)      links.push(`<a href="${esc(f.pj_extrato_simples_url)}" target="_blank" style="color:var(--primary)">Extrato Simples</a>`);
     if (f.conj_doc_url)                links.push(`<a href="${esc(f.conj_doc_url)}" target="_blank" style="color:var(--primary)">Doc. cônjuge</a>`);
+    if (f.caucao_comp_renda_url)       links.push(`<a href="${esc(f.caucao_comp_renda_url)}" target="_blank" style="color:var(--primary)">Comp. renda (caução)</a>`);
+    if (f.caucao_extrato_bancario_url) links.push(`<a href="${esc(f.caucao_extrato_bancario_url)}" target="_blank" style="color:var(--primary)">Extrato bancário</a>`);
+    if (f.fiador_doc_url)              links.push(`<a href="${esc(f.fiador_doc_url)}" target="_blank" style="color:var(--primary)">Doc. fiador</a>`);
+    if (f.fiador_comp_residencia_url)  links.push(`<a href="${esc(f.fiador_comp_residencia_url)}" target="_blank" style="color:var(--primary)">Res. fiador</a>`);
+    if (f.fiador_comp_renda_url)       links.push(`<a href="${esc(f.fiador_comp_renda_url)}" target="_blank" style="color:var(--primary)">Renda fiador</a>`);
+    if (f.fiador_imovel_doc_url)       links.push(`<a href="${esc(f.fiador_imovel_doc_url)}" target="_blank" style="color:var(--primary)">Imóvel fiador</a>`);
     for (let i = 1; i <= qtdSoc; i++) {
       if (f[`soc${i}_doc_id_url`])   links.push(`<a href="${esc(f[`soc${i}_doc_id_url`])}" target="_blank" style="color:var(--primary)">Doc. sócio ${i}</a>`);
       if (f[`soc${i}_comp_res_url`]) links.push(`<a href="${esc(f[`soc${i}_comp_res_url`])}" target="_blank" style="color:var(--primary)">Res. sócio ${i}</a>`);

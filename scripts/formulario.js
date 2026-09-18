@@ -89,6 +89,18 @@
     document.getElementById('campo-destinacao-pj-tipo').value             = '';
     contadorLocatarios = 0;
     contadorSocios     = 0;
+
+    // Reset seções condicionais de garantia
+    const _wA = document.getElementById('wrap-aprovacao-seguro');
+    if (_wA) _wA.style.display = '';
+    ['wrap-caucao-renda', 'wrap-caucao-extrato'].forEach(id => {
+      const _w = document.getElementById(id);
+      if (_w) { _w.style.display = 'none'; const _i = _w.querySelector('input[type="file"]'); if (_i) _i.required = false; }
+    });
+    const _sf = document.getElementById('secao-fiador');
+    if (_sf) { _sf.style.display = 'none'; _sf.querySelectorAll('.fiador-req').forEach(el => { el.required = false; }); }
+    const _iA = document.querySelector('input[name="aprovacao_seguro"]');
+    if (_iA) _iA.required = false;
   }
 
   // ── Seleção de tipo de pessoa (PF / PJ) ─────────────────────
@@ -154,6 +166,9 @@
     document.getElementById('secao-confirmar-locatario-pj').style.display = 'none';
     document.getElementById('campo-destinacao-pj-ref').value              = '';
     document.getElementById('campo-destinacao-pj-tipo').value             = '';
+
+    const _garantiaAtual = (document.querySelector('input[name="tipo_garantia"]:checked') || {}).value || '';
+    atualizarCamposGarantia(_garantiaAtual);
   }
 
   // ── Máscaras ────────────────────────────────────────────────
@@ -201,6 +216,39 @@
     } else {
       arquivosCache.delete(e.target);
     }
+  });
+
+  // ── Atualiza campos por tipo de garantia ────────────────────
+  function atualizarCamposGarantia(garantia) {
+    const ehSeguro = garantia === 'Porto Seguro' || garantia === 'LOFT';
+    const ehCaucao = garantia === 'Caução';
+    const ehFiador = garantia === 'Fiador';
+
+    const wrapAprov  = document.getElementById('wrap-aprovacao-seguro');
+    const inputAprov = document.querySelector('input[name="aprovacao_seguro"]');
+    if (wrapAprov) wrapAprov.style.display = ehSeguro ? '' : 'none';
+    if (inputAprov) inputAprov.required = ehSeguro;
+
+    ['wrap-caucao-renda', 'wrap-caucao-extrato'].forEach(id => {
+      const wrap = document.getElementById(id);
+      if (!wrap) return;
+      wrap.style.display = ehCaucao ? '' : 'none';
+      const inp = wrap.querySelector('input[type="file"]');
+      if (inp) inp.required = ehCaucao;
+    });
+
+    const locPrincipal = document.getElementById('secao-locatario-principal');
+    const secFiador    = document.getElementById('secao-fiador');
+    const locVisivel   = locPrincipal && locPrincipal.style.display !== 'none';
+    if (secFiador) {
+      const mostrar = ehFiador && locVisivel;
+      secFiador.style.display = mostrar ? '' : 'none';
+      secFiador.querySelectorAll('.fiador-req').forEach(el => { el.required = mostrar; });
+    }
+  }
+
+  document.querySelectorAll('input[name="tipo_garantia"]').forEach(r => {
+    r.addEventListener('change', () => atualizarCamposGarantia(r.value));
   });
 
   // ── Vaga condicional ─────────────────────────────────────────
@@ -803,6 +851,15 @@
         document.getElementById('secao-assinatura').style.display = 'none';
         document.getElementById('secao-declaracao').style.display = 'none';
         document.getElementById('btn-enviar-wrap').style.display = 'none';
+        // Reset garantia-conditional sections
+        const _wAp = document.getElementById('wrap-aprovacao-seguro');
+        if (_wAp) _wAp.style.display = '';
+        ['wrap-caucao-renda', 'wrap-caucao-extrato'].forEach(id => {
+          const _w = document.getElementById(id);
+          if (_w) { _w.style.display = 'none'; const _i = _w.querySelector('input[type="file"]'); if (_i) _i.required = false; }
+        });
+        const _sfR = document.getElementById('secao-fiador');
+        if (_sfR) { _sfR.style.display = 'none'; _sfR.querySelectorAll('.fiador-req').forEach(el => { el.required = false; }); }
         statusDiv.className = '';
         statusDiv.textContent = '';
         // Volta ao seletor de tipo

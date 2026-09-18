@@ -113,6 +113,8 @@
             <div class="radio-group">
               <label><input type="radio" name="tipo_garantia" value="Porto Seguro" required /> Porto Seguro</label>
               <label><input type="radio" name="tipo_garantia" value="LOFT" /> LOFT</label>
+              <label><input type="radio" name="tipo_garantia" value="Caução" /> Caução</label>
+              <label><input type="radio" name="tipo_garantia" value="Fiador" /> Fiador</label>
             </div>
           </div>
         </div>
@@ -307,13 +309,156 @@
               <input type="file" name="comprovante_residencia" accept=".pdf,.jpg,.jpeg,.png" required data-preview="nome-comp-res" data-area="area-comp-res" />
             </div>
           </div>
-          <div>
+          <div id="wrap-aprovacao-seguro">
             <label>Aprovação do seguro <span class="obrig">*</span></label>
             <div class="upload-area" id="area-aprov-seg">
               <div class="upload-icon">🛡️</div>
               <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
               <div class="upload-name" id="nome-aprov-seg">Nenhum arquivo selecionado</div>
-              <input type="file" name="aprovacao_seguro" accept=".pdf,.jpg,.jpeg,.png" required data-preview="nome-aprov-seg" data-area="area-aprov-seg" />
+              <input type="file" name="aprovacao_seguro" accept=".pdf,.jpg,.jpeg,.png" data-preview="nome-aprov-seg" data-area="area-aprov-seg" />
+            </div>
+          </div>
+          <!-- ── Caução: comprovante de renda e extrato bancário ──── -->
+          <div id="wrap-caucao-renda" style="display:none;">
+            <label>Comprovante de renda <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-caucao-renda">
+              <div class="upload-icon">💵</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-caucao-renda">Nenhum arquivo selecionado</div>
+              <input type="file" name="caucao_comp_renda" accept=".pdf,.jpg,.jpeg,.png" data-preview="nome-caucao-renda" data-area="area-caucao-renda" />
+            </div>
+          </div>
+          <div id="wrap-caucao-extrato" style="display:none;">
+            <label>Extrato bancário (últimos 3 meses) <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-caucao-extrato">
+              <div class="upload-icon">🏦</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-caucao-extrato">Nenhum arquivo selecionado</div>
+              <input type="file" name="caucao_extrato_bancario" accept=".pdf,.jpg,.jpeg,.png" data-preview="nome-caucao-extrato" data-area="area-caucao-extrato" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FIADOR (apenas quando garantia = Fiador) ─────────────── -->
+    <div class="secao" id="secao-fiador" style="display:none;">
+      <div class="secao-titulo">🏠 Dados do Fiador</div>
+      <div class="secao-corpo">
+        <div class="grid g3">
+          <div class="span3">
+            <label>Nome completo <span class="obrig">*</span></label>
+            <input type="text" name="fiador_nome" class="fiador-req" />
+          </div>
+          <div>
+            <label>CPF <span class="obrig">*</span></label>
+            <input type="text" name="fiador_cpf" placeholder="000.000.000-00" maxlength="14" data-mask="cpf" class="fiador-req" />
+          </div>
+          <div>
+            <label>Estado civil <span class="obrig">*</span></label>
+            <select name="fiador_estado_civil" class="fiador-req">
+              <option value="">Selecione</option>
+              <option>Solteiro(a)</option>
+              <option>Casado(a)</option>
+              <option>Divorciado(a)</option>
+              <option>Viúvo(a)</option>
+              <option>União estável</option>
+            </select>
+          </div>
+          <div>
+            <label>Nacionalidade <span class="obrig">*</span></label>
+            <input type="text" name="fiador_nacionalidade" value="Brasileiro(a)" class="fiador-req" />
+          </div>
+          <div>
+            <label>Profissão <span class="obrig">*</span></label>
+            <input type="text" name="fiador_profissao" class="fiador-req" />
+          </div>
+          <div>
+            <label>E-mail <span class="obrig">*</span></label>
+            <input type="email" name="fiador_email" class="fiador-req" />
+          </div>
+          <div>
+            <label>Celular / WhatsApp <span class="obrig">*</span></label>
+            <input type="text" name="fiador_celular" placeholder="(00) 00000-0000" maxlength="15" data-mask="tel" class="fiador-req" />
+          </div>
+
+          <hr class="separador span3" />
+
+          <div class="span3">
+            <label>Logradouro (Rua / Avenida / Estrada) <span class="obrig">*</span></label>
+            <input type="text" name="fiador_logradouro" placeholder="Ex: Rua das Flores" class="fiador-req" />
+          </div>
+          <div>
+            <label>Número <span class="obrig">*</span></label>
+            <input type="text" name="fiador_numero" placeholder="Ex: 123" class="fiador-req" />
+          </div>
+          <div>
+            <label>Bairro <span class="obrig">*</span></label>
+            <input type="text" name="fiador_bairro" class="fiador-req" />
+          </div>
+          <div>
+            <label>Complemento</label>
+            <input type="text" name="fiador_complemento" placeholder="Apto, Bloco, Casa…" />
+          </div>
+          <div>
+            <label>CEP <span class="obrig">*</span></label>
+            <input type="text" name="fiador_cep" placeholder="00000-000" maxlength="9" data-mask="cep" class="fiador-req" />
+          </div>
+          <div>
+            <label>Cidade <span class="obrig">*</span></label>
+            <input type="text" name="fiador_cidade" class="fiador-req" />
+          </div>
+          <div>
+            <label>Estado <span class="obrig">*</span></label>
+            <select name="fiador_uf" class="fiador-req">
+              <option value="">UF</option>
+              <option>AC</option><option>AL</option><option>AM</option><option>AP</option>
+              <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+              <option>GO</option><option>MA</option><option>MG</option><option>MS</option>
+              <option>MT</option><option>PA</option><option>PB</option><option>PE</option>
+              <option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
+              <option>RO</option><option>RR</option><option>RS</option><option>SC</option>
+              <option>SE</option><option>SP</option><option>TO</option>
+            </select>
+          </div>
+
+          <hr class="separador span3" />
+          <div class="span3"><strong style="font-size:.88rem;color:var(--primary)">📄 Documentos do Fiador</strong></div>
+
+          <div>
+            <label>Documento de identificação (RG ou CNH) <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-fiador-doc">
+              <div class="upload-icon">📎</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-fiador-doc">Nenhum arquivo selecionado</div>
+              <input type="file" name="fiador_doc" accept=".pdf,.jpg,.jpeg,.png" class="fiador-req" data-preview="nome-fiador-doc" data-area="area-fiador-doc" />
+            </div>
+          </div>
+          <div>
+            <label>Comprovante de residência <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-fiador-res">
+              <div class="upload-icon">🏠</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-fiador-res">Nenhum arquivo selecionado</div>
+              <input type="file" name="fiador_comp_residencia" accept=".pdf,.jpg,.jpeg,.png" class="fiador-req" data-preview="nome-fiador-res" data-area="area-fiador-res" />
+            </div>
+          </div>
+          <div>
+            <label>Comprovante de renda <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-fiador-renda">
+              <div class="upload-icon">💵</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-fiador-renda">Nenhum arquivo selecionado</div>
+              <input type="file" name="fiador_comp_renda" accept=".pdf,.jpg,.jpeg,.png" class="fiador-req" data-preview="nome-fiador-renda" data-area="area-fiador-renda" />
+            </div>
+          </div>
+          <div>
+            <label>Documento do imóvel de propriedade (escritura ou IPTU) <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-fiador-imovel">
+              <div class="upload-icon">🏡</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-fiador-imovel">Nenhum arquivo selecionado</div>
+              <input type="file" name="fiador_imovel_doc" accept=".pdf,.jpg,.jpeg,.png" class="fiador-req" data-preview="nome-fiador-imovel" data-area="area-fiador-imovel" />
             </div>
           </div>
         </div>
