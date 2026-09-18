@@ -318,23 +318,41 @@
               <input type="file" name="aprovacao_seguro" accept=".pdf,.jpg,.jpeg,.png" data-preview="nome-aprov-seg" data-area="area-aprov-seg" />
             </div>
           </div>
-          <!-- ── Caução: comprovante de renda e extrato bancário ──── -->
-          <div id="wrap-caucao-renda" style="display:none;">
-            <label>Comprovante de renda <span class="obrig">*</span></label>
-            <div class="upload-area" id="area-caucao-renda">
+          <!-- ── Comprovantes de renda (3 últimos meses) + IR (Caução e Fiador) ──── -->
+          <div id="wrap-comp-renda-1" style="display:none;">
+            <label>Comprovante de renda — mês mais recente <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-comp-renda-1">
               <div class="upload-icon">💵</div>
-              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
-              <div class="upload-name" id="nome-caucao-renda">Nenhum arquivo selecionado</div>
-              <input type="file" name="caucao_comp_renda" accept=".pdf,.jpg,.jpeg,.png" data-preview="nome-caucao-renda" data-area="area-caucao-renda" />
+              <div class="upload-label">Contracheque, holerite ou extrato bancário — PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-comp-renda-1">Nenhum arquivo selecionado</div>
+              <input type="file" name="comp_renda_1" accept=".pdf,.jpg,.jpeg,.png" data-preview="nome-comp-renda-1" data-area="area-comp-renda-1" />
             </div>
           </div>
-          <div id="wrap-caucao-extrato" style="display:none;">
-            <label>Extrato bancário (últimos 3 meses) <span class="obrig">*</span></label>
-            <div class="upload-area" id="area-caucao-extrato">
-              <div class="upload-icon">🏦</div>
+          <div id="wrap-comp-renda-2" style="display:none;">
+            <label>Comprovante de renda — mês anterior <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-comp-renda-2">
+              <div class="upload-icon">💵</div>
+              <div class="upload-label">Contracheque, holerite ou extrato bancário — PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-comp-renda-2">Nenhum arquivo selecionado</div>
+              <input type="file" name="comp_renda_2" accept=".pdf,.jpg,.jpeg,.png" data-preview="nome-comp-renda-2" data-area="area-comp-renda-2" />
+            </div>
+          </div>
+          <div id="wrap-comp-renda-3" style="display:none;">
+            <label>Comprovante de renda — 2 meses atrás <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-comp-renda-3">
+              <div class="upload-icon">💵</div>
+              <div class="upload-label">Contracheque, holerite ou extrato bancário — PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-comp-renda-3">Nenhum arquivo selecionado</div>
+              <input type="file" name="comp_renda_3" accept=".pdf,.jpg,.jpeg,.png" data-preview="nome-comp-renda-3" data-area="area-comp-renda-3" />
+            </div>
+          </div>
+          <div id="wrap-imposto-renda" style="display:none;">
+            <label>Último imposto de renda (IR) <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-imposto-renda">
+              <div class="upload-icon">📋</div>
               <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
-              <div class="upload-name" id="nome-caucao-extrato">Nenhum arquivo selecionado</div>
-              <input type="file" name="caucao_extrato_bancario" accept=".pdf,.jpg,.jpeg,.png" data-preview="nome-caucao-extrato" data-area="area-caucao-extrato" />
+              <div class="upload-name" id="nome-imposto-renda">Nenhum arquivo selecionado</div>
+              <input type="file" name="imposto_renda" accept=".pdf,.jpg,.jpeg,.png" data-preview="nome-imposto-renda" data-area="area-imposto-renda" />
             </div>
           </div>
         </div>
@@ -444,22 +462,52 @@
             </div>
           </div>
           <div>
-            <label>Comprovante de renda <span class="obrig">*</span></label>
-            <div class="upload-area" id="area-fiador-renda">
+            <label>Comprovante de renda — mês mais recente <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-fiador-renda-1">
               <div class="upload-icon">💵</div>
-              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
-              <div class="upload-name" id="nome-fiador-renda">Nenhum arquivo selecionado</div>
-              <input type="file" name="fiador_comp_renda" accept=".pdf,.jpg,.jpeg,.png" class="fiador-req" data-preview="nome-fiador-renda" data-area="area-fiador-renda" />
+              <div class="upload-label">Contracheque, holerite ou extrato bancário — PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-fiador-renda-1">Nenhum arquivo selecionado</div>
+              <input type="file" name="fiador_comp_renda_1" accept=".pdf,.jpg,.jpeg,.png" class="fiador-req" data-preview="nome-fiador-renda-1" data-area="area-fiador-renda-1" />
             </div>
           </div>
           <div>
-            <label>Documento do imóvel de propriedade (escritura ou IPTU) <span class="obrig">*</span></label>
+            <label>Comprovante de renda — mês anterior <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-fiador-renda-2">
+              <div class="upload-icon">💵</div>
+              <div class="upload-label">Contracheque, holerite ou extrato bancário — PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-fiador-renda-2">Nenhum arquivo selecionado</div>
+              <input type="file" name="fiador_comp_renda_2" accept=".pdf,.jpg,.jpeg,.png" class="fiador-req" data-preview="nome-fiador-renda-2" data-area="area-fiador-renda-2" />
+            </div>
+          </div>
+          <div>
+            <label>Comprovante de renda — 2 meses atrás <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-fiador-renda-3">
+              <div class="upload-icon">💵</div>
+              <div class="upload-label">Contracheque, holerite ou extrato bancário — PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-fiador-renda-3">Nenhum arquivo selecionado</div>
+              <input type="file" name="fiador_comp_renda_3" accept=".pdf,.jpg,.jpeg,.png" class="fiador-req" data-preview="nome-fiador-renda-3" data-area="area-fiador-renda-3" />
+            </div>
+          </div>
+          <div>
+            <label>Último imposto de renda (IR) <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-fiador-ir">
+              <div class="upload-icon">📋</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-fiador-ir">Nenhum arquivo selecionado</div>
+              <input type="file" name="fiador_imposto_renda" accept=".pdf,.jpg,.jpeg,.png" class="fiador-req" data-preview="nome-fiador-ir" data-area="area-fiador-ir" />
+            </div>
+          </div>
+          <div>
+            <label>RGI do imóvel <span class="obrig">*</span></label>
             <div class="upload-area" id="area-fiador-imovel">
               <div class="upload-icon">🏡</div>
-              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-label">Emitido nos últimos 30 dias — PDF, JPG ou PNG — máx. 10 MB</div>
               <div class="upload-name" id="nome-fiador-imovel">Nenhum arquivo selecionado</div>
               <input type="file" name="fiador_imovel_doc" accept=".pdf,.jpg,.jpeg,.png" class="fiador-req" data-preview="nome-fiador-imovel" data-area="area-fiador-imovel" />
             </div>
+          </div>
+          <div class="span3" style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:8px;padding:12px 16px;">
+            <p style="font-size:.85rem;color:#9a3412;margin:0;">⚠️ <strong>Atenção:</strong> O imóvel de propriedade do fiador deve estar registrado no <strong>estado do Rio de Janeiro</strong>.</p>
           </div>
         </div>
       </div>

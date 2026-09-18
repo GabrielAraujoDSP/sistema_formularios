@@ -52,12 +52,17 @@ var NOMES_DESCRITIVOS = {
   'terc_doc':               'Terceiro_Identificacao',
   'terc_pj_contrato_social':'Terceiro_PJ_Contrato_Social',
   'terc_pj_doc_rep':        'Terceiro_PJ_Doc_Representante',
-  'caucao_comp_renda':      'Caucao_Comprovante_Renda',
-  'caucao_extrato_bancario':'Caucao_Extrato_Bancario',
+  'comp_renda_1':           'Comp_Renda_1',
+  'comp_renda_2':           'Comp_Renda_2',
+  'comp_renda_3':           'Comp_Renda_3',
+  'imposto_renda':          'Imposto_Renda',
   'fiador_doc':             'Fiador_Identificacao',
   'fiador_comp_residencia': 'Fiador_Comprovante_Residencia',
-  'fiador_comp_renda':      'Fiador_Comprovante_Renda',
-  'fiador_imovel_doc':      'Fiador_Documento_Imovel'
+  'fiador_comp_renda_1':    'Fiador_Comp_Renda_1',
+  'fiador_comp_renda_2':    'Fiador_Comp_Renda_2',
+  'fiador_comp_renda_3':    'Fiador_Comp_Renda_3',
+  'fiador_imposto_renda':   'Fiador_Imposto_Renda',
+  'fiador_imovel_doc':      'Fiador_RGI_Imovel'
 };
 
 function nomePadronizado(campo, nomeOriginal) {
@@ -738,8 +743,10 @@ function doPost(e) {
       'doc_identificacao', 'comprovante_residencia', 'aprovacao_seguro',
       'pj_balancete', 'pj_contrato_social', 'pj_cartao_cnpj', 'pj_extrato_simples',
       'conj_doc',
-      'caucao_comp_renda', 'caucao_extrato_bancario',
-      'fiador_doc', 'fiador_comp_residencia', 'fiador_comp_renda', 'fiador_imovel_doc'
+      'comp_renda_1', 'comp_renda_2', 'comp_renda_3', 'imposto_renda',
+      'fiador_doc', 'fiador_comp_residencia',
+      'fiador_comp_renda_1', 'fiador_comp_renda_2', 'fiador_comp_renda_3',
+      'fiador_imposto_renda', 'fiador_imovel_doc'
     ];
     for (var i = 1; i <= qtdLoc; i++) {
       camposArquivo.push('loc' + i + '_doc_id');
@@ -914,12 +921,14 @@ function doPost(e) {
       }
       // Salva campos de Caução e Fiador como colunas dinâmicas
       var garantiaExtras = [
-        'caucao_comp_renda_url', 'caucao_extrato_bancario_url',
+        'comp_renda_1_url', 'comp_renda_2_url', 'comp_renda_3_url', 'imposto_renda_url',
         'fiador_nome', 'fiador_cpf', 'fiador_estado_civil', 'fiador_nacionalidade',
         'fiador_profissao', 'fiador_email', 'fiador_celular',
         'fiador_logradouro', 'fiador_numero', 'fiador_bairro', 'fiador_complemento',
         'fiador_cep', 'fiador_cidade', 'fiador_uf',
-        'fiador_doc_url', 'fiador_comp_residencia_url', 'fiador_comp_renda_url', 'fiador_imovel_doc_url'
+        'fiador_doc_url', 'fiador_comp_residencia_url',
+        'fiador_comp_renda_1_url', 'fiador_comp_renda_2_url', 'fiador_comp_renda_3_url',
+        'fiador_imposto_renda_url', 'fiador_imovel_doc_url'
       ];
       var lastRowGar = fichaSheet.getLastRow();
       var hdrsGar    = fichaSheet.getRange(1, 1, 1, fichaSheet.getLastColumn()).getValues()[0];

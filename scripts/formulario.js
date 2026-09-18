@@ -93,7 +93,7 @@
     // Reset seções condicionais de garantia
     const _wA = document.getElementById('wrap-aprovacao-seguro');
     if (_wA) _wA.style.display = '';
-    ['wrap-caucao-renda', 'wrap-caucao-extrato'].forEach(id => {
+    ['wrap-comp-renda-1', 'wrap-comp-renda-2', 'wrap-comp-renda-3', 'wrap-imposto-renda'].forEach(id => {
       const _w = document.getElementById(id);
       if (_w) { _w.style.display = 'none'; const _i = _w.querySelector('input[type="file"]'); if (_i) _i.required = false; }
     });
@@ -220,23 +220,26 @@
 
   // ── Atualiza campos por tipo de garantia ────────────────────
   function atualizarCamposGarantia(garantia) {
-    const ehSeguro = garantia === 'Porto Seguro' || garantia === 'LOFT';
-    const ehCaucao = garantia === 'Caução';
-    const ehFiador = garantia === 'Fiador';
+    const ehQualquer       = garantia !== '';
+    const ehCaucaoOuFiador = garantia === 'Caução' || garantia === 'Fiador';
+    const ehFiador         = garantia === 'Fiador';
 
+    // Aprovação do seguro — obrigatório para todas as modalidades
     const wrapAprov  = document.getElementById('wrap-aprovacao-seguro');
     const inputAprov = document.querySelector('input[name="aprovacao_seguro"]');
-    if (wrapAprov) wrapAprov.style.display = ehSeguro ? '' : 'none';
-    if (inputAprov) inputAprov.required = ehSeguro;
+    if (wrapAprov) wrapAprov.style.display = ehQualquer ? '' : 'none';
+    if (inputAprov) inputAprov.required = ehQualquer;
 
-    ['wrap-caucao-renda', 'wrap-caucao-extrato'].forEach(id => {
+    // 3 comprovantes de renda + IR — para Caução e Fiador
+    ['wrap-comp-renda-1', 'wrap-comp-renda-2', 'wrap-comp-renda-3', 'wrap-imposto-renda'].forEach(id => {
       const wrap = document.getElementById(id);
       if (!wrap) return;
-      wrap.style.display = ehCaucao ? '' : 'none';
+      wrap.style.display = ehCaucaoOuFiador ? '' : 'none';
       const inp = wrap.querySelector('input[type="file"]');
-      if (inp) inp.required = ehCaucao;
+      if (inp) inp.required = ehCaucaoOuFiador;
     });
 
+    // Seção do Fiador
     const locPrincipal = document.getElementById('secao-locatario-principal');
     const secFiador    = document.getElementById('secao-fiador');
     const locVisivel   = locPrincipal && locPrincipal.style.display !== 'none';
@@ -854,7 +857,7 @@
         // Reset garantia-conditional sections
         const _wAp = document.getElementById('wrap-aprovacao-seguro');
         if (_wAp) _wAp.style.display = '';
-        ['wrap-caucao-renda', 'wrap-caucao-extrato'].forEach(id => {
+        ['wrap-comp-renda-1', 'wrap-comp-renda-2', 'wrap-comp-renda-3', 'wrap-imposto-renda'].forEach(id => {
           const _w = document.getElementById(id);
           if (_w) { _w.style.display = 'none'; const _i = _w.querySelector('input[type="file"]'); if (_i) _i.required = false; }
         });

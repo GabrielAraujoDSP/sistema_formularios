@@ -970,8 +970,10 @@
       'doc_identificacao_url', 'comprovante_residencia_url', 'aprovacao_seguro_url',
       'pj_balancete_url', 'pj_contrato_social_url', 'pj_cartao_cnpj_url', 'pj_extrato_simples_url',
       'conj_doc_url',
-      'caucao_comp_renda_url', 'caucao_extrato_bancario_url',
-      'fiador_doc_url', 'fiador_comp_residencia_url', 'fiador_comp_renda_url', 'fiador_imovel_doc_url'
+      'comp_renda_1_url', 'comp_renda_2_url', 'comp_renda_3_url', 'imposto_renda_url',
+      'fiador_doc_url', 'fiador_comp_residencia_url',
+      'fiador_comp_renda_1_url', 'fiador_comp_renda_2_url', 'fiador_comp_renda_3_url',
+      'fiador_imposto_renda_url', 'fiador_imovel_doc_url'
     ];
     for (let i = 1; i <= 10; i++) {
       campos.push(`soc${i}_doc_id_url`, `soc${i}_comp_res_url`);
@@ -1231,12 +1233,17 @@
     if (f.pj_cartao_cnpj_url)          links.push(`<a href="${esc(f.pj_cartao_cnpj_url)}" target="_blank" style="color:var(--primary)">Cartão CNPJ</a>`);
     if (f.pj_extrato_simples_url)      links.push(`<a href="${esc(f.pj_extrato_simples_url)}" target="_blank" style="color:var(--primary)">Extrato Simples</a>`);
     if (f.conj_doc_url)                links.push(`<a href="${esc(f.conj_doc_url)}" target="_blank" style="color:var(--primary)">Doc. cônjuge</a>`);
-    if (f.caucao_comp_renda_url)       links.push(`<a href="${esc(f.caucao_comp_renda_url)}" target="_blank" style="color:var(--primary)">Comp. renda (caução)</a>`);
-    if (f.caucao_extrato_bancario_url) links.push(`<a href="${esc(f.caucao_extrato_bancario_url)}" target="_blank" style="color:var(--primary)">Extrato bancário</a>`);
+    if (f.comp_renda_1_url)            links.push(`<a href="${esc(f.comp_renda_1_url)}" target="_blank" style="color:var(--primary)">1º comp. renda</a>`);
+    if (f.comp_renda_2_url)            links.push(`<a href="${esc(f.comp_renda_2_url)}" target="_blank" style="color:var(--primary)">2º comp. renda</a>`);
+    if (f.comp_renda_3_url)            links.push(`<a href="${esc(f.comp_renda_3_url)}" target="_blank" style="color:var(--primary)">3º comp. renda</a>`);
+    if (f.imposto_renda_url)           links.push(`<a href="${esc(f.imposto_renda_url)}" target="_blank" style="color:var(--primary)">IR</a>`);
     if (f.fiador_doc_url)              links.push(`<a href="${esc(f.fiador_doc_url)}" target="_blank" style="color:var(--primary)">Doc. fiador</a>`);
     if (f.fiador_comp_residencia_url)  links.push(`<a href="${esc(f.fiador_comp_residencia_url)}" target="_blank" style="color:var(--primary)">Res. fiador</a>`);
-    if (f.fiador_comp_renda_url)       links.push(`<a href="${esc(f.fiador_comp_renda_url)}" target="_blank" style="color:var(--primary)">Renda fiador</a>`);
-    if (f.fiador_imovel_doc_url)       links.push(`<a href="${esc(f.fiador_imovel_doc_url)}" target="_blank" style="color:var(--primary)">Imóvel fiador</a>`);
+    if (f.fiador_comp_renda_1_url)     links.push(`<a href="${esc(f.fiador_comp_renda_1_url)}" target="_blank" style="color:var(--primary)">1º renda fiador</a>`);
+    if (f.fiador_comp_renda_2_url)     links.push(`<a href="${esc(f.fiador_comp_renda_2_url)}" target="_blank" style="color:var(--primary)">2º renda fiador</a>`);
+    if (f.fiador_comp_renda_3_url)     links.push(`<a href="${esc(f.fiador_comp_renda_3_url)}" target="_blank" style="color:var(--primary)">3º renda fiador</a>`);
+    if (f.fiador_imposto_renda_url)    links.push(`<a href="${esc(f.fiador_imposto_renda_url)}" target="_blank" style="color:var(--primary)">IR fiador</a>`);
+    if (f.fiador_imovel_doc_url)       links.push(`<a href="${esc(f.fiador_imovel_doc_url)}" target="_blank" style="color:var(--primary)">RGI imóvel fiador</a>`);
     for (let i = 1; i <= qtdSoc; i++) {
       if (f[`soc${i}_doc_id_url`])   links.push(`<a href="${esc(f[`soc${i}_doc_id_url`])}" target="_blank" style="color:var(--primary)">Doc. sócio ${i}</a>`);
       if (f[`soc${i}_comp_res_url`]) links.push(`<a href="${esc(f[`soc${i}_comp_res_url`])}" target="_blank" style="color:var(--primary)">Res. sócio ${i}</a>`);
