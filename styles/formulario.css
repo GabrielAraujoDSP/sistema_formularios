@@ -320,6 +320,15 @@
       min-height: calc(100vh - 70px);
       padding: 24px 16px;
     }
+
+    /* ── Seleção de condição do imóvel (novo / usado) ────────── */
+    #secao-condicao-imovel {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 70px);
+      padding: 24px 16px;
+    }
     .tipo-card-wrap-lg { max-width: 860px; }
     .tipo-btns-grid {
       display: grid;

@@ -94,7 +94,7 @@ const REGRAS_TIPO = {
   'Prédio comercial':   { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional', complemento: 'opcional',    loteQuadra: false },
   'Casa comercial':     { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional', complemento: 'opcional',    loteQuadra: false },
   'Galpão':             { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional', complemento: 'opcional',    loteQuadra: false },
-  'Terreno':            { condo: 'none',        agua: 'none',         gas: 'none',      boletoCondo: 'none',        complemento: 'opcional',    loteQuadra: false },
+  'Terreno':            { condo: 'none',        agua: 'none',         gas: 'none',      boletoCondo: 'none',        complemento: 'opcional',    loteQuadra: false, contaLuz: false },
   'Outros':             { condo: 'opcional',    agua: 'opcional',     gas: 'opcional',  boletoCondo: 'condicional', complemento: 'opcional',    loteQuadra: false },
 };
 
@@ -170,15 +170,28 @@ function voltarTipoImovel() {
 // ── Passo 2: Tipo específico ──────────────────────────────────
 function selecionarTipoEspecifico(tipoEsp) {
   document.getElementById('campo-tipo-especifico').value = tipoEsp;
-  document.getElementById('secao-tipo-especifico').style.display = 'none';
-  document.getElementById('aviso-principal').style.display       = 'flex';
-  document.getElementById('main-form').style.display             = 'block';
-  document.getElementById('footer-form').style.display           = 'block';
+  document.getElementById('secao-tipo-especifico').style.display   = 'none';
+  document.getElementById('secao-condicao-imovel').style.display   = 'flex';
+}
 
+function voltarCondicaoImovel() {
+  document.getElementById('secao-condicao-imovel').style.display   = 'none';
+  document.getElementById('secao-tipo-especifico').style.display   = 'flex';
+  document.getElementById('campo-tipo-especifico').value = '';
+}
+
+// ── Passo 3: Condição do imóvel (novo ou usado) ───────────────
+function selecionarCondicaoImovel(condicao) {
+  document.getElementById('campo-imovel-condicao').value = condicao;
+  document.getElementById('secao-condicao-imovel').style.display = 'none';
+  document.getElementById('aviso-principal').style.display        = 'flex';
+  document.getElementById('main-form').style.display              = 'block';
+  document.getElementById('footer-form').style.display            = 'block';
+
+  const tipoEsp   = document.getElementById('campo-tipo-especifico').value;
   const tipoGeral = document.getElementById('campo-tipo-imovel').value;
   const comercial = tipoGeral === 'comercial';
 
-  // Campos básicos: bloco residencial vs comercial
   document.getElementById('dados-imovel-res').style.display = comercial ? 'none' : 'block';
   document.getElementById('dados-imovel-com').style.display = comercial ? 'block' : 'none';
   document.querySelectorAll('#dados-imovel-res input').forEach(el => { el.required = !comercial; });
@@ -187,11 +200,10 @@ function selecionarTipoEspecifico(tipoEsp) {
     '#dados-imovel-com input[name="imovel_vagas"], #dados-imovel-com input[name="imovel_metragem"]'
   ).forEach(el => { el.required = comercial; });
 
-  // Seção de campos exclusivamente comerciais
   document.getElementById('secao-campos-comercial').style.display = comercial ? 'block' : 'none';
 
-  // Regras condicionais por tipo de imóvel
   aplicarRegrasTipo(tipoEsp);
+  aplicarRegrasCondicao(condicao);
 
   document.getElementById('titulo-dados-imovel').textContent =
     `${comercial ? '🏢' : '🏠'} Dados do Imóvel — ${tipoEsp}`;
@@ -202,6 +214,28 @@ function selecionarTipoEspecifico(tipoEsp) {
     'Preencha todos os campos obrigatórios e envie seus documentos';
 
   document.getElementById('secao-dados-imovel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Obrigatoriedade dos anexos por condição do imóvel ─────────
+function aplicarRegrasCondicao(condicao) {
+  const usado = condicao === 'usado';
+
+  const inputIptu = document.getElementById('area-boleto-iptu').querySelector('input[type=file]');
+  const labelIptu = document.getElementById('label-boleto-iptu');
+  inputIptu.required = usado;
+  labelIptu.innerHTML = usado
+    ? 'Boleto ou espelho do IPTU <span class="obrig">*</span>'
+    : 'Boleto ou espelho do IPTU';
+
+  const divLuz   = document.getElementById('campo-conta-luz');
+  const inputLuz = document.getElementById('area-conta-luz').querySelector('input[type=file]');
+  const labelLuz = document.getElementById('label-conta-luz');
+  if (divLuz.style.display !== 'none') {
+    inputLuz.required = usado;
+    labelLuz.innerHTML = usado
+      ? 'Conta de luz atualizada ou foto do medidor <span class="obrig">*</span>'
+      : 'Conta de luz atualizada ou foto do medidor';
+  }
 }
 
 // ── Regras condicionais por tipo de imóvel ───────────────────
@@ -301,6 +335,16 @@ function aplicarRegrasTipo(tipoEsp) {
 
   const aguaNao = document.getElementById('agua-nao');
   if (aguaNao) aguaNao.checked = true;
+
+  // ─ Conta de luz ───────────────────────────────────────────
+  const divContaLuz   = document.getElementById('campo-conta-luz');
+  const inputContaLuz = document.getElementById('area-conta-luz').querySelector('input[type=file]');
+  if (regra.contaLuz === false) {
+    divContaLuz.style.display = 'none';
+    inputContaLuz.required    = false;
+  } else {
+    divContaLuz.style.display = 'block';
+  }
 }
 
 // ── Seleção PF / PJ do locador ───────────────────────────────
