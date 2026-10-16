@@ -1353,7 +1353,7 @@
       html += secaoDetalhe('Representante Legal', [
         campo('Nome', f.pj_rep_nome || f.nome), campo('CPF', f.pj_rep_cpf || f.cpf),
         f.pj_rep_nascimento ? campo('Nascimento', f.pj_rep_nascimento) : '',
-        campo('Estado civil', f.pj_rep_estado_civil), campo('Profissão', f.pj_rep_profissao),
+        campo('Estado civil', f.pj_rep_estado_civil), campo('Nacionalidade', f.pj_rep_nacionalidade), campo('Profissão', f.pj_rep_profissao),
         campo('E-mail', f.pj_rep_email), campo('Celular', f.pj_rep_celular),
         campo('Logradouro', f.pj_rep_logradouro), campo('Número', f.pj_rep_numero),
         campo('Bairro', f.pj_rep_bairro),
@@ -1367,7 +1367,7 @@
     } else {
       html += secaoDetalhe('Dados do Proprietário', [
         campo('Nome', f.nome), campo('CPF', f.cpf),
-        campo('Estado civil', f.estado_civil), campo('Profissão', f.profissao),
+        campo('Estado civil', f.estado_civil), campo('Nacionalidade', f.nacionalidade), campo('Profissão', f.profissao),
         campo('E-mail', f.email), campo('Celular', f.celular),
         campo('Logradouro', f.endereco_logradouro), campo('Número', f.endereco_numero),
         campo('Bairro', f.endereco_bairro),
@@ -1861,6 +1861,7 @@
       linha('CPF', f.pj_rep_cpf || f.cpf);
       if (f.pj_rep_nascimento) linha('Nascimento', f.pj_rep_nascimento);
       linha('Estado civil', f.pj_rep_estado_civil);
+      linha('Nacionalidade', f.pj_rep_nacionalidade);
       linha('Profissão', f.pj_rep_profissao);
       linha('E-mail', f.pj_rep_email);
       linha('Celular', f.pj_rep_celular);
@@ -1882,6 +1883,7 @@
       linha('Nome', f.nome);
       linha('CPF', f.cpf);
       linha('Estado civil', f.estado_civil);
+      linha('Nacionalidade', f.nacionalidade);
       linha('Profissão', f.profissao);
       linha('E-mail', f.email);
       linha('Celular', f.celular);
