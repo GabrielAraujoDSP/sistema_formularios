@@ -1716,6 +1716,24 @@
       sep();
     }
 
+    if (String(fichaAtual.tipo_garantia || '').toLowerCase() === 'fiador') {
+      titulo('DADOS DO FIADOR');
+      linha('Nome', fichaAtual.fiador_nome);
+      linha('CPF', fichaAtual.fiador_cpf);
+      linha('Estado civil', fichaAtual.fiador_estado_civil);
+      linha('Nacionalidade', fichaAtual.fiador_nacionalidade);
+      linha('Profissão', fichaAtual.fiador_profissao);
+      linha('E-mail', fichaAtual.fiador_email);
+      linha('Celular', fichaAtual.fiador_celular);
+      linha('Logradouro', fichaAtual.fiador_logradouro);
+      linha('Número', fichaAtual.fiador_numero);
+      linha('Bairro', fichaAtual.fiador_bairro);
+      if (fichaAtual.fiador_complemento) linha('Complemento', fichaAtual.fiador_complemento);
+      linha('CEP', fichaAtual.fiador_cep);
+      linha('Cidade / UF', `${fichaAtual.fiador_cidade || '—'} / ${fichaAtual.fiador_uf || '—'}`);
+      sep();
+    }
+
     titulo('VIGÊNCIA DO CONTRATO');
     linha('Início', formatarDataVig(fichaAtual.vigencia_inicio));
     sep();
