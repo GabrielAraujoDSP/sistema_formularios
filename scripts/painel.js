@@ -971,7 +971,7 @@
       'pj_balancete_url', 'pj_contrato_social_url', 'pj_cartao_cnpj_url', 'pj_extrato_simples_url',
       'conj_doc_url',
       'comp_renda_1_url', 'comp_renda_2_url', 'comp_renda_3_url', 'imposto_renda_url',
-      'fiador_doc_url', 'fiador_comp_residencia_url',
+      'fiador_doc_url', 'fiador_comp_residencia_url', 'fiador_aprovacao_seguro_url',
       'fiador_comp_renda_1_url', 'fiador_comp_renda_2_url', 'fiador_comp_renda_3_url',
       'fiador_imposto_renda_url', 'fiador_imovel_doc_url'
     ];
@@ -1237,9 +1237,10 @@
     if (f.comp_renda_2_url)            links.push(`<a href="${esc(f.comp_renda_2_url)}" target="_blank" style="color:var(--primary)">2º comp. renda</a>`);
     if (f.comp_renda_3_url)            links.push(`<a href="${esc(f.comp_renda_3_url)}" target="_blank" style="color:var(--primary)">3º comp. renda</a>`);
     if (f.imposto_renda_url)           links.push(`<a href="${esc(f.imposto_renda_url)}" target="_blank" style="color:var(--primary)">IR</a>`);
-    if (f.fiador_doc_url)              links.push(`<a href="${esc(f.fiador_doc_url)}" target="_blank" style="color:var(--primary)">Doc. fiador</a>`);
-    if (f.fiador_comp_residencia_url)  links.push(`<a href="${esc(f.fiador_comp_residencia_url)}" target="_blank" style="color:var(--primary)">Res. fiador</a>`);
-    if (f.fiador_comp_renda_1_url)     links.push(`<a href="${esc(f.fiador_comp_renda_1_url)}" target="_blank" style="color:var(--primary)">1º renda fiador</a>`);
+    if (f.fiador_doc_url)                links.push(`<a href="${esc(f.fiador_doc_url)}" target="_blank" style="color:var(--primary)">Doc. fiador</a>`);
+    if (f.fiador_comp_residencia_url)    links.push(`<a href="${esc(f.fiador_comp_residencia_url)}" target="_blank" style="color:var(--primary)">Res. fiador</a>`);
+    if (f.fiador_aprovacao_seguro_url)   links.push(`<a href="${esc(f.fiador_aprovacao_seguro_url)}" target="_blank" style="color:var(--primary)">Aprov. seguro fiador</a>`);
+    if (f.fiador_comp_renda_1_url)       links.push(`<a href="${esc(f.fiador_comp_renda_1_url)}" target="_blank" style="color:var(--primary)">1º renda fiador</a>`);
     if (f.fiador_comp_renda_2_url)     links.push(`<a href="${esc(f.fiador_comp_renda_2_url)}" target="_blank" style="color:var(--primary)">2º renda fiador</a>`);
     if (f.fiador_comp_renda_3_url)     links.push(`<a href="${esc(f.fiador_comp_renda_3_url)}" target="_blank" style="color:var(--primary)">3º renda fiador</a>`);
     if (f.fiador_imposto_renda_url)    links.push(`<a href="${esc(f.fiador_imposto_renda_url)}" target="_blank" style="color:var(--primary)">IR fiador</a>`);

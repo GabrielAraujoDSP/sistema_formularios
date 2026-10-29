@@ -113,6 +113,8 @@
             <div class="radio-group">
               <label><input type="radio" name="tipo_garantia" value="Porto Seguro" required /> Porto Seguro</label>
               <label><input type="radio" name="tipo_garantia" value="LOFT" /> LOFT</label>
+              <label><input type="radio" name="tipo_garantia" value="Caução" /> Caução</label>
+              <label><input type="radio" name="tipo_garantia" value="Fiador" /> Fiador</label>
             </div>
           </div>
         </div>
@@ -457,6 +459,15 @@
               <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
               <div class="upload-name" id="nome-fiador-res">Nenhum arquivo selecionado</div>
               <input type="file" name="fiador_comp_residencia" accept=".pdf,.jpg,.jpeg,.png" class="fiador-req" data-preview="nome-fiador-res" data-area="area-fiador-res" />
+            </div>
+          </div>
+          <div>
+            <label>Aprovação do seguro <span class="obrig">*</span></label>
+            <div class="upload-area" id="area-fiador-aprov-seg">
+              <div class="upload-icon">🛡️</div>
+              <div class="upload-label">PDF, JPG ou PNG — máx. 10 MB</div>
+              <div class="upload-name" id="nome-fiador-aprov-seg">Nenhum arquivo selecionado</div>
+              <input type="file" name="fiador_aprovacao_seguro" accept=".pdf,.jpg,.jpeg,.png" class="fiador-req" data-preview="nome-fiador-aprov-seg" data-area="area-fiador-aprov-seg" />
             </div>
           </div>
           <div>

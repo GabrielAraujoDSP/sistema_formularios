@@ -5,7 +5,7 @@ async function carregarCorretores() {
   const sel = document.getElementById('select-corretor');
   if (!sel) return;
   sel.disabled = true;
-  sel.innerHTML = '<option value="">⏳ Carregando corretores...</option>';
+  sel.innerHTML = '<option value="">⏳ Carregando corretores...</option>';o
   try {
     const res  = await fetch(APPS_SCRIPT_URL + '?acao=listarCorretores');
     const json = await res.json();

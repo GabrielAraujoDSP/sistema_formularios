@@ -56,9 +56,10 @@ var NOMES_DESCRITIVOS = {
   'comp_renda_2':           'Comp_Renda_2',
   'comp_renda_3':           'Comp_Renda_3',
   'imposto_renda':          'Imposto_Renda',
-  'fiador_doc':             'Fiador_Identificacao',
-  'fiador_comp_residencia': 'Fiador_Comprovante_Residencia',
-  'fiador_comp_renda_1':    'Fiador_Comp_Renda_1',
+  'fiador_doc':               'Fiador_Identificacao',
+  'fiador_comp_residencia':   'Fiador_Comprovante_Residencia',
+  'fiador_aprovacao_seguro':  'Fiador_Aprovacao_Seguro',
+  'fiador_comp_renda_1':      'Fiador_Comp_Renda_1',
   'fiador_comp_renda_2':    'Fiador_Comp_Renda_2',
   'fiador_comp_renda_3':    'Fiador_Comp_Renda_3',
   'fiador_imposto_renda':   'Fiador_Imposto_Renda',
@@ -744,7 +745,7 @@ function doPost(e) {
       'pj_balancete', 'pj_contrato_social', 'pj_cartao_cnpj', 'pj_extrato_simples',
       'conj_doc',
       'comp_renda_1', 'comp_renda_2', 'comp_renda_3', 'imposto_renda',
-      'fiador_doc', 'fiador_comp_residencia',
+      'fiador_doc', 'fiador_comp_residencia', 'fiador_aprovacao_seguro',
       'fiador_comp_renda_1', 'fiador_comp_renda_2', 'fiador_comp_renda_3',
       'fiador_imposto_renda', 'fiador_imovel_doc'
     ];
@@ -926,7 +927,7 @@ function doPost(e) {
         'fiador_profissao', 'fiador_email', 'fiador_celular',
         'fiador_logradouro', 'fiador_numero', 'fiador_bairro', 'fiador_complemento',
         'fiador_cep', 'fiador_cidade', 'fiador_uf',
-        'fiador_doc_url', 'fiador_comp_residencia_url',
+        'fiador_doc_url', 'fiador_comp_residencia_url', 'fiador_aprovacao_seguro_url',
         'fiador_comp_renda_1_url', 'fiador_comp_renda_2_url', 'fiador_comp_renda_3_url',
         'fiador_imposto_renda_url', 'fiador_imovel_doc_url'
       ];
